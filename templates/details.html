@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}{{ country }} - {{ section.replace("_", " ").title() }} - QuestWay{% endblock %}
+{% block meta_description %}Discover the best {{ section.replace("_", " ").lower() }} in {{ country }} — curated by QuestWay travelers.{% endblock %}
+
+{% block og_meta %}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="QuestWay">
+<meta property="og:title" content="{{ self.title() }}">
+<meta property="og:description" content="{{ self.meta_description() }}">
+<meta property="og:image" content="{{ content[0].image_url if content else url_for('static', filename='questway-logo-compass.svg', _external=True) }}">
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ self.title() }}">
+<meta name="twitter:description" content="{{ self.meta_description() }}">
+<meta name="twitter:image" content="{{ content[0].image_url if content else url_for('static', filename='questway-logo-compass.svg', _external=True) }}">
+{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+    <!-- Leaflet (OpenStreetMap) for the location map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+<!-- Details Hero Section -->
+<section class="details-hero">
+    <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>{{ country }} - {{ section.replace("_", " ").title() }}</h1>
+            <p>Discover the best {{ section.replace("_", " ").lower() }} in {{ country }}</p>
+        </div>
+    </div>
+</section>
+
+<!-- Content Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="content-grid">
+            {% for item in content %}
+            <div class="content-card">
+                <div class="content-image-container">
+                    <img src="{{ item.image_url }}" alt="{{ item.name }}" class="content-image">
+                    <div class="content-overlay">
+                        <div class="content-actions">
+                            <a href="https://www.google.com/search?q={{ item.name }}" target="_blank" class="action-btn">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </a>
+                            <a href="https://www.google.com/maps/search/{{ item.name }}" target="_blank" class="action-btn">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Maps
+                            </a>
+                            {% if section.replace(" ", "_").lower() == 'top_hotels' %}
+                            <a href="{{ booking_url(item.name, country) }}" target="_blank" rel="sponsored noopener" class="action-btn" style="background:#003580;">
+                                <i class="fas fa-bed"></i>
+                                Book
+                            </a>
+                            {% elif section.replace(" ", "_").lower() == 'famous_places' %}
+                            <a href="{{ viator_url(item.name, country) }}" target="_blank" rel="sponsored noopener" class="action-btn" style="background:#00aa6c;">
+                                <i class="fas fa-ticket"></i>
+                                Tours
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button class="heart-btn" 
+                            data-country="{{ country }}" 
+                            data-city="{{ country }}" 
+                            data-place-name="{{ item.name }}"
+                            data-place-type="{{ section }}"
+                            data-description="{{ item.description }}"
+                            data-image-url="{{ item.image_url }}">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+                <div class="content-details">
+                    <h3 class="content-title">{{ item.name }}</h3>
+                    <p class="content-description">{{ item.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="map-section" style="margin: 2rem 0;">
+            <h3 style="margin-bottom: 1rem;"><i class="fas fa-map-marked-alt"></i> Map</h3>
+            <div id="location-map" style="height: 400px; border-radius: 12px; overflow: hidden; background: #eee;"></div>
+        </div>
+
+        <div class="back-navigation">
+            <a href="{{ url_for('country') }}?country={{ country }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to {{ country }}
+            </a>
+            <a href="{{ url_for('index') }}" class="back-btn secondary">
+                <i class="fas fa-home"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+</section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+<script>
+const PLACE_NAMES = {{ content | map(attribute='name') | list | tojson }};
+const PAGE_COUNTRY = {{ country | tojson }};
+
+async function initLocationMap() {
+    const mapEl = document.getElementById('location-map');
+    if (!mapEl) return;
+
+    // Merkezi ülke bazında bul
+    let center = [20, 0];
+    let zoom = 2;
+    try {
+        const res = await fetch(`/api/location?place=${encodeURIComponent(PAGE_COUNTRY)}&country=${encodeURIComponent(PAGE_COUNTRY)}`);
+        if (res.ok) {
+            const loc = await res.json();
+            center = [loc.lat, loc.lon];
+            zoom = 6;
+        }
+    } catch (e) {
+        console.warn('Could not geocode country center', e);
+    }
+
+    const map = L.map('location-map').setView(center, zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+    }).addTo(map);
+
+    // Her yer için ayrı marker ekle (server-side geocoding cache'li olduğu için ucuz)
+    const markers = [];
+    for (const name of PLACE_NAMES) {
+        try {
+            const res = await fetch(`/api/location?place=${encodeURIComponent(name)}&country=${encodeURIComponent(PAGE_COUNTRY)}`);
+            if (!res.ok) continue;
+            const loc = await res.json();
+            const marker = L.marker([loc.lat, loc.lon]).addTo(map).bindPopup(name);
+            markers.push(marker);
+        } catch (e) {
+            console.warn('Could not geocode', name, e);
+        }
+    }
+    if (markers.length > 0) {
+        const group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.3));
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initLocationMap();
+});
+
+// Load wishlist status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadWishlistStatus();
+});
+
+function loadWishlistStatus() {
+    const isLoggedIn = {{ 'true' if current_user.is_authenticated else 'false' }};
+    
+    if (!isLoggedIn) {
+        return;
+    }
+
+    // Get all heart buttons
+    const heartButtons = document.querySelectorAll('.heart-btn');
+    
+    // For now, we'll just show empty hearts
+    // In a real implementation, you'd fetch the user's wishlist from the server
+    heartButtons.forEach(btn => {
+        const icon = btn.querySelector('i');
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        btn.classList.remove('favorited');
+    });
+}
+
+// Heart button functionality for wishlist
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.heart-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const btn = e.target.closest('.heart-btn');
+        const icon = btn.querySelector('i');
+        const country = btn.getAttribute('data-country');
+        const city = btn.getAttribute('data-city');
+        const placeName = btn.getAttribute('data-place-name');
+        const placeType = btn.getAttribute('data-place-type');
+        const description = btn.getAttribute('data-description');
+        const imageUrl = btn.getAttribute('data-image-url');
+        
+        // Check if user is logged in
+        const isLoggedIn = {{ 'true' if current_user.is_authenticated else 'false' }};
+        
+        if (!isLoggedIn) {
+            // Redirect to login page
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Toggle heart state
+        if (btn.classList.contains('favorited')) {
+            // Remove from wishlist
+            removeFromWishlist(btn, icon, country, city, placeName, placeType);
+        } else {
+            // Add to wishlist
+            addToWishlist(btn, icon, country, city, placeName, placeType, description, imageUrl);
+        }
+    }
+});
+
+function addToWishlist(btn, icon, country, city, placeName, placeType, description, imageUrl) {
+    fetch('/api/add_to_wishlist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            place_name: placeName,
+            place_type: placeType,
+            country: country,
+            city: city,
+            description: description,
+            image_url: imageUrl
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            // Update UI
+            btn.classList.add('favorited');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            
+            // Show success message
+            showNotification('Added to wishlist!', 'success');
+        } else {
+            showNotification(data.message || 'Failed to add to wishlist', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to add to wishlist: ' + error.message, 'error');
+    });
+}
+
+function removeFromWishlist(btn, icon, country, city, placeName, placeType) {
+    fetch('/api/remove_from_wishlist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            place_name: placeName,
+            country: country,
+            city: city
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI
+            btn.classList.remove('favorited');
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            
+            // Show success message
+            showNotification('Removed from wishlist!', 'success');
+        } else {
+            showNotification(data.message || 'Failed to remove from wishlist', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to remove from wishlist', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    // Style the notification
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        font-weight: 500;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

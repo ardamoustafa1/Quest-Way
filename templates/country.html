@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ country }} - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Country Hero Section -->
+<section class="country-hero">
+    <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>{{ country }}</h1>
+            <p>Discover the best of {{ country }} - from famous landmarks to local cuisine</p>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Explore {{ country }}</h2>
+            <p>Choose a category to discover more about {{ country }}</p>
+        </div>
+        
+        <div class="categories-grid">
+            <a href="{{ url_for('details', country_name=country, section='famous_places') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <h3>Famous Places</h3>
+                <p>Discover iconic landmarks and must-visit attractions</p>
+            </a>
+            
+            <a href="{{ url_for('details', country_name=country, section='top_hotels') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-hotel"></i>
+                </div>
+                <h3>Top Hotels</h3>
+                <p>Find the best accommodations for your stay</p>
+            </a>
+            
+            <a href="{{ url_for('details', country_name=country, section='top_restaurants') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <h3>Top Restaurants</h3>
+                <p>Experience the finest dining options</p>
+            </a>
+            
+            <a href="{{ url_for('details', country_name=country, section='famous_dishes') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <h3>Famous Dishes</h3>
+                <p>Taste the authentic local cuisine</p>
+            </a>
+            
+            <a href="{{ url_for('details', country_name=country, section='transport') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-bus"></i>
+                </div>
+                <h3>Transport</h3>
+                <p>Get around with ease using local transport</p>
+            </a>
+        </div>
+        
+        <div class="back-to-home">
+            <a href="{{ url_for('index') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

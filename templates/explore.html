@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Explore - QuestWay{% endblock %}
+{% block meta_description %}Explore real travel photos from QuestWay travelers around the world.{% endblock %}
+
+{% block content %}
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1><i class="fas fa-images"></i> Explore</h1>
+                <p>Real photos from real QuestWay travelers</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="itineraries-container">
+        {% if reviews %}
+        <div id="qw-explore-grid" style="column-count:4; column-gap:14px;">
+            {% for review in reviews %}
+                {% for img in (review.images or []) %}
+                <div class="qw-explore-card" style="break-inside:avoid; margin-bottom:14px; position:relative; border-radius:12px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.1); cursor:pointer;"
+                     data-full="{{ img }}" data-title="{{ review.place_name }}" data-author="{{ review.author.username if review.author else 'Anonymous' }}"
+                     data-rating="{{ review.rating }}" data-content="{{ review.content }}" data-country="{{ review.country }}">
+                    <img src="{{ img }}" alt="{{ review.place_name }}" style="width:100%; display:block;">
+                    <div class="qw-explore-overlay" style="position:absolute; bottom:0; left:0; right:0; padding:10px 12px; background:linear-gradient(transparent,rgba(0,0,0,0.75)); color:white;">
+                        <strong style="font-size:0.9rem;">{{ review.place_name }}</strong>
+                        <div style="font-size:0.75rem; opacity:0.9;">
+                            <i class="fas fa-map-marker-alt"></i> {{ review.country }}
+                            &middot; <i class="fas fa-star"></i> {{ review.rating }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <!-- Lightbox -->
+        <div id="qw-lightbox" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; padding:24px;">
+            <div style="max-width:600px; width:100%; background:white; border-radius:14px; overflow:hidden;">
+                <img id="qw-lightbox-img" src="" style="width:100%; max-height:60vh; object-fit:cover; display:block;">
+                <div style="padding:16px;">
+                    <h3 id="qw-lightbox-title" style="margin:0 0 6px;"></h3>
+                    <p id="qw-lightbox-meta" style="color:#64748b; font-size:0.85rem; margin:0 0 10px;"></p>
+                    <p id="qw-lightbox-content" style="color:#334155; margin:0;"></p>
+                    <button id="qw-lightbox-close" style="margin-top:14px; background:#2563eb; color:white; border:none; padding:8px 18px; border-radius:8px; cursor:pointer;">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        (function() {
+            const lightbox = document.getElementById('qw-lightbox');
+            document.querySelectorAll('.qw-explore-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.getElementById('qw-lightbox-img').src = card.dataset.full;
+                    document.getElementById('qw-lightbox-title').textContent = card.dataset.title;
+                    document.getElementById('qw-lightbox-meta').textContent = card.dataset.author + ' · ' + card.dataset.country + ' · ' + '★'.repeat(parseInt(card.dataset.rating));
+                    document.getElementById('qw-lightbox-content').textContent = card.dataset.content;
+                    lightbox.style.display = 'flex';
+                });
+            });
+            document.getElementById('qw-lightbox-close').addEventListener('click', () => lightbox.style.display = 'none');
+            lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.style.display = 'none'; });
+        })();
+        </script>
+
+        <style>
+            @media (max-width: 1024px) { #qw-explore-grid { column-count: 3 !important; } }
+            @media (max-width: 700px) { #qw-explore-grid { column-count: 2 !important; } }
+        </style>
+        {% else %}
+        <div class="empty-itineraries">
+            <i class="fas fa-images"></i>
+            <h3>No photos yet</h3>
+            <p>Be the first to add photos to your review!</p>
+            <a href="{{ url_for('add_review') }}" class="create-button"><i class="fas fa-plus"></i> Write a Review</a>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

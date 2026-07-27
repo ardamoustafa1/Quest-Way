@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ thread.title }} - QuestWay Forum{% endblock %}
+{% block meta_description %}{{ thread.title }} — a community discussion on QuestWay.{% endblock %}
+
+{% block content %}
+    <div class="itinerary-detail-container">
+        <a href="{{ url_for('forum_index') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Forum
+        </a>
+
+        <div class="itinerary-header">
+            <div class="itinerary-info">
+                <h1>{{ thread.title }}</h1>
+                <div class="itinerary-meta">
+                    <span><i class="fas fa-user"></i> {{ thread.author.username }}</span>
+                    {% if thread.country %}<span><i class="fas fa-map-marker-alt"></i> {{ thread.country }}</span>{% endif %}
+                    <span><i class="fas fa-calendar"></i> {{ thread.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="itinerary-content">
+            {% for post in thread.posts %}
+            <div style="background:white; border-radius:12px; padding:16px 20px; margin-top:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <strong><i class="fas fa-user-circle"></i> {{ post.author.username }}</strong>
+                    <span style="color:#94a3b8; font-size:0.8rem;">{{ post.created_at.strftime('%B %d, %Y %H:%M') }}</span>
+                </div>
+                <p style="margin:0; white-space:pre-wrap; color:#334155;">{{ post.content }}</p>
+            </div>
+            {% endfor %}
+
+            <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
+                {% if current_user.is_authenticated %}
+                <h3><i class="fas fa-reply"></i> Post a Reply</h3>
+                <form method="POST" action="{{ url_for('forum_thread', thread_id=thread.id) }}">
+                    {{ reply_form.hidden_tag() }}
+                    {{ reply_form.content(class="form-textarea", style="width:100%;") }}
+                    {% if reply_form.content.errors %}
+                        <div class="error-message">{% for e in reply_form.content.errors %}<span>{{ e }}</span>{% endfor %}</div>
+                    {% endif %}
+                    <button type="submit" class="auth-submit-btn" style="margin-top:10px;"><i class="fas fa-paper-plane"></i> Post Reply</button>
+                </form>
+                {% else %}
+                <p><a href="{{ url_for('login', next=request.path) }}">Log in</a> to join the discussion.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

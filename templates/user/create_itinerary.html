@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Create Itinerary - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Create Itinerary Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Create Itinerary</h1>
+                <p>Plan your next travel adventure</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="create-itinerary-container">
+        <a href="{{ url_for('itineraries') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Itineraries
+        </a>
+        <div class="create-itinerary-card">
+            <h1><i class="fas fa-route"></i> Create New Itinerary</h1>
+            <form method="POST" action="{{ url_for('create_itinerary') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.title.label(class="form-label") }}
+                    {{ form.title(class="form-input", placeholder="Enter itinerary title") }}
+                    {% if form.title.errors %}
+                        <div class="error-message">
+                            {% for error in form.title.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-textarea", placeholder="Describe your itinerary") }}
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.country.label(class="form-label") }}
+                        {{ form.country(class="form-select") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.city.label(class="form-label") }}
+                        {{ form.city(class="form-input", placeholder="Enter city name") }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.start_date.label(class="form-label") }}
+                        {{ form.start_date(class="form-input", type="date") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.end_date.label(class="form-label") }}
+                        {{ form.end_date(class="form-input", type="date") }}
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    {{ form.is_public() }}
+                    {{ form.is_public.label() }}
+                </div>
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-route"></i> Create Itinerary
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

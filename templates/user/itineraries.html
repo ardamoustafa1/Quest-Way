@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}My Itineraries - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Itineraries Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>My Itineraries</h1>
+                <p>Plan and organize your travel adventures</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="itineraries-container">
+        <div class="itineraries-header">
+            <h1>My Itineraries</h1>
+            <a href="{{ url_for('create_itinerary') }}" class="create-button">
+                <i class="fas fa-plus"></i> Create New Itinerary
+            </a>
+            <a href="{{ url_for('ai_itinerary_planner') }}" class="create-button" style="background:linear-gradient(135deg,#7c3aed,#2563eb);">
+                <i class="fas fa-wand-magic-sparkles"></i> AI Itinerary Planner
+            </a>
+        </div>
+
+        {% if itineraries %}
+            <div class="itineraries-grid">
+                {% for itinerary in itineraries %}
+                    <div class="itinerary-card">
+                        <div class="itinerary-card-header">
+                            <h3>{{ itinerary.title }}</h3>
+                            <div class="itinerary-status">
+                                {% if itinerary.is_public %}
+                                    <span class="status public">
+                                        <i class="fas fa-globe"></i> Public
+                                    </span>
+                                {% else %}
+                                    <span class="status private">
+                                        <i class="fas fa-lock"></i> Private
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="itinerary-card-body">
+                            <p class="itinerary-dates">
+                                {% if itinerary.start_date and itinerary.end_date %}
+                                <i class="fas fa-calendar"></i> {{ itinerary.start_date.strftime('%B %d') }} - {{ itinerary.end_date.strftime('%B %d, %Y') }}
+                                {% else %}
+                                <i class="fas fa-calendar"></i> Dates not set
+                                {% endif %}
+                            </p>
+                            <p class="itinerary-location">
+                                <i class="fas fa-map-marker-alt"></i> {{ itinerary.city }}, {{ itinerary.country }}
+                            </p>
+                            <p class="itinerary-description">{{ (itinerary.description or '')[:150] }}{% if itinerary.description and itinerary.description|length > 150 %}...{% endif %}</p>
+                        </div>
+                        <div class="itinerary-card-footer">
+                            <div class="itinerary-actions">
+                                <a href="{{ url_for('itinerary_detail', itinerary_id=itinerary.id) }}" class="action-btn">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="https://www.google.com/search?q={{ itinerary.title }}" target="_blank" class="action-btn">
+                                    <i class="fas fa-search"></i>
+                                </a>
+                                <a href="https://www.google.com/maps/search/{{ itinerary.city }}" target="_blank" class="action-btn">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </a>
+                            </div>
+                            <span class="created-date">
+                                <i class="fas fa-calendar"></i> Created {{ itinerary.created_at.strftime('%B %d, %Y') }}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-itineraries">
+                <i class="fas fa-route"></i>
+                <h3>No itineraries yet</h3>
+                <p>Start planning your next adventure!</p>
+                <a href="{{ url_for('create_itinerary') }}" class="create-button">
+                    <i class="fas fa-plus"></i> Create Your First Itinerary
+                </a>
+            </div>
+        {% endif %}
+
+        {% if shared_itineraries %}
+        <div class="itineraries-header" style="margin-top:2.5rem;">
+            <h2><i class="fas fa-users"></i> Shared with me</h2>
+        </div>
+        <div class="itineraries-grid">
+            {% for itinerary in shared_itineraries %}
+                <div class="itinerary-card">
+                    <div class="itinerary-card-header">
+                        <h3>{{ itinerary.title }}</h3>
+                    </div>
+                    <div class="itinerary-card-body">
+                        <p class="itinerary-location">
+                            <i class="fas fa-map-marker-alt"></i> {{ itinerary.city }}, {{ itinerary.country }}
+                        </p>
+                        <p class="itinerary-description">by {{ itinerary.user.username }}</p>
+                    </div>
+                    <div class="itinerary-card-footer">
+                        <div class="itinerary-actions">
+                            <a href="{{ url_for('itinerary_detail', itinerary_id=itinerary.id) }}" class="action-btn">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

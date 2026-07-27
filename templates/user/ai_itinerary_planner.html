@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}AI Itinerary Planner - QuestWay{% endblock %}
+{% block meta_description %}Let QuestWay's AI build you a personalized day-by-day travel itinerary in seconds.{% endblock %}
+
+{% block content %}
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1><i class="fas fa-wand-magic-sparkles"></i> AI Itinerary Planner</h1>
+                <p>Tell us what you're into — we'll build the day-by-day plan</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="create-itinerary-container">
+        <div class="create-itinerary-card">
+            <form method="POST" action="{{ url_for('ai_itinerary_planner') }}" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px;">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.country.label(class="form-label") }}
+                    {{ form.country(class="form-select") }}
+                </div>
+                <div class="form-group">
+                    {{ form.days.label(class="form-label") }}
+                    {{ form.days(class="form-input") }}
+                    {% if form.days.errors %}
+                        <div class="error-message">{% for e in form.days.errors %}<span>{{ e }}</span>{% endfor %}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.budget_level.label(class="form-label") }}
+                    {{ form.budget_level(class="form-select") }}
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    {{ form.interests.label(class="form-label") }}
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:6px;">
+                        {% for subfield in form.interests %}
+                            <label style="display:flex; align-items:center; gap:6px; background:#f1f5f9; padding:6px 12px; border-radius:20px; cursor:pointer;">
+                                {{ subfield }} {{ subfield.label.text }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    <button type="submit" class="auth-submit-btn"><i class="fas fa-magic"></i> Generate Itinerary</button>
+                </div>
+            </form>
+        </div>
+
+        {% if plan %}
+        <div class="create-itinerary-card" style="margin-top:24px;">
+            <h2><i class="fas fa-route"></i> Your AI-generated {{ plan_country }} itinerary</h2>
+            {% for day in plan.days %}
+            <div style="margin-top:1.5rem;">
+                <h3 style="color:#2563eb;">Day {{ day.day }}</h3>
+                {% for item in day['items'] %}
+                <div style="padding:10px 14px; background:#f8fafc; border-radius:8px; margin-top:8px;">
+                    <strong>{{ item.place_name }}</strong>
+                    <span style="color:#64748b; font-size:0.85rem;">
+                        &middot; {{ item.time_slot|capitalize }}
+                        {% if item.estimated_duration %}&middot; ~{{ item.estimated_duration }} min{% endif %}
+                        &middot; {{ item.place_type|capitalize }}
+                    </span>
+                    <p style="margin:4px 0 0; color:#475569;">{{ item.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <form method="POST" action="{{ url_for('save_ai_itinerary') }}" style="margin-top:1.5rem;">
+                <input type="hidden" name="country" value="{{ plan_country }}">
+                <input type="hidden" name="plan_json" value='{{ plan_json }}'>
+                <button type="submit" class="auth-submit-btn"><i class="fas fa-save"></i> Save this itinerary</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

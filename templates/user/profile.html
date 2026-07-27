@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Profile Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>My Profile</h1>
+                <p>Manage your account and view your travel activity</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-info">
+                <div class="profile-avatar">
+                    {{ (current_user.first_name or current_user.username)[0].upper() }}
+                </div>
+                <div class="profile-details">
+                    <h2>{{ current_user.first_name or current_user.username }}</h2>
+                    <p>{{ current_user.email }}
+                        {% if current_user.email_verified %}
+                            <span style="color:#10b981; font-weight:600;"><i class="fas fa-check-circle"></i> Verified</span>
+                        {% else %}
+                            <span style="color:#f59e0b; font-weight:600;"><i class="fas fa-exclamation-circle"></i> Not verified</span>
+                            <form method="POST" action="{{ url_for('resend_verification') }}" style="display:inline;">
+                                <button type="submit" style="background:none; border:none; color:#2563eb; text-decoration:underline; cursor:pointer; font-size:0.9em;">Resend link</button>
+                            </form>
+                        {% endif %}
+                    </p>
+                    <p>Member since {{ current_user.created_at.strftime('%B %Y') }}</p>
+                </div>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ reviews|length }}</div>
+                    <div class="stat-label">Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ wishlist|length }}</div>
+                    <div class="stat-label">Wishlist Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ itineraries|length }}</div>
+                    <div class="stat-label">Itineraries</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section" style="background:linear-gradient(135deg,#1e293b,#334155); color:white; border-radius:14px; padding:20px 24px; margin-top:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; opacity:0.7;">Traveler Level</span>
+                    <h2 style="margin:2px 0 0;"><i class="fas {{ level_info.icon }}"></i> {{ level_info.name }}</h2>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:1.4rem; font-weight:700;">{{ level_info.points }} pts</div>
+                    {% if level_info.next_name %}
+                    <div style="font-size:0.8rem; opacity:0.7;">{{ level_info.next_threshold - level_info.points }} pts to {{ level_info.next_name }}</div>
+                    {% else %}
+                    <div style="font-size:0.8rem; opacity:0.7;">Max level reached!</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div style="background:rgba(255,255,255,0.2); border-radius:6px; height:8px; margin-top:14px; overflow:hidden;">
+                <div style="background:#fbbf24; height:100%; width:{{ level_info.progress_pct }}%;"></div>
+            </div>
+        </div>
+
+        <div class="profile-sections">
+            <div class="profile-section">
+                <h3><i class="fas fa-user-plus"></i> Invite Friends</h3>
+                <p style="color:#64748b; font-size:0.9rem;">Share your link — you get {{ REFERRAL_BONUS_REFERRER }} points, they get {{ REFERRAL_BONUS_NEW_USER }} points when they join.</p>
+                <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
+                    <input type="text" readonly value="{{ url_for('register', ref=current_user.referral_code, _external=True) }}" id="qw-referral-link" class="form-input" style="flex:1; min-width:220px;">
+                    <button type="button" class="auth-submit-btn" onclick="navigator.clipboard.writeText(document.getElementById('qw-referral-link').value); this.textContent='Copied!';">
+                        <i class="fas fa-copy"></i> Copy Link
+                    </button>
+                </div>
+                {% if current_user.referred_by %}
+                <p style="color:#64748b; font-size:0.85rem; margin-top:8px;">You joined via <strong>{{ current_user.referred_by.username }}</strong>'s invite.</p>
+                {% endif %}
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-award"></i> Badges</h3>
+                <div class="badges-grid" style="display:flex; flex-wrap:wrap; gap:14px;">
+                    {% for badge in earned_badges %}
+                    <div class="badge-card" title="{{ badge.description }}"
+                         style="display:flex; flex-direction:column; align-items:center; width:96px; padding:12px 8px; border-radius:10px; background:linear-gradient(135deg,#fef3c7,#fde68a);">
+                        <i class="fas {{ badge.icon }}" style="font-size:1.6rem; color:#b45309;"></i>
+                        <span style="font-size:0.8rem; font-weight:600; text-align:center; margin-top:6px; color:#78350f;">{{ badge.name }}</span>
+                    </div>
+                    {% endfor %}
+                    {% for badge in locked_badges %}
+                    <div class="badge-card locked" title="{{ badge.description }}"
+                         style="display:flex; flex-direction:column; align-items:center; width:96px; padding:12px 8px; border-radius:10px; background:#f1f5f9; opacity:0.55;">
+                        <i class="fas fa-lock" style="font-size:1.6rem; color:#64748b;"></i>
+                        <span style="font-size:0.8rem; font-weight:600; text-align:center; margin-top:6px; color:#475569;">{{ badge.name }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-star"></i> Recent Reviews</h3>
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+                                <h4>{{ review.title }}</h4>
+                                <div class="review-rating">
+                                    {% for i in range(review.rating) %}
+                                        <span class="star">★</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="review-content">{{ review.content[:150] }}{% if review.content|length > 150 %}...{% endif %}</p>
+                            <div class="review-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> {{ review.place_name }}, {{ review.country }}</span>
+                                <span><i class="fas fa-calendar"></i> {{ review.created_at.strftime('%B %d, %Y') }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p><i class="fas fa-star"></i> No reviews yet. <a href="{{ url_for('add_review') }}">Write your first review</a></p>
+                {% endif %}
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-heart"></i> Wishlist</h3>
+                {% if wishlist %}
+                    {% for item in wishlist %}
+                        <div class="wishlist-card">
+                            <h4>{{ item.place_name }}</h4>
+                            <p>{{ (item.description or '')[:100] }}{% if item.description and item.description|length > 100 %}...{% endif %}</p>
+                            <div class="wishlist-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> {{ item.city }}, {{ item.country }}</span>
+                                <span><i class="fas fa-calendar"></i> {{ item.added_at.strftime('%B %d, %Y') }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p><i class="fas fa-heart"></i> No wishlist items yet. <a href="{{ url_for('wishlist') }}">Add some places</a></p>
+                {% endif %}
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-route"></i> Itineraries</h3>
+                {% if itineraries %}
+                    {% for itinerary in itineraries %}
+                        <div class="itinerary-card">
+                            <h4>{{ itinerary.title }}</h4>
+                            <p>{{ (itinerary.description or '')[:100] }}{% if itinerary.description and itinerary.description|length > 100 %}...{% endif %}</p>
+                            <div class="itinerary-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> {{ itinerary.city }}, {{ itinerary.country }}</span>
+                                {% if itinerary.start_date and itinerary.end_date %}
+                                <span><i class="fas fa-calendar"></i> {{ itinerary.start_date.strftime('%B %d') }} - {{ itinerary.end_date.strftime('%B %d, %Y') }}</span>
+                                {% else %}
+                                <span><i class="fas fa-calendar"></i> Dates not set</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p><i class="fas fa-route"></i> No itineraries yet. <a href="{{ url_for('create_itinerary') }}">Create your first itinerary</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

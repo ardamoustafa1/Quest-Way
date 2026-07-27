@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+
+{% block title %}Add Review - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Add Review Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Share Your Experience</h1>
+                <p>Help other travelers by sharing your review</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="add-review-container">
+        <div class="add-review-card">
+            <div class="review-header">
+                <h1>Write a Review</h1>
+                <p>Share your experience to help other travelers</p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('add_review') }}" class="modern-review-form" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <!-- Place Information -->
+                <div class="form-section">
+                    <h3 class="section-title">Place Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.country.label(class="form-label") }}
+                            {{ form.country(class="form-select") }}
+                            {% if form.country.errors %}
+                                <div class="error-message">
+                                    {% for error in form.country.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.place_type.label(class="form-label") }}
+                            {{ form.place_type(class="form-select") }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {{ form.place_name.label(class="form-label") }}
+                        <select name="place_name" class="form-select" id="place_name">
+                            <option value="">Select a place</option>
+                        </select>
+                        {% if form.place_name.errors %}
+                            <div class="error-message">
+                                {% for error in form.place_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.city.label(class="form-label") }}
+                        {{ form.city(class="form-input", placeholder="City (optional)") }}
+                        {% if form.city.errors %}
+                            <div class="error-message">
+                                {% for error in form.city.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Rating Section -->
+                <div class="form-section">
+                    <h3 class="section-title">Your Rating</h3>
+                    <div class="rating-container">
+                        <div class="star-rating" id="star-rating">
+                            <input type="radio" name="rating" value="5" id="star5" class="star-input">
+                            <label for="star5" class="star-label">★</label>
+                            <input type="radio" name="rating" value="4" id="star4" class="star-input">
+                            <label for="star4" class="star-label">★</label>
+                            <input type="radio" name="rating" value="3" id="star3" class="star-input">
+                            <label for="star3" class="star-label">★</label>
+                            <input type="radio" name="rating" value="2" id="star2" class="star-input">
+                            <label for="star2" class="star-label">★</label>
+                            <input type="radio" name="rating" value="1" id="star1" class="star-input">
+                            <label for="star1" class="star-label">★</label>
+                        </div>
+                        <div class="rating-text" id="rating-text">Click to rate</div>
+                    </div>
+                    {% if form.rating.errors %}
+                        <div class="error-message">
+                            {% for error in form.rating.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Review Content -->
+                <div class="form-section">
+                    <h3 class="section-title">Your Review</h3>
+                    <div class="form-group">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-input", placeholder="Give your review a title") }}
+                        {% if form.title.errors %}
+                            <div class="error-message">
+                                {% for error in form.title.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.content.label(class="form-label") }}
+                        {{ form.content(class="form-textarea", placeholder="Share your experience in detail... What did you like? What could be improved? Any tips for other travelers?") }}
+                        {% if form.content.errors %}
+                            <div class="error-message">
+                                {% for error in form.content.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Photos -->
+                <div class="form-section">
+                    <h3 class="section-title">Photos</h3>
+                    <div class="form-group">
+                        {{ form.images.label(class="form-label") }}
+                        {{ form.images(class="form-input", multiple=True, accept="image/jpeg,image/png,image/webp") }}
+                        {% if form.images.errors %}
+                            <div class="error-message">
+                                {% for error in form.images.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Verification -->
+                <div class="form-section">
+                    <div class="checkbox-group">
+                        {{ form.verified_visit(class="form-checkbox") }}
+                        {{ form.verified_visit.label(class="form-checkbox-label") }}
+                        <span class="checkbox-help">I confirm that I actually visited this place</span>
+                    </div>
+                </div>
+
+                <!-- Accessibility -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-wheelchair"></i> Accessibility (optional)</h3>
+                    <p style="color:#64748b; font-size:0.85rem; margin-top:-8px;">Help travelers with mobility needs plan their trip.</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.wheelchair_accessible.label(class="form-label") }}
+                            {{ form.wheelchair_accessible(class="form-select") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.step_free_access.label(class="form-label") }}
+                            {{ form.step_free_access(class="form-select") }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {{ form.accessibility_notes.label(class="form-label") }}
+                        {{ form.accessibility_notes(class="form-input") }}
+                    </div>
+                </div>
+
+                <!-- Submit Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="submit-button">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Review
+                    </button>
+                    <a href="{{ url_for('reviews') }}" class="cancel-button">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Country and place type data
+        const countryData = {
+            "Turkey": {
+                "famous_places": ["Hagia Sophia", "Pamukkale", "Cappadocia"],
+                "top_hotels": ["Romance Istanbul Hotel", "Divan Cave Hotel", "Rixos Premium Belek"],
+                "top_restaurants": ["Nusr-Et", "Mikla", "Karaköy Lokantası"],
+                "famous_dishes": ["Kebab", "Baklava", "Döner"],
+                "transport": ["Metrobüs", "TCDD", "Taksi"]
+            },
+            "Germany": {
+                "famous_places": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
+                "top_hotels": ["Hotel Adlon Kempinski", "The Ritz-Carlton Berlin", "Bayerischer Hof"],
+                "top_restaurants": ["Restaurant Tim Raue", "Facil", "Lutter & Wegner"],
+                "famous_dishes": ["Sauerbraten", "Bratwurst", "Pretzel"],
+                "transport": ["Deutsche Bahn", "U-Bahn", "S-Bahn"]
+            },
+            "Italy": {
+                "famous_places": ["Colosseum", "Leaning Tower of Pisa", "Vatican City"],
+                "top_hotels": ["Hotel de Russie", "The St. Regis Rome", "Four Seasons Florence"],
+                "top_restaurants": ["Osteria Francescana", "La Pergola", "Il Pagliaccio"],
+                "famous_dishes": ["Pizza", "Pasta", "Gelato"],
+                "transport": ["Trenitalia", "Metro", "Tram"]
+            },
+            "France": {
+                "famous_places": ["Eiffel Tower", "Louvre Museum", "Notre-Dame"],
+                "top_hotels": ["Ritz Paris", "Four Seasons George V", "Le Meurice"],
+                "top_restaurants": ["Guy Savoy", "L'Arpege", "Pierre Gagnaire"],
+                "famous_dishes": ["Croissant", "Baguette", "Coq au Vin"],
+                "transport": ["Metro", "RER", "TGV"]
+            },
+            "Spain": {
+                "famous_places": ["Sagrada Familia", "Alhambra", "Park Güell"],
+                "top_hotels": ["Hotel Arts Barcelona", "Mandarin Oriental Ritz Madrid", "Hotel Alfonso XIII"],
+                "top_restaurants": ["DiverXO", "Azurmendi", "Quique Dacosta"],
+                "famous_dishes": ["Paella", "Tapas", "Gazpacho"],
+                "transport": ["Metro", "Renfe", "Bus"]
+            },
+            "Austria": {
+                "famous_places": ["Schönbrunn Palace", "Hofburg Palace", "Salzburg Old Town"],
+                "top_hotels": ["Hotel Sacher", "The Ritz-Carlton Vienna", "Grand Hotel Wien"],
+                "top_restaurants": ["Steirereck", "Mraz & Sohn", "Konstantin Filippou"],
+                "famous_dishes": ["Wiener Schnitzel", "Sachertorte", "Apfelstrudel"],
+                "transport": ["ÖBB", "U-Bahn", "Tram"]
+            },
+            "Belgium": {
+                "famous_places": ["Grand Place", "Atomium", "Manneken Pis"],
+                "top_hotels": ["Hotel Amigo", "The Hotel Brussels", "Radisson Blu Royal"],
+                "top_restaurants": ["Hof van Cleve", "De Karmeliet", "Comme Chez Soi"],
+                "famous_dishes": ["Moules-frites", "Belgian Waffles", "Stoofvlees"],
+                "transport": ["STIB", "De Lijn", "TEC"]
+            },
+            "Bulgaria": {
+                "famous_places": ["Rila Monastery", "Plovdiv Old Town", "Alexander Nevsky Cathedral"],
+                "top_hotels": ["Grand Hotel Sofia", "Hotel Marinela", "Sense Hotel"],
+                "top_restaurants": ["Made in Home", "Shtastlivetza", "Cosmos"],
+                "famous_dishes": ["Banitsa", "Shopska Salad", "Kavarma"],
+                "transport": ["Metro", "Tram", "Bus"]
+            },
+            "Czech Republic": {
+                "famous_places": ["Prague Castle", "Charles Bridge", "Old Town Square"],
+                "top_hotels": ["Four Seasons Prague", "Mandarin Oriental Prague", "Hotel Aria"],
+                "top_restaurants": ["La Degustation", "Field", "Mlynec"],
+                "famous_dishes": ["Svíčková", "Trdelník", "Guláš"],
+                "transport": ["Metro", "Tram", "Bus"]
+            },
+            "Denmark": {
+                "famous_places": ["Tivoli Gardens", "Nyhavn", "Rosenborg Castle"],
+                "top_hotels": ["Hotel d'Angleterre", "Nimb Hotel", "Radisson Blu Royal"],
+                "top_restaurants": ["Noma", "Geranium", "AOC"],
+                "famous_dishes": ["Smørrebrød", "Frikadeller", "Rødgrød med fløde"],
+                "transport": ["Metro", "S-Tog", "Bus"]
+            },
+            "Estonia": {
+                "famous_places": ["Tallinn Old Town", "Toompea Castle", "Alexander Nevsky Cathedral"],
+                "top_hotels": ["Hotel Telegraaf", "Swissotel Tallinn", "Hotel Palace"],
+                "top_restaurants": ["NOA", "180° by Matthias Diether", "Restoran Ö"],
+                "famous_dishes": ["Kama", "Mulgikapsad", "Verivorst"],
+                "transport": ["Tram", "Bus", "Trolleybus"]
+            },
+            "Finland": {
+                "famous_places": ["Helsinki Cathedral", "Suomenlinna", "Rovaniemi"],
+                "top_hotels": ["Hotel Kämp", "Hotel Haven", "Radisson Blu Plaza"],
+                "top_restaurants": ["Olo", "Ask", "Grön"],
+                "famous_dishes": ["Karjalanpiirakka", "Kalakukko", "Lohikeitto"],
+                "transport": ["Metro", "Tram", "Bus"]
+            },
+            "Greece": {
+                "famous_places": ["Acropolis", "Santorini", "Mykonos"],
+                "top_hotels": ["Grand Bretagne", "Hotel Grande Bretagne", "Electra Palace"],
+                "top_restaurants": ["Funky Gourmet", "Hytra", "Varoulko"],
+                "famous_dishes": ["Moussaka", "Souvlaki", "Greek Salad"],
+                "transport": ["Metro", "Tram", "Bus"]
+            },
+            "Netherlands": {
+                "famous_places": ["Anne Frank House", "Van Gogh Museum", "Rijksmuseum"],
+                "top_hotels": ["Hotel Pulitzer", "The Dylan", "Conservatorium Hotel"],
+                "top_restaurants": ["De Librije", "Ciel Bleu", "Bord'Eau"],
+                "famous_dishes": ["Stroopwafel", "Bitterballen", "Haring"],
+                "transport": ["Tram", "Metro", "Bus"]
+            },
+            "Ireland": {
+                "famous_places": ["Cliffs of Moher", "Guinness Storehouse", "Trinity College"],
+                "top_hotels": ["The Shelbourne", "The Westbury", "Fitzwilliam Hotel"],
+                "top_restaurants": ["Chapter One", "Restaurant Patrick Guilbaud", "L'Ecrivain"],
+                "famous_dishes": ["Irish Stew", "Fish and Chips", "Boxty"],
+                "transport": ["DART", "Luas", "Bus"]
+            },
+            "Poland": {
+                "famous_places": ["Wawel Castle", "Auschwitz-Birkenau", "Wieliczka Salt Mine"],
+                "top_hotels": ["Hotel Bristol", "Raffles Europejski", "Sofitel Warsaw"],
+                "top_restaurants": ["Atelier Amaro", "Senses", "Nolita"],
+                "famous_dishes": ["Pierogi", "Bigos", "Kielbasa"],
+                "transport": ["Metro", "Tram", "Bus"]
+            },
+            "Portugal": {
+                "famous_places": ["Tower of Belem", "Jeronimos Monastery", "Pena Palace"],
+                "top_hotels": ["Four Seasons Ritz", "Pestana Palace", "Tivoli Avenida Liberdade"],
+                "top_restaurants": ["Belcanto", "Alma", "Loco"],
+                "famous_dishes": ["Pastel de Nata", "Bacalhau", "Francesinha"],
+                "transport": ["Metro", "Tram", "Bus"]
+            },
+            "Romania": {
+                "famous_places": ["Bran Castle", "Peles Castle", "Corvin Castle"],
+                "top_hotels": ["Grand Hotel Continental", "Radisson Blu", "JW Marriott"],
+                "top_restaurants": ["The Artist", "Kaiamo", "Beca's Kitchen"],
+                "famous_dishes": ["Sarmale", "Mici", "Mamaliga"],
+                "transport": ["Metro", "Tram", "Bus"]
+            },
+            "Slovenia": {
+                "famous_places": ["Lake Bled", "Ljubljana Castle", "Postojna Cave"],
+                "top_hotels": ["Grand Hotel Union", "Hotel Lev", "InterContinental Ljubljana"],
+                "top_restaurants": ["Hiša Franko", "Gostilna As", "Restaurant Strelec"],
+                "famous_dishes": ["Potica", "Kranjska klobasa", "Idrijski žlikrofi"],
+                "transport": ["Bus", "Train", "Taxi"]
+            }
+        };
+
+        // Interactive star rating
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star-input');
+            const ratingText = document.getElementById('rating-text');
+            const countrySelect = document.querySelector('select[name="country"]');
+            const placeTypeSelect = document.querySelector('select[name="place_type"]');
+            const placeNameSelect = document.querySelector('select[name="place_name"]');
+            
+            const ratingTexts = {
+                1: 'Poor',
+                2: 'Fair', 
+                3: 'Good',
+                4: 'Very Good',
+                5: 'Excellent'
+            };
+            
+            // Star rating functionality
+            stars.forEach(star => {
+                star.addEventListener('change', function() {
+                    const rating = parseInt(this.value);
+                    ratingText.textContent = ratingTexts[rating];
+                    
+                    // Update visual state - yıldızlar soldan sağa 5,4,3,2,1 sırasında
+                    stars.forEach((s, index) => {
+                        const label = s.nextElementSibling;
+                        const starValue = parseInt(s.value);
+                        if (starValue <= rating) {
+                            label.classList.add('active');
+                        } else {
+                            label.classList.remove('active');
+                        }
+                    });
+                });
+                
+                // Hover effects
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.value);
+                    stars.forEach((s, index) => {
+                        const label = s.nextElementSibling;
+                        const starValue = parseInt(s.value);
+                        if (starValue <= rating) {
+                            label.classList.add('hover');
+                        } else {
+                            label.classList.remove('hover');
+                        }
+                    });
+                });
+            });
+            
+            // Reset on mouse leave
+            document.getElementById('star-rating').addEventListener('mouseleave', function() {
+                stars.forEach(star => {
+                    const label = star.nextElementSibling;
+                    label.classList.remove('hover');
+                });
+            });
+
+            // Update place name options when country or place type changes
+            function updatePlaceNameOptions() {
+                const selectedCountry = countrySelect.value;
+                const selectedPlaceType = placeTypeSelect.value;
+                
+                if (selectedCountry && selectedPlaceType && countryData[selectedCountry]) {
+                    const places = countryData[selectedCountry][selectedPlaceType] || [];
+                    
+                    // Clear existing options
+                    placeNameSelect.innerHTML = '<option value="">Select a place</option>';
+                    
+                    // Add new options
+                    places.forEach(place => {
+                        const option = document.createElement('option');
+                        option.value = place;
+                        option.textContent = place;
+                        placeNameSelect.appendChild(option);
+                    });
+                } else {
+                    placeNameSelect.innerHTML = '<option value="">Select a place</option>';
+                }
+            }
+
+            // Add event listeners
+            countrySelect.addEventListener('change', updatePlaceNameOptions);
+            placeTypeSelect.addEventListener('change', updatePlaceNameOptions);
+        });
+    </script>
+{% endblock %}

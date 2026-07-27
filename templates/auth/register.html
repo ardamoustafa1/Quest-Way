@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Register - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Auth Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Join QuestWay</h1>
+                <p>Create your account and start discovering amazing places around the world</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Form Section -->
+    <section class="auth-form-section">
+        <div class="container">
+            <div class="auth-form-container">
+                <div class="auth-form-card">
+                    <div class="auth-form-header">
+                        <div class="auth-logo">
+                            <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay Logo">
+                            <span>QuestWay</span>
+                        </div>
+                        <h2>Create Account</h2>
+                        <p>Fill in your details to get started</p>
+                    </div>
+                    
+                    <form method="POST" class="modern-auth-form">
+                        {{ form.hidden_tag() }}
+                        {% if ref_code %}<input type="hidden" name="ref" value="{{ ref_code }}">{% endif %}
+                        {% if ref_code %}
+                        <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:10px 14px; border-radius:8px; margin-bottom:16px; font-size:0.9rem; color:#1e40af;">
+                            <i class="fas fa-gift"></i> You were invited! Sign up to get {{ 20 }} bonus points.
+                        </div>
+                        {% endif %}
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first_name" class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    First Name
+                                </label>
+                                {{ form.first_name(class="form-input", placeholder="Enter your first name", id="first_name") }}
+                                {% if form.first_name.errors %}
+                                    <div class="field-error">
+                                        {% for error in form.first_name.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="last_name" class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Last Name
+                                </label>
+                                {{ form.last_name(class="form-input", placeholder="Enter your last name", id="last_name") }}
+                                {% if form.last_name.errors %}
+                                    <div class="field-error">
+                                        {% for error in form.last_name.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-at"></i>
+                                Username
+                            </label>
+                            {{ form.username(class="form-input", placeholder="Choose a unique username", id="username") }}
+                            {% if form.username.errors %}
+                                <div class="field-error">
+                                    {% for error in form.username.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i>
+                                Email Address
+                            </label>
+                            {{ form.email(class="form-input", placeholder="Enter your email address", id="email") }}
+                            {% if form.email.errors %}
+                                <div class="field-error">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Password
+                            </label>
+                            <div class="password-input-group">
+                                {{ form.password(class="form-input", placeholder="Create a strong password", id="password") }}
+                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="field-error">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password2" class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Confirm Password
+                            </label>
+                            <div class="password-input-group">
+                                {{ form.password2(class="form-input", placeholder="Confirm your password", id="password2") }}
+                                <button type="button" class="password-toggle" onclick="togglePassword('password2')">
+                                    <i class="fas fa-eye" id="password2ToggleIcon"></i>
+                                </button>
+                            </div>
+                            {% if form.password2.errors %}
+                                <div class="field-error">
+                                    {% for error in form.password2.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" class="form-checkbox" required>
+                                <span class="checkbox-text">I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="terms-link">Privacy Policy</a></span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="auth-submit-btn">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </button>
+                    </form>
+                    
+                    <div class="auth-form-footer">
+                        <div class="auth-divider">
+                            <span>or</span>
+                        </div>
+                        
+                        <div class="auth-links">
+                            <p>Already have an account? 
+                                <a href="{{ url_for('login') }}" class="auth-link">Sign in here</a>
+                            </p>
+                            <p>
+                                <a href="{{ url_for('index') }}" class="auth-link">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Back to Home
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="auth-features">
+                    <h3>What you'll get with QuestWay</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>Discover amazing destinations</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-star"></i>
+                            <span>Read and write reviews</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-route"></i>
+                            <span>Plan your perfect trip</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-heart"></i>
+                            <span>Save your favorite places</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-users"></i>
+                            <span>Connect with travelers</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-robot"></i>
+                            <span>Get AI recommendations</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword(fieldId) {
+    const passwordInput = document.getElementById(fieldId);
+    const toggleIcon = document.getElementById(fieldId + 'ToggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.modern-auth-form');
+    const inputs = form.querySelectorAll('.form-input');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('error');
+            } else {
+                this.classList.remove('error');
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            this.classList.remove('error');
+        });
+    });
+    
+    // Password confirmation validation
+    const password = document.getElementById('password');
+    const password2 = document.getElementById('password2');
+    
+    function validatePasswordMatch() {
+        if (password2.value && password.value !== password2.value) {
+            password2.classList.add('error');
+        } else {
+            password2.classList.remove('error');
+        }
+    }
+    
+    password.addEventListener('input', validatePasswordMatch);
+    password2.addEventListener('input', validatePasswordMatch);
+});
+</script>
+{% endblock %}

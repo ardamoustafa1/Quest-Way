@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}{{ itinerary.title }} - QuestWay{% endblock %}
+{% block meta_description %}{{ itinerary.description or (itinerary.title + ' — a trip itinerary for ' + itinerary.country + ' planned with QuestWay.') }}{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="itinerary-detail-container">
+        <div class="itinerary-header">
+            <div class="itinerary-info">
+                <h1>{{ itinerary.title }}</h1>
+                <p class="itinerary-description">{{ itinerary.description }}</p>
+                <div class="itinerary-meta">
+                    <span class="location">
+                        <i class="fas fa-map-marker-alt"></i> {{ itinerary.city }}, {{ itinerary.country }}
+                    </span>
+                    <span class="dates">
+                        {% if itinerary.start_date and itinerary.end_date %}
+                        <i class="fas fa-calendar"></i> {{ itinerary.start_date.strftime('%B %d, %Y') }} - {{ itinerary.end_date.strftime('%B %d, %Y') }}
+                        {% else %}
+                        <i class="fas fa-calendar"></i> Dates not set
+                        {% endif %}
+                    </span>
+                    <span class="status">
+                        {% if itinerary.is_public %}
+                            <i class="fas fa-globe"></i> Public
+                        {% else %}
+                            <i class="fas fa-lock"></i> Private
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="itinerary-actions">
+                <a href="{{ url_for('itineraries') }}" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back to Itineraries
+                </a>
+                {% if itinerary.recap_text %}
+                <a href="{{ url_for('view_trip_recap', itinerary_id=itinerary.id) }}" class="back-button" style="background:#7c3aed; color:white;">
+                    <i class="fas fa-book-open"></i> View Trip Story
+                </a>
+                {% endif %}
+                {% if permission == 'owner' %}
+                <form method="POST" action="{{ url_for('generate_trip_recap', itinerary_id=itinerary.id) }}" style="display:inline;">
+                    <button type="submit" class="back-button" style="background:#7c3aed; color:white; border:none; cursor:pointer;">
+                        <i class="fas fa-wand-magic-sparkles"></i> {{ 'Regenerate' if itinerary.recap_text else 'Generate' }} Trip Story
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="itinerary-content">
+            <div class="itinerary-timeline">
+                <h3>Itinerary Timeline</h3>
+                {% if items %}
+                    {% for item in items %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker">
+                                <span class="day-number">Day {{ item.day_number }}</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>{{ item.place_name }}</h4>
+                                <p>{{ item.description }}</p>
+                                <div class="timeline-meta">
+                                    {% if item.time_slot %}
+                                    <span class="time">
+                                        <i class="fas fa-clock"></i> {{ item.time_slot|capitalize }}
+                                    </span>
+                                    {% endif %}
+                                    {% if item.address %}
+                                    <span class="location">
+                                        <i class="fas fa-map-marker-alt"></i> {{ item.address }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                {% if item.place_type == 'hotel' %}
+                                <a href="{{ booking_url(item.place_name, itinerary.city, itinerary.country) }}" target="_blank" rel="sponsored noopener" class="action-btn" style="background:#003580; color:white; display:inline-flex; gap:6px; align-items:center; padding:6px 12px; border-radius:6px; margin-top:8px; text-decoration:none; font-size:0.85rem;">
+                                    <i class="fas fa-bed"></i> Book on Booking.com
+                                </a>
+                                {% elif item.place_type == 'attraction' %}
+                                <a href="{{ viator_url(item.place_name, itinerary.city, itinerary.country) }}" target="_blank" rel="sponsored noopener" class="action-btn" style="background:#00aa6c; color:white; display:inline-flex; gap:6px; align-items:center; padding:6px 12px; border-radius:6px; margin-top:8px; text-decoration:none; font-size:0.85rem;">
+                                    <i class="fas fa-ticket"></i> Find Tours on Viator
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-timeline">
+                        <i class="fas fa-calendar-plus"></i>
+                        <h4>No activities planned yet</h4>
+                        <p>Start adding activities to your itinerary!</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if travel_buddies %}
+            <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#eff6ff; border-radius:12px; border:1px solid #bfdbfe;">
+                <h3><i class="fas fa-people-arrows"></i> Travelers going to {{ itinerary.country }} around the same time</h3>
+                <p style="color:#64748b; font-size:0.9rem;">These are public itineraries — check them out for inspiration or overlapping plans.</p>
+                <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:12px;">
+                    {% for buddy_trip in travel_buddies %}
+                    <a href="{{ url_for('itinerary_detail', itinerary_id=buddy_trip.id) }}" style="text-decoration:none; color:inherit; background:white; border-radius:10px; padding:12px 16px; min-width:180px; box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+                        <strong>{{ buddy_trip.title }}</strong>
+                        <div style="font-size:0.8rem; color:#64748b; margin-top:4px;">
+                            <i class="fas fa-user"></i> {{ buddy_trip.user.username }}
+                            {% if buddy_trip.start_date %}<br><i class="fas fa-calendar"></i> {{ buddy_trip.start_date.strftime('%b %d, %Y') }}{% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if permission in ['owner', 'edit', 'view'] %}
+            <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
+                <h3><i class="fas fa-suitcase-rolling"></i> AI Packing List</h3>
+                <form method="POST" action="{{ url_for('generate_packing_list', itinerary_id=itinerary.id) }}">
+                    <button type="submit" class="auth-submit-btn"><i class="fas fa-magic"></i> Generate Packing List</button>
+                </form>
+                {% if packing_list %}
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px; margin-top:16px;">
+                    {% for category in packing_list.categories %}
+                    <div style="background:white; border-radius:10px; padding:12px 16px;">
+                        <h4 style="margin:0 0 8px; color:#2563eb;">{{ category.name }}</h4>
+                        <ul style="margin:0; padding-left:18px;">
+                            {% for item in category['items'] %}
+                            <li style="font-size:0.9rem; color:#334155;">{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if permission in ['owner', 'edit', 'view'] %}
+            <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f0fdf4; border-radius:12px;">
+                <h3><i class="fas fa-leaf"></i> Sustainability Score</h3>
+                <form method="POST" action="{{ url_for('generate_eco_score', itinerary_id=itinerary.id) }}">
+                    <button type="submit" class="auth-submit-btn" style="background:#16a34a;"><i class="fas fa-seedling"></i> Estimate Eco-Score</button>
+                </form>
+                {% if eco_score %}
+                <div style="display:flex; align-items:center; gap:20px; margin-top:16px; flex-wrap:wrap;">
+                    <div style="width:90px; height:90px; border-radius:50%; background:conic-gradient(#16a34a {{ eco_score.score }}%, #e2e8f0 0); display:flex; align-items:center; justify-content:center;">
+                        <div style="width:70px; height:70px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.2rem; color:#16a34a;">
+                            {{ eco_score.score }}
+                        </div>
+                    </div>
+                    <div>
+                        <strong style="color:#166534;">{{ eco_score.label }}</strong>
+                        <p style="margin:4px 0 0; color:#64748b; font-size:0.85rem;">
+                            {{ eco_score.transport_stops }} transport stop(s) &middot; {{ eco_score.pace_per_day }} activities/day avg
+                        </p>
+                    </div>
+                </div>
+                {% if eco_score.tips %}
+                <ul style="margin-top:14px; padding-left:20px;">
+                    {% for tip in eco_score.tips %}
+                    <li style="color:#334155; margin-bottom:4px;">{{ tip }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if permission in ['owner', 'edit'] %}
+            <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
+                <h3><i class="fas fa-plus-circle"></i> Add an Activity</h3>
+                <form method="POST" action="{{ url_for('add_itinerary_item', itinerary_id=itinerary.id) }}" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px; margin-top:1rem;">
+                    {{ item_form.hidden_tag() }}
+                    <div>
+                        {{ item_form.day_number.label(class="form-label") }}
+                        {{ item_form.day_number(class="form-input", placeholder="1") }}
+                    </div>
+                    <div>
+                        {{ item_form.time_slot.label(class="form-label") }}
+                        {{ item_form.time_slot(class="form-select") }}
+                    </div>
+                    <div>
+                        {{ item_form.place_name.label(class="form-label") }}
+                        {{ item_form.place_name(class="form-input", placeholder="Place name") }}
+                    </div>
+                    <div>
+                        {{ item_form.place_type.label(class="form-label") }}
+                        {{ item_form.place_type(class="form-select") }}
+                    </div>
+                    <div>
+                        {{ item_form.address.label(class="form-label") }}
+                        {{ item_form.address(class="form-input", placeholder="Address (optional)") }}
+                    </div>
+                    <div>
+                        {{ item_form.estimated_duration.label(class="form-label") }}
+                        {{ item_form.estimated_duration(class="form-input", placeholder="Minutes (optional)") }}
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        {{ item_form.description.label(class="form-label") }}
+                        {{ item_form.description(class="form-input", placeholder="Description (optional)") }}
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        <button type="submit" class="auth-submit-btn"><i class="fas fa-plus"></i> Add Item</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            {% if permission in ['owner', 'edit', 'view'] %}
+            <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
+                <h3><i class="fas fa-wallet"></i> Group Budget</h3>
+
+                {% if permission in ['owner', 'edit'] %}
+                <form method="POST" action="{{ url_for('add_itinerary_expense', itinerary_id=itinerary.id) }}" style="display:flex; gap:10px; margin:12px 0; flex-wrap:wrap; align-items:flex-end;">
+                    {{ expense_form.hidden_tag() }}
+                    <div style="flex:2; min-width:160px;">
+                        {{ expense_form.description.label(class="form-label") }}
+                        {{ expense_form.description(class="form-input", placeholder="e.g. Hotel deposit") }}
+                    </div>
+                    <div style="width:120px;">
+                        {{ expense_form.amount.label(class="form-label") }}
+                        {{ expense_form.amount(class="form-input", placeholder="0.00") }}
+                    </div>
+                    <div style="width:100px;">
+                        {{ expense_form.currency.label(class="form-label") }}
+                        {{ expense_form.currency(class="form-select") }}
+                    </div>
+                    <button type="submit" class="auth-submit-btn"><i class="fas fa-plus"></i> Add</button>
+                </form>
+                {% endif %}
+
+                {% if expenses %}
+                <table style="width:100%; border-collapse:collapse; margin-top:12px;">
+                    <thead>
+                        <tr style="text-align:left; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:6px 4px;">Description</th>
+                            <th style="padding:6px 4px;">Paid by</th>
+                            <th style="padding:6px 4px; text-align:right;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in expenses %}
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:6px 4px;">{{ e.description }}</td>
+                            <td style="padding:6px 4px;">{{ e.paid_by.username }}</td>
+                            <td style="padding:6px 4px; text-align:right;">{{ "%.2f"|format(e.amount) }} {{ e.currency }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if settlements %}
+                <h4 style="margin-top:16px;">Who owes whom</h4>
+                <ul style="list-style:none; padding:0;">
+                    {% for s in settlements %}
+                    <li style="padding:6px 0;">
+                        <i class="fas fa-arrow-right" style="color:#dc2626;"></i>
+                        <strong>{{ s.from_user.username }}</strong> owes <strong>{{ s.to_user.username }}</strong>
+                        <span style="color:#059669; font-weight:600;">{{ "%.2f"|format(s.amount) }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p style="color:#64748b; margin-top:12px;">Everyone is settled up.</p>
+                {% endif %}
+                {% else %}
+                <p style="color:#64748b;">No expenses logged yet.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if permission in ['owner', 'edit', 'view'] %}
+            <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
+                <h3><i class="fas fa-square-poll-vertical"></i> Group Polls</h3>
+
+                {% for poll in itinerary.polls %}
+                {% set total_votes = poll.options|map(attribute='votes')|map('length')|sum %}
+                <div style="background:white; border-radius:10px; padding:14px 16px; margin-top:12px;">
+                    <strong>{{ poll.question }}</strong>
+                    <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+                        {% for option in poll.options %}
+                        {% set vote_count = option.votes|length %}
+                        {% set pct = ((vote_count / total_votes * 100) if total_votes > 0 else 0)|round(0, 'floor') %}
+                        <form method="POST" action="{{ url_for('vote_itinerary_poll', poll_id=poll.id) }}" style="display:flex; align-items:center; gap:10px;">
+                            <input type="hidden" name="option_id" value="{{ option.id }}">
+                            <button type="submit" style="border:none; background:none; cursor:pointer; padding:0;">
+                                <i class="{{ 'fas fa-circle-check' if option.id in user_poll_votes else 'far fa-circle' }}" style="color:{{ '#2563eb' if option.id in user_poll_votes else '#94a3b8' }};"></i>
+                            </button>
+                            <div style="flex:1;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                                    <span>{{ option.text }}</span>
+                                    <span style="color:#64748b;">{{ vote_count }} vote{{ 's' if vote_count != 1 }} ({{ pct|int }}%)</span>
+                                </div>
+                                <div style="background:#e2e8f0; border-radius:6px; height:6px; margin-top:4px; overflow:hidden;">
+                                    <div style="background:#2563eb; height:100%; width:{{ pct }}%;"></div>
+                                </div>
+                            </div>
+                        </form>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if permission in ['owner', 'edit'] %}
+                <form method="POST" action="{{ url_for('create_itinerary_poll', itinerary_id=itinerary.id) }}" style="margin-top:16px; padding-top:16px; border-top:1px solid #e2e8f0;">
+                    <input type="text" name="question" class="form-input" placeholder="Poll question, e.g. Which hotel should we book?" required style="width:100%; margin-bottom:8px;">
+                    <input type="text" name="options" class="form-input" placeholder="Option 1" required style="width:100%; margin-bottom:8px;">
+                    <input type="text" name="options" class="form-input" placeholder="Option 2" required style="width:100%; margin-bottom:8px;">
+                    <input type="text" name="options" class="form-input" placeholder="Option 3 (optional)" style="width:100%; margin-bottom:8px;">
+                    <button type="submit" class="auth-submit-btn"><i class="fas fa-plus"></i> Create Poll</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if permission == 'owner' %}
+            <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
+                <h3><i class="fas fa-users"></i> Collaborators</h3>
+                <p style="color:#64748b; font-size:0.9rem;">Invite other QuestWay users to view or co-edit this itinerary.</p>
+                <form method="POST" action="{{ url_for('share_itinerary', itinerary_id=itinerary.id) }}" style="display:flex; gap:10px; margin:12px 0; flex-wrap:wrap;">
+                    <input type="text" name="username" class="form-input" placeholder="Username" required style="flex:1; min-width:160px;">
+                    <select name="permission" class="form-select" style="width:140px;">
+                        <option value="view">Can view</option>
+                        <option value="edit">Can edit</option>
+                    </select>
+                    <button type="submit" class="auth-submit-btn"><i class="fas fa-user-plus"></i> Invite</button>
+                </form>
+                {% if itinerary.collaborators %}
+                <ul style="list-style:none; padding:0; margin-top:12px;">
+                    {% for c in itinerary.collaborators %}
+                    <li style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px solid #e2e8f0;">
+                        <span><i class="fas fa-user"></i> {{ c.user.username }} — <em>{{ c.permission }}</em></span>
+                        <form method="POST" action="{{ url_for('remove_collaborator', itinerary_id=itinerary.id, collaborator_id=c.id) }}">
+                            <button type="submit" style="background:none; border:none; color:#dc2626; cursor:pointer;"><i class="fas fa-times"></i> Remove</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

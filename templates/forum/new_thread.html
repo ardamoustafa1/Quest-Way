@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Start a Discussion - QuestWay{% endblock %}
+
+{% block content %}
+    <div class="create-itinerary-container">
+        <a href="{{ url_for('forum_index') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Forum
+        </a>
+        <div class="create-itinerary-card">
+            <h1><i class="fas fa-comments"></i> Start a Discussion</h1>
+            <form method="POST" action="{{ url_for('forum_new_thread') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.title.label(class="form-label") }}
+                    {{ form.title(class="form-input") }}
+                    {% if form.title.errors %}
+                        <div class="error-message">{% for e in form.title.errors %}<span>{{ e }}</span>{% endfor %}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.country.label(class="form-label") }}
+                    {{ form.country(class="form-select") }}
+                </div>
+                <div class="form-group">
+                    {{ form.content.label(class="form-label") }}
+                    {{ form.content(class="form-textarea") }}
+                    {% if form.content.errors %}
+                        <div class="error-message">{% for e in form.content.errors %}<span>{{ e }}</span>{% endfor %}</div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="auth-submit-btn"><i class="fas fa-paper-plane"></i> Start Discussion</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

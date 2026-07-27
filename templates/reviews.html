@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Traveler Reviews - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Reviews Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Traveler Reviews</h1>
+                <p>Discover what fellow travelers are saying about their experiences around the world</p>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('add_review') }}" class="add-review-btn">
+                        <i class="fas fa-plus"></i> Share Your Experience
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="add-review-btn">
+                        <i class="fas fa-sign-in-alt"></i> Login to Add Review
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Filter Section -->
+    <section class="reviews-filter">
+        <div class="reviews-container">
+            <div class="filter-section">
+                <h3>Filter Reviews</h3>
+                <form method="GET" action="{{ url_for('reviews') }}" id="filterForm">
+                    <div class="filter-options">
+                        <select name="country" id="countryFilter" class="filter-select">
+                            <option value="">All Countries</option>
+                            <option value="France" {% if country_filter == 'France' %}selected{% endif %}>France</option>
+                            <option value="Italy" {% if country_filter == 'Italy' %}selected{% endif %}>Italy</option>
+                            <option value="Spain" {% if country_filter == 'Spain' %}selected{% endif %}>Spain</option>
+                            <option value="Japan" {% if country_filter == 'Japan' %}selected{% endif %}>Japan</option>
+                            <option value="Germany" {% if country_filter == 'Germany' %}selected{% endif %}>Germany</option>
+                        </select>
+                        <select name="rating" id="ratingFilter" class="filter-select">
+                            <option value="">All Ratings</option>
+                            <option value="5" {% if rating_filter == '5' %}selected{% endif %}>5 Stars</option>
+                            <option value="4" {% if rating_filter == '4' %}selected{% endif %}>4+ Stars</option>
+                            <option value="3" {% if rating_filter == '3' %}selected{% endif %}>3+ Stars</option>
+                        </select>
+                        <select name="sort" id="sortFilter" class="filter-select">
+                            <option value="newest" {% if sort_filter == 'newest' %}selected{% endif %}>Newest First</option>
+                            <option value="oldest" {% if sort_filter == 'oldest' %}selected{% endif %}>Oldest First</option>
+                            <option value="rating" {% if sort_filter == 'rating' %}selected{% endif %}>Highest Rated</option>
+                        </select>
+                        <select name="accessible" id="accessibleFilter" class="filter-select">
+                            <option value="">Any Accessibility</option>
+                            <option value="1" {% if accessible_filter == '1' %}selected{% endif %}><i class="fas fa-wheelchair"></i> Wheelchair Accessible Only</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Grid Section -->
+    <section class="reviews-section">
+        <div class="reviews-container">
+            <div class="reviews-stats">
+                <div class="stat-item">
+                    <h3>{{ stats.total_reviews }}</h3>
+                    <p>Total Reviews</p>
+                </div>
+                <div class="stat-item">
+                    <h3>{{ stats.average_rating }}<span class="rating-star">★</span></h3>
+                    <p>Average Rating</p>
+                </div>
+                <div class="stat-item">
+                    <h3>{{ stats.countries_covered }}</h3>
+                    <p>Countries Covered</p>
+                </div>
+            </div>
+
+            <div class="reviews-grid" id="reviewsGrid">
+                {% for review in reviews %}
+                <div class="review-card" data-country="{{ review.country }}" data-rating="{{ review.rating }}">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="reviewer-details">
+                                <h4>{{ review.author.username if review.author else 'Anonymous' }}</h4>
+                                <p>{{ review.city }}, {{ review.country }}</p>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            {% for i in range(5) %}
+                                {% if i < review.rating %}
+                                    <span class="star">★</span>
+                                {% else %}
+                                    <span class="star empty">☆</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <h3 class="review-title">{{ review.title }}</h3>
+                        <p class="review-text">"{{ review.content }}"</p>
+                        {% if review.images %}
+                        <div class="review-photos" style="display:flex; gap:8px; margin: 10px 0; flex-wrap: wrap;">
+                            {% for img in review.images %}
+                                <img src="{{ img }}" alt="Review photo" style="width:96px; height:96px; object-fit:cover; border-radius:8px;">
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="review-tags">
+                            <span class="tag">{{ review.place_type.title() }}</span>
+                            {% if review.city %}
+                                <span class="tag">{{ review.city }}</span>
+                            {% endif %}
+                            {% if review.wheelchair_accessible == true %}
+                                <span class="tag" style="background:#dcfce7; color:#166534;" title="{{ review.accessibility_notes or '' }}"><i class="fas fa-wheelchair"></i> Wheelchair accessible</span>
+                            {% elif review.wheelchair_accessible == false %}
+                                <span class="tag" style="background:#fee2e2; color:#991b1b;"><i class="fas fa-wheelchair"></i> Not accessible</span>
+                            {% endif %}
+                        </div>
+                        <div class="review-meta">
+                            <span class="review-date">{{ review.created_at.strftime('%B %d, %Y') if review.created_at else 'Recently' }}</span>
+                            <div class="review-actions">
+                                <button class="action-btn like-btn {{ 'liked' if review.id in voted_review_ids else '' }}" data-review-id="{{ review.id }}">
+                                    <i class="{{ 'fas' if review.id in voted_review_ids else 'far' }} fa-thumbs-up"></i>
+                                    <span class="helpful-count">{{ review.helpful_count or 0 }}</span>
+                                </button>
+                                <button class="action-btn share-btn">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Load More Button -->
+            <div class="load-more-section">
+                <button class="load-more-btn" onclick="loadMoreReviews()">
+                    <i class="fas fa-plus"></i> Load More Reviews
+                </button>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const countryFilter = document.getElementById('countryFilter');
+    const ratingFilter = document.getElementById('ratingFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const accessibleFilter = document.getElementById('accessibleFilter');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Auto-submit form when filters change
+    function submitFilter() {
+        // Loading animasyonu göster
+        showLoadingAnimation();
+        filterForm.submit();
+    }
+    
+    function showLoadingAnimation() {
+        const statsContainer = document.querySelector('.reviews-stats');
+        if (statsContainer) {
+            statsContainer.style.opacity = '0.6';
+            statsContainer.style.transition = 'opacity 0.3s ease';
+        }
+    }
+    
+    countryFilter.addEventListener('change', submitFilter);
+    ratingFilter.addEventListener('change', submitFilter);
+    sortFilter.addEventListener('change', submitFilter);
+    accessibleFilter.addEventListener('change', submitFilter);
+});
+
+function loadMoreReviews() {
+    // This would typically load more reviews from the server
+    console.log('Loading more reviews...');
+}
+
+// Helpful (like) functionality — persisted to the server
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.like-btn')) {
+        e.preventDefault();
+        const btn = e.target.closest('.like-btn');
+        const reviewId = btn.getAttribute('data-review-id');
+        if (!reviewId) return;
+
+        const isLoggedIn = {{ 'true' if current_user.is_authenticated else 'false' }};
+        if (!isLoggedIn) {
+            window.location.href = '/login?next=/reviews';
+            return;
+        }
+
+        btn.disabled = true;
+        fetch(`/review/${reviewId}/helpful`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) return;
+                const icon = btn.querySelector('i');
+                const countSpan = btn.querySelector('.helpful-count');
+                if (countSpan) countSpan.textContent = data.count;
+                if (data.voted) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    btn.classList.add('liked');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    btn.classList.remove('liked');
+                }
+            })
+            .catch(err => console.error('Helpful vote failed:', err))
+            .finally(() => { btn.disabled = false; });
+    }
+});
+</script>
+{% endblock %}

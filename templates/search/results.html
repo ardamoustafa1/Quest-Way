@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Search Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Find Your Perfect Destination</h1>
+                <p>Search through thousands of reviews and discover amazing places</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Form Section -->
+    <section class="search-form-section">
+        <div class="container">
+            <div class="search-form-card">
+                <h2>Advanced Search</h2>
+                <form method="POST" action="{{ url_for('search') }}" class="modern-search-form">
+                    {{ form.hidden_tag() }}
+                    <div class="search-fields-grid">
+                        <div class="search-field-group">
+                            <label for="query" class="field-label">What are you looking for?</label>
+                            {{ form.query(class="search-input", placeholder="Search for places, reviews, experiences...") }}
+                            {% if form.query.errors %}
+                                <div class="field-error">
+                                    {% for error in form.query.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="search-field-group">
+                            <label for="country" class="field-label">Country</label>
+                            {{ form.country(class="search-select") }}
+                        </div>
+                        
+                        <div class="search-field-group">
+                            <label for="place_type" class="field-label">Type of Place</label>
+                            {{ form.place_type(class="search-select") }}
+                        </div>
+                        
+                        <div class="search-field-group">
+                            <label for="rating_min" class="field-label">Minimum Rating</label>
+                            {{ form.rating_min(class="search-select") }}
+                        </div>
+                        
+                        <div class="search-field-group">
+                            <button type="submit" class="search-submit-btn">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results Section -->
+    <section class="search-results-section">
+        <div class="container">
+            {% if results %}
+                <div class="results-header">
+                    <h2>Search Results</h2>
+                    <div class="results-count">
+                        <span class="count-number">{{ results|length }}</span>
+                        <span class="count-text">results found</span>
+                    </div>
+                </div>
+                
+                <!-- Quick Filters -->
+                <div class="quick-filters">
+                    <h3>Quick Filters:</h3>
+                    <div class="filter-buttons">
+                        <button class="filter-btn" data-filter="country" data-value="Turkey">🇹🇷 Turkey</button>
+                        <button class="filter-btn" data-filter="country" data-value="Germany">🇩🇪 Germany</button>
+                        <button class="filter-btn" data-filter="country" data-value="France">🇫🇷 France</button>
+                        <button class="filter-btn" data-filter="country" data-value="Italy">🇮🇹 Italy</button>
+                        <button class="filter-btn" data-filter="country" data-value="Spain">🇪🇸 Spain</button>
+                        <button class="filter-btn" data-filter="country" data-value="Greece">🇬🇷 Greece</button>
+                        <button class="filter-btn" data-filter="place_type" data-value="famous_places">🏛️ Famous Places</button>
+                        <button class="filter-btn" data-filter="place_type" data-value="top_hotels">🏨 Top Hotels</button>
+                        <button class="filter-btn" data-filter="place_type" data-value="top_restaurants">🍽️ Top Restaurants</button>
+                        <button class="filter-btn" data-filter="place_type" data-value="famous_dishes">🍽️ Famous Dishes</button>
+                        <button class="filter-btn" data-filter="place_type" data-value="transport">🚌 Transport</button>
+                        <button class="filter-btn" data-filter="rating" data-value="5">⭐ 5 Stars</button>
+                        <button class="filter-btn" data-filter="rating" data-value="4">⭐ 4+ Stars</button>
+                        <button class="clear-filters">🗑️ Clear All</button>
+                    </div>
+                </div>
+                
+                <div class="results-grid">
+                    {% for review in results %}
+                        <div class="result-card">
+                            <div class="result-card-header">
+                                <div class="result-title-section">
+                                    <h3 class="result-title">{{ review.title }}</h3>
+                                    <div class="result-location">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ review.place_name }}, {{ review.city }}, {{ review.country }}
+                                    </div>
+                                </div>
+                                <div class="result-rating">
+                                    <div class="stars">
+                                        {% for i in range(review.rating) %}
+                                            <span class="star filled">★</span>
+                                        {% endfor %}
+                                        {% for i in range(5 - review.rating) %}
+                                            <span class="star empty">☆</span>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="rating-number">{{ review.rating }}/5</span>
+                                </div>
+                            </div>
+                            
+                            <div class="result-card-body">
+                                <p class="result-content">
+                                    {{ review.content[:200] }}{% if review.content|length > 200 %}...{% endif %}
+                                </p>
+                                
+                                <div class="result-tags">
+                                    <span class="result-tag">
+                                        <i class="fas fa-tag"></i>
+                                        {{ review.place_type }}
+                                    </span>
+                                    {% if review.verified_visit %}
+                                        <span class="result-tag verified">
+                                            <i class="fas fa-check-circle"></i>
+                                            Verified Visit
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="result-card-footer">
+                                <div class="result-author">
+                                    <div class="author-avatar">
+                                        {{ (review.user.first_name or review.user.username)[0].upper() }}
+                                    </div>
+                                    <div class="author-info">
+                                        <span class="author-name">{{ review.user.first_name or review.user.username }}</span>
+                                        <span class="review-date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="result-actions">
+                                    <button class="action-btn like-btn" data-review-id="{{ review.id }}">
+                                        <i class="far fa-thumbs-up"></i>
+                                        <span>{{ review.helpful_count or 0 }}</span>
+                                    </button>
+                                    <button class="action-btn share-btn">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% elif search_performed %}
+                <div class="no-results">
+                    <div class="no-results-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>No results found</h3>
+                    <p>Try adjusting your search criteria or browse our popular destinations.</p>
+                    <div class="no-results-actions">
+                        <a href="{{ url_for('index') }}" class="btn-primary">Browse Destinations</a>
+                        <a href="{{ url_for('reviews') }}" class="btn-secondary">View All Reviews</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="search-prompt">
+                    <div class="search-prompt-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Start Your Search</h3>
+                    <p>Use the search form above to find amazing places, reviews, and experiences.</p>
+                    <div class="search-prompt-features">
+                        <div class="feature-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Search by location</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-star"></i>
+                            <span>Filter by rating</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-tags"></i>
+                            <span>Browse by category</span>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search form interactions
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.querySelector('.modern-search-form');
+    const searchInput = document.querySelector('#query');
+    const countrySelect = document.querySelector('#country');
+    const placeTypeSelect = document.querySelector('#place_type');
+    const ratingSelect = document.querySelector('#rating_min');
+    
+    // Auto-submit on Enter
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchForm.submit();
+            }
+        });
+    }
+    
+    // Real-time search suggestions (disabled auto-submit)
+    // Users should manually click search button or press Enter
+    
+    // Form validation
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            const query = searchInput ? searchInput.value.trim() : '';
+            const country = countrySelect ? countrySelect.value : '';
+            const placeType = placeTypeSelect ? placeTypeSelect.value : '';
+            const rating = ratingSelect ? ratingSelect.value : '';
+            
+            // If no search criteria provided, show all results
+            if (!query && !country && !placeType && !rating) {
+                e.preventDefault();
+                // Submit with empty form to show all results
+                searchForm.submit();
+            }
+        });
+    }
+    
+    // Like functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.like-btn')) {
+            e.preventDefault();
+            const btn = e.target.closest('.like-btn');
+            const icon = btn.querySelector('i');
+            const count = btn.querySelector('span');
+            
+            // Get current count safely
+            let currentCount = 0;
+            if (count) {
+                currentCount = parseInt(count.textContent) || 0;
+            }
+            
+            if (icon.classList.contains('fas')) {
+                // Unlike: remove filled icon, add outline icon, decrease count
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                btn.classList.remove('liked');
+                currentCount = Math.max(0, currentCount - 1);
+            } else {
+                // Like: add filled icon, remove outline icon, increase count
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.classList.add('liked');
+                currentCount = currentCount + 1;
+            }
+            
+            // Update count display
+            if (count) {
+                count.textContent = currentCount;
+            }
+            
+            // Optional: Send to server (for future implementation)
+            const reviewId = btn.getAttribute('data-review-id');
+            if (reviewId) {
+                console.log('Review', reviewId, 'liked/unliked. New count:', currentCount);
+            }
+        }
+        
+        // Share functionality
+        if (e.target.closest('.share-btn')) {
+            e.preventDefault();
+            const btn = e.target.closest('.share-btn');
+            const resultCard = btn.closest('.result-card');
+            const title = resultCard.querySelector('.result-title').textContent;
+            const url = window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    url: url
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(url).then(function() {
+                    showNotification('Link copied to clipboard!');
+                });
+            }
+        }
+    });
+    
+    // Filter functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            const value = this.dataset.value;
+            
+            // Update form values
+            if (filter === 'country' && countrySelect) {
+                countrySelect.value = value;
+            } else if (filter === 'place_type' && placeTypeSelect) {
+                placeTypeSelect.value = value;
+            } else if (filter === 'rating' && ratingSelect) {
+                ratingSelect.value = value;
+            }
+            
+            // Submit form
+            searchForm.submit();
+        });
+    });
+    
+    // Sort functionality
+    const sortSelect = document.querySelector('#sort');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            searchForm.submit();
+        });
+    }
+    
+    // Clear filters
+    const clearBtn = document.querySelector('.clear-filters');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            if (searchInput) searchInput.value = '';
+            if (countrySelect) countrySelect.value = '';
+            if (placeTypeSelect) placeTypeSelect.value = '';
+            if (ratingSelect) ratingSelect.value = '0';
+            searchForm.submit();
+        });
+    }
+    
+    // Show notification function
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+    
+    // Add CSS for notification animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .liked {
+            background: var(--primary-color) !important;
+            color: white !important;
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+{% endblock %}

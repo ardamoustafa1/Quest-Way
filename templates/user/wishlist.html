@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Wishlist - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Wishlist Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>My Wishlist</h1>
+                <p>Save places you want to visit and plan your perfect trip</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="wishlist-container">
+        <div class="wishlist-header">
+            <h1>My Wishlist</h1>
+            <a href="{{ url_for('add_to_wishlist') }}" class="add-button">
+                <i class="fas fa-plus"></i> Add New Place
+            </a>
+            <a href="{{ url_for('quick_add') }}" class="add-button" style="background:linear-gradient(135deg,#7c3aed,#2563eb);">
+                <i class="fas fa-bolt"></i> Quick Add from Social Media
+            </a>
+        </div>
+
+        {% if items %}
+            <div class="wishlist-grid">
+                {% for item in items %}
+                    <div class="wishlist-card">
+                        <div class="wishlist-card-header">
+                            <h3>{{ item.place_name }}</h3>
+                            <div class="wishlist-actions">
+                                <a href="https://www.google.com/search?q={{ item.place_name }}" target="_blank" class="action-btn">
+                                    <i class="fas fa-search"></i>
+                                </a>
+                                <a href="https://www.google.com/maps/search/{{ item.place_name }}" target="_blank" class="action-btn">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </a>
+                                <form action="{{ url_for('remove_from_wishlist', item_id=item.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="action-btn delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="wishlist-card-body">
+                            <p class="place-type">{{ item.place_type }}</p>
+                            <p class="place-location">
+                                <i class="fas fa-map-marker-alt"></i> {{ item.city }}, {{ item.country }}
+                            </p>
+                            {% if item.description %}
+                                <p class="place-description">{{ item.description }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="wishlist-card-footer">
+                            <span class="added-date">
+                                <i class="fas fa-calendar"></i> Added {{ item.added_at.strftime('%B %d, %Y') }}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-wishlist">
+                <i class="fas fa-heart"></i>
+                <h3>Your wishlist is empty</h3>
+                <p>Start adding places you'd like to visit!</p>
+                <a href="{{ url_for('add_to_wishlist') }}" class="add-button">
+                    <i class="fas fa-plus"></i> Add Your First Place
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

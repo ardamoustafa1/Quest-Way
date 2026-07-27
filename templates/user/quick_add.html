@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Quick Add - QuestWay{% endblock %}
+{% block meta_description %}Paste a TikTok or Instagram caption and let AI add the places to your wishlist.{% endblock %}
+
+{% block content %}
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1><i class="fas fa-bolt"></i> Quick Add from Social Media</h1>
+                <p>Paste a TikTok/Instagram caption — AI finds the places and adds them to your wishlist</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="create-itinerary-container">
+        <div class="create-itinerary-card">
+            <form method="POST" action="{{ url_for('quick_add') }}">
+                <div class="form-group">
+                    <label class="form-label">Paste caption / description text</label>
+                    <textarea name="caption" class="form-textarea" rows="6" placeholder="e.g. 'Best 3 days in Rome! Started at the Colosseum, grabbed lunch at Trattoria da Enzo, then sunset at Trastevere...'">{{ source_text }}</textarea>
+                </div>
+                <button type="submit" class="auth-submit-btn"><i class="fas fa-magic"></i> Find Places</button>
+            </form>
+        </div>
+
+        {% if extracted_places %}
+        <div class="create-itinerary-card" style="margin-top:20px;">
+            <h2><i class="fas fa-map-marker-alt"></i> Found {{ extracted_places|length }} place(s)</h2>
+            <form method="POST" action="{{ url_for('quick_add_save') }}">
+                {% for place in extracted_places %}
+                <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #e2e8f0;">
+                    <input type="checkbox" name="selected" value="{{ loop.index0 }}" checked style="width:18px; height:18px;">
+                    <input type="hidden" name="place_name" value="{{ place.name }}">
+                    <input type="hidden" name="place_type" value="{{ place.place_type }}">
+                    <input type="hidden" name="country" value="{{ place.country or '' }}">
+                    <input type="hidden" name="city" value="{{ place.city or '' }}">
+                    <div>
+                        <strong>{{ place.name }}</strong>
+                        <div style="font-size:0.8rem; color:#64748b;">
+                            {{ place.place_type|capitalize }}
+                            {% if place.city or place.country %} &middot; {{ place.city }}{% if place.city and place.country %}, {% endif %}{{ place.country }}{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <button type="submit" class="auth-submit-btn" style="margin-top:16px;"><i class="fas fa-heart"></i> Add Selected to Wishlist</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Erken tema uygulaması: FOUC (yanlış temayla an be an flaşlama) önlemek için
+         stylesheet'lerden önce, localStorage'dan okuyup data-theme'i hemen set ediyoruz. -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('qw-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <title>{% block title %}QuestWay - Your Ultimate Travel Companion{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern-styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="{% block meta_description %}QuestWay - Your ultimate travel companion for discovering amazing destinations around the world. Get expert recommendations, read reviews, and plan your perfect trip.{% endblock %}">
+
+    <!-- Open Graph / Twitter Card (WhatsApp, Instagram, Twitter/X, Facebook link previews) -->
+    {% block og_meta %}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="QuestWay">
+    <meta property="og:title" content="{{ self.title() }}">
+    <meta property="og:description" content="{{ self.meta_description() }}">
+    <meta property="og:image" content="{{ url_for('static', filename='questway-logo-compass.svg', _external=True) }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ self.title() }}">
+    <meta name="twitter:description" content="{{ self.meta_description() }}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='questway-logo-compass.svg', _external=True) }}">
+    {% endblock %}
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    
+    {% block extra_head %}{% endblock %}
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="top-header">
+        <div class="header-container">
+            <a href="{{ url_for('index') }}" class="logo">
+                <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay Logo">
+                <span class="brand-name">QuestWay</span>
+            </a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{{ url_for('index') }}" data-i18n="nav_home" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+                    <li><a href="{{ url_for('explore') }}" data-i18n="nav_explore" class="{% if request.endpoint == 'explore' %}active{% endif %}">Explore</a></li>
+                    <li><a href="{{ url_for('reviews') }}" data-i18n="nav_reviews" class="{% if request.endpoint == 'reviews' %}active{% endif %}">Reviews</a></li>
+                    <li><a href="{{ url_for('search') }}" data-i18n="nav_search" class="{% if request.endpoint == 'search' %}active{% endif %}">Search</a></li>
+                    <li><a href="{{ url_for('forum_index') }}" data-i18n="nav_forum" class="{% if request.endpoint and request.endpoint.startswith('forum_') %}active{% endif %}">Forum</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('wishlist') }}" data-i18n="nav_wishlist" class="{% if request.endpoint == 'wishlist' %}active{% endif %}">Wishlist</a></li>
+                        <li><a href="{{ url_for('itineraries') }}" data-i18n="nav_itineraries" class="{% if request.endpoint == 'itineraries' %}active{% endif %}">Itineraries</a></li>
+                        <li><a href="{{ url_for('profile') }}" data-i18n="nav_profile" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a></li>
+                        {% if current_user.is_admin %}<li><a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint and request.endpoint.startswith('admin_') %}active{% endif %}"><i class="fas fa-shield-halved"></i> <span data-i18n="nav_admin">Admin</span></a></li>{% endif %}
+                        <li><a href="{{ url_for('logout') }}" data-i18n="nav_logout">Logout</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}" data-i18n="nav_login" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
+                        <li><a href="{{ url_for('register') }}" data-i18n="nav_register" class="{% if request.endpoint == 'register' %}active{% endif %}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button id="qw-theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode"
+                        style="background:none; border:1px solid #cbd5e1; border-radius:8px; width:36px; height:36px; cursor:pointer; color:inherit;">
+                    <i class="fas fa-moon" id="qw-theme-icon"></i>
+                </button>
+                <button id="qw-lang-toggle" aria-label="Switch language" title="Switch language"
+                        style="background:none; border:1px solid #cbd5e1; border-radius:8px; height:36px; padding:0 10px; cursor:pointer; color:inherit; font-weight:600; font-size:0.85rem;">
+                    <span id="qw-lang-label">EN</span>
+                </button>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-content">
+            <button class="mobile-menu-close" id="mobileMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <ul class="mobile-nav-links">
+                <li><a href="{{ url_for('index') }}" data-i18n="nav_home" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+                <li><a href="{{ url_for('reviews') }}" data-i18n="nav_reviews" class="{% if request.endpoint == 'reviews' %}active{% endif %}">Reviews</a></li>
+                <li><a href="{{ url_for('search') }}" data-i18n="nav_search" class="{% if request.endpoint == 'search' %}active{% endif %}">Search</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('wishlist') }}" data-i18n="nav_wishlist" class="{% if request.endpoint == 'wishlist' %}active{% endif %}">Wishlist</a></li>
+                    <li><a href="{{ url_for('itineraries') }}" data-i18n="nav_itineraries" class="{% if request.endpoint == 'itineraries' %}active{% endif %}">Itineraries</a></li>
+                    <li><a href="{{ url_for('profile') }}" data-i18n="nav_profile" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a></li>
+                    <li><a href="{{ url_for('logout') }}" data-i18n="nav_logout">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}" class="{% if request.endpoint == 'register' %}active{% endif %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    {% block extra_js %}{% endblock %}
+
+    {% if current_user.is_authenticated %}
+    <!-- QuestWay AI Chat Assistant -->
+    <div id="qw-chat-widget">
+        <button id="qw-chat-toggle" aria-label="Open QuestWay AI Assistant">
+            <i class="fas fa-comment-dots"></i>
+        </button>
+        <div id="qw-chat-panel" class="hidden">
+            <div id="qw-chat-header">
+                <span><i class="fas fa-wand-magic-sparkles"></i> QuestWay AI Assistant</span>
+                <button id="qw-chat-close" aria-label="Close chat">&times;</button>
+            </div>
+            <div id="qw-chat-messages">
+                <div class="qw-chat-msg qw-chat-assistant">Hi! Ask me anything about destinations, itineraries, or how to use QuestWay.</div>
+            </div>
+            <form id="qw-chat-form">
+                <input type="text" id="qw-chat-input" placeholder="Ask about a destination..." autocomplete="off" maxlength="1000">
+                <button type="submit" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+    <style>
+        #qw-chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 1000; font-family: inherit; }
+        #qw-chat-toggle {
+            width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+            background: linear-gradient(135deg,#7c3aed,#2563eb); color: white; font-size: 1.4rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+        #qw-chat-panel {
+            position: absolute; bottom: 72px; right: 0; width: 340px; max-width: 90vw; height: 440px;
+            background: white; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        #qw-chat-panel.hidden { display: none; }
+        #qw-chat-header {
+            background: linear-gradient(135deg,#7c3aed,#2563eb); color: white; padding: 12px 14px;
+            display: flex; justify-content: space-between; align-items: center; font-weight: 600;
+        }
+        #qw-chat-header button { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; }
+        #qw-chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .qw-chat-msg { max-width: 85%; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; }
+        .qw-chat-user { align-self: flex-end; background: #2563eb; color: white; }
+        .qw-chat-assistant { align-self: flex-start; background: #f1f5f9; color: #1e293b; }
+        .qw-chat-assistant.qw-chat-error { background: #fee2e2; color: #991b1b; }
+        #qw-chat-form { display: flex; border-top: 1px solid #e2e8f0; }
+        #qw-chat-input { flex: 1; border: none; padding: 12px; font-size: 0.9rem; outline: none; }
+        #qw-chat-form button { background: none; border: none; color: #2563eb; padding: 0 16px; cursor: pointer; font-size: 1.1rem; }
+    </style>
+    <script>
+    (function() {
+        const toggle = document.getElementById('qw-chat-toggle');
+        const panel = document.getElementById('qw-chat-panel');
+        const closeBtn = document.getElementById('qw-chat-close');
+        const form = document.getElementById('qw-chat-form');
+        const input = document.getElementById('qw-chat-input');
+        const messagesEl = document.getElementById('qw-chat-messages');
+        let history = [];
+
+        toggle.addEventListener('click', () => panel.classList.toggle('hidden'));
+        closeBtn.addEventListener('click', () => panel.classList.add('hidden'));
+
+        function addMessage(role, text, isError) {
+            const div = document.createElement('div');
+            div.className = 'qw-chat-msg ' + (role === 'user' ? 'qw-chat-user' : 'qw-chat-assistant') + (isError ? ' qw-chat-error' : '');
+            div.textContent = text;
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = input.value.trim();
+            if (!message) return;
+            addMessage('user', message);
+            history.push({role: 'user', content: message});
+            input.value = '';
+            input.disabled = true;
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: message, history: history})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.reply) {
+                    addMessage('assistant', data.reply);
+                    history.push({role: 'assistant', content: data.reply});
+                } else {
+                    addMessage('assistant', data.error || 'Something went wrong.', true);
+                }
+            })
+            .catch(() => addMessage('assistant', 'Could not reach the assistant. Please try again.', true))
+            .finally(() => { input.disabled = false; input.focus(); });
+        });
+    })();
+    </script>
+    {% endif %}
+</body>
+</html>

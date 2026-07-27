@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Login - QuestWay{% endblock %}
+
+{% block extra_head %}
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9221145906123169"
+     crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Auth Hero Section -->
+    <section class="hero-banner">
+        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Welcome Back</h1>
+                <p>Sign in to your QuestWay account and continue your journey</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Form Section -->
+    <section class="auth-form-section">
+        <div class="container">
+            <div class="auth-form-container">
+                <div class="auth-form-card">
+                    <div class="auth-form-header">
+                        <div class="auth-logo">
+                            <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay Logo">
+                            <span>QuestWay</span>
+                        </div>
+                        <h2>Sign In</h2>
+                        <p>Enter your credentials to access your account</p>
+                    </div>
+                    
+                    <form method="POST" class="modern-auth-form">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="form-group">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user"></i>
+                                Username
+                            </label>
+                            {{ form.username(class="form-input", placeholder="Enter your username", id="username") }}
+                            {% if form.username.errors %}
+                                <div class="field-error">
+                                    {% for error in form.username.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Password
+                            </label>
+                            <div class="password-input-group">
+                                {{ form.password(class="form-input", placeholder="Enter your password", id="password") }}
+                                <button type="button" class="password-toggle" onclick="togglePassword()">
+                                    <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="field-error">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group checkbox-group" style="display:flex; justify-content:space-between; align-items:center;">
+                            <label class="checkbox-label">
+                                {{ form.remember_me(class="form-checkbox") }}
+                                <span class="checkbox-text">Remember me</span>
+                            </label>
+                            <a href="{{ url_for('forgot_password') }}" class="auth-link">Forgot password?</a>
+                        </div>
+                        
+                        <button type="submit" class="auth-submit-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In
+                        </button>
+                    </form>
+                    
+                    <div class="auth-form-footer">
+                        <div class="auth-divider">
+                            <span>or</span>
+                        </div>
+                        
+                        <div class="auth-links">
+                            <p>Don't have an account? 
+                                <a href="{{ url_for('register') }}" class="auth-link">Create one now</a>
+                            </p>
+                            <p>
+                                <a href="{{ url_for('index') }}" class="auth-link">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Back to Home
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="auth-features">
+                    <h3>Why join QuestWay?</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-star"></i>
+                            <span>Save your favorite places</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-route"></i>
+                            <span>Create custom itineraries</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-comments"></i>
+                            <span>Share your experiences</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-heart"></i>
+                            <span>Get personalized recommendations</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('passwordToggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.modern-auth-form');
+    const inputs = form.querySelectorAll('.form-input');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('error');
+            } else {
+                this.classList.remove('error');
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            this.classList.remove('error');
+        });
+    });
+});
+</script>
+{% endblock %}

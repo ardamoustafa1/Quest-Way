@@ -1,0 +1,90 @@
+<svg width="45" height="45" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background -->
+  <rect width="45" height="45" rx="22.5" fill="#0a0a0a"/>
+  
+  <!-- Outer compass ring with metallic blue -->
+  <circle cx="22.5" cy="22.5" r="20" fill="none" stroke="url(#metallicBlue)" stroke-width="2"/>
+  
+  <!-- Compass rose with detailed design -->
+  <circle cx="22.5" cy="22.5" r="18" fill="none" stroke="url(#metallicBlue)" stroke-width="1.5"/>
+  
+  <!-- North arrow with star -->
+  <path d="M22.5 6 L20 12 L22.5 10 L25 12 Z" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  <circle cx="22.5" cy="8" r="1" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  
+  <!-- South arrow -->
+  <path d="M22.5 37 L20 31 L22.5 33 L25 31 Z" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  
+  <!-- East arrow -->
+  <path d="M37 22.5 L31 20 L33 22.5 L31 25 Z" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  
+  <!-- West arrow -->
+  <path d="M8 22.5 L14 20 L12 22.5 L14 25 Z" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  
+  <!-- Compass markings -->
+  <circle cx="22.5" cy="22.5" r="15" fill="none" stroke="url(#metallicBlue)" stroke-width="0.8" opacity="0.6"/>
+  
+  <!-- Inner compass scene - Ship -->
+  <path d="M18 25 L27 25 L26 28 L19 28 Z" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  <path d="M20 20 L25 20 L24 25 L21 25 Z" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  <path d="M22.5 15 L22.5 20" stroke="url(#metallicBlue)" stroke-width="2" filter="url(#metallicGlow)"/>
+  
+  <!-- Ship sails -->
+  <path d="M20 15 L22.5 12 L25 15 L22.5 18 Z" fill="url(#metallicBlue)" opacity="0.8" filter="url(#metallicGlow)"/>
+  
+  <!-- Sea waves -->
+  <path d="M15 30 Q18 28 21 30 Q24 32 27 30 Q30 28 33 30" stroke="url(#metallicBlue)" stroke-width="1.5" fill="none" filter="url(#metallicGlow)"/>
+  
+  <!-- Mountains -->
+  <path d="M12 35 L15 30 L18 32 L21 28 L24 30 L27 26 L30 28 L33 35" fill="url(#metallicBlue)" opacity="0.7" filter="url(#metallicGlow)"/>
+  
+  <!-- Sun -->
+  <circle cx="15" cy="15" r="3" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  <path d="M15 10 L15 8 M15 22 L15 20 M8 15 L6 15 M22 15 L20 15 M10 10 L8 8 M20 20 L22 22 M20 10 L22 8 M10 20 L8 22" stroke="url(#metallicBlue)" stroke-width="1" filter="url(#metallicGlow)"/>
+  
+  <!-- Hot air balloon -->
+  <circle cx="30" cy="15" r="2.5" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  <path d="M30 17.5 L28 20 L32 20 Z" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  
+  <!-- Clouds -->
+  <circle cx="12" cy="12" r="1.5" fill="url(#metallicBlue)" opacity="0.6" filter="url(#metallicGlow)"/>
+  <circle cx="14" cy="12" r="1" fill="url(#metallicBlue)" opacity="0.6" filter="url(#metallicGlow)"/>
+  <circle cx="13" cy="10" r="1" fill="url(#metallicBlue)" opacity="0.6" filter="url(#metallicGlow)"/>
+  
+  <!-- Q Letter in center -->
+  <circle cx="22.5" cy="22.5" r="8" fill="none" stroke="url(#metallicBlue)" stroke-width="2" filter="url(#metallicGlow)"/>
+  <circle cx="22.5" cy="22.5" r="5" fill="none" stroke="url(#metallicBlue)" stroke-width="1.5" filter="url(#metallicGlow)"/>
+  <path d="M26 22.5 L30 18.5" stroke="url(#metallicBlue)" stroke-width="2" stroke-linecap="round" filter="url(#metallicGlow)"/>
+  <path d="M28 16.5 L30 18.5 L28 20.5" stroke="url(#metallicBlue)" stroke-width="1.5" stroke-linecap="round" fill="none" filter="url(#metallicGlow)"/>
+  
+  <!-- Compass needle center -->
+  <circle cx="22.5" cy="22.5" r="1.5" fill="url(#metallicBlue)" filter="url(#metallicGlow)"/>
+  
+  <!-- Compass needles -->
+  <line x1="22.5" y1="19" x2="22.5" y2="21" stroke="url(#metallicBlue)" stroke-width="1.5" stroke-linecap="round" filter="url(#metallicGlow)"/>
+  <line x1="20" y1="22.5" x2="22" y2="22.5" stroke="url(#metallicBlue)" stroke-width="1.5" stroke-linecap="round" filter="url(#metallicGlow)"/>
+  
+  <!-- Direction letters -->
+  <text x="22.5" y="10" text-anchor="middle" fill="url(#metallicBlue)" font-family="Arial" font-size="6" font-weight="bold" filter="url(#metallicGlow)">N</text>
+  <text x="22.5" y="38" text-anchor="middle" fill="url(#metallicBlue)" font-family="Arial" font-size="6" font-weight="bold" filter="url(#metallicGlow)">S</text>
+  <text x="38" y="25" text-anchor="middle" fill="url(#metallicBlue)" font-family="Arial" font-size="6" font-weight="bold" filter="url(#metallicGlow)">E</text>
+  <text x="7" y="25" text-anchor="middle" fill="url(#metallicBlue)" font-family="Arial" font-size="6" font-weight="bold" filter="url(#metallicGlow)">W</text>
+  
+  <!-- Metallic gradients and effects -->
+  <defs>
+    <linearGradient id="metallicBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00bcd4;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#2196f3;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#1976d2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d47a1;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="metallicGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="0.5" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
