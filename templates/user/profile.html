@@ -35,7 +35,7 @@
                             <span style="color:#10b981; font-weight:600;"><i class="fas fa-check-circle"></i> Verified</span>
                         {% else %}
                             <span style="color:#f59e0b; font-weight:600;"><i class="fas fa-exclamation-circle"></i> Not verified</span>
-                            <form method="POST" action="{{ url_for('resend_verification') }}" style="display:inline;">
+                            <form method="POST" action="{{ url_for('auth.resend_verification') }}" style="display:inline;">
                                 <button type="submit" style="background:none; border:none; color:#2563eb; text-decoration:underline; cursor:pointer; font-size:0.9em;">Resend link</button>
                             </form>
                         {% endif %}
@@ -84,7 +84,7 @@
                 <h3><i class="fas fa-user-plus"></i> Invite Friends</h3>
                 <p style="color:#64748b; font-size:0.9rem;">Share your link — you get {{ REFERRAL_BONUS_REFERRER }} points, they get {{ REFERRAL_BONUS_NEW_USER }} points when they join.</p>
                 <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
-                    <input type="text" readonly value="{{ url_for('register', ref=current_user.referral_code, _external=True) }}" id="qw-referral-link" class="form-input" style="flex:1; min-width:220px;">
+                    <input type="text" readonly value="{{ url_for('auth.register', ref=current_user.referral_code, _external=True) }}" id="qw-referral-link" class="form-input" style="flex:1; min-width:220px;">
                     <button type="button" class="auth-submit-btn" onclick="navigator.clipboard.writeText(document.getElementById('qw-referral-link').value); this.textContent='Copied!';">
                         <i class="fas fa-copy"></i> Copy Link
                     </button>
@@ -135,7 +135,7 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p><i class="fas fa-star"></i> No reviews yet. <a href="{{ url_for('add_review') }}">Write your first review</a></p>
+                    <p><i class="fas fa-star"></i> No reviews yet. <a href="{{ url_for('review.add_review') }}">Write your first review</a></p>
                 {% endif %}
             </div>
 
@@ -153,7 +153,7 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p><i class="fas fa-heart"></i> No wishlist items yet. <a href="{{ url_for('wishlist') }}">Add some places</a></p>
+                    <p><i class="fas fa-heart"></i> No wishlist items yet. <a href="{{ url_for('wishlist.wishlist') }}">Add some places</a></p>
                 {% endif %}
             </div>
 
@@ -175,7 +175,7 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p><i class="fas fa-route"></i> No itineraries yet. <a href="{{ url_for('create_itinerary') }}">Create your first itinerary</a></p>
+                    <p><i class="fas fa-route"></i> No itineraries yet. <a href="{{ url_for('itinerary.create_itinerary') }}">Create your first itinerary</a></p>
                 {% endif %}
             </div>
         </div>

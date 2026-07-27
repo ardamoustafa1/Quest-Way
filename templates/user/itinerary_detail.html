@@ -36,16 +36,16 @@
                 </div>
             </div>
             <div class="itinerary-actions">
-                <a href="{{ url_for('itineraries') }}" class="back-button">
+                <a href="{{ url_for('itinerary.itineraries') }}" class="back-button">
                     <i class="fas fa-arrow-left"></i> Back to Itineraries
                 </a>
                 {% if itinerary.recap_text %}
-                <a href="{{ url_for('view_trip_recap', itinerary_id=itinerary.id) }}" class="back-button" style="background:#7c3aed; color:white;">
+                <a href="{{ url_for('itinerary.view_trip_recap', itinerary_id=itinerary.id) }}" class="back-button" style="background:#7c3aed; color:white;">
                     <i class="fas fa-book-open"></i> View Trip Story
                 </a>
                 {% endif %}
                 {% if permission == 'owner' %}
-                <form method="POST" action="{{ url_for('generate_trip_recap', itinerary_id=itinerary.id) }}" style="display:inline;">
+                <form method="POST" action="{{ url_for('itinerary.generate_trip_recap', itinerary_id=itinerary.id) }}" style="display:inline;">
                     <button type="submit" class="back-button" style="background:#7c3aed; color:white; border:none; cursor:pointer;">
                         <i class="fas fa-wand-magic-sparkles"></i> {{ 'Regenerate' if itinerary.recap_text else 'Generate' }} Trip Story
                     </button>
@@ -105,7 +105,7 @@
                 <p style="color:#64748b; font-size:0.9rem;">These are public itineraries — check them out for inspiration or overlapping plans.</p>
                 <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:12px;">
                     {% for buddy_trip in travel_buddies %}
-                    <a href="{{ url_for('itinerary_detail', itinerary_id=buddy_trip.id) }}" style="text-decoration:none; color:inherit; background:white; border-radius:10px; padding:12px 16px; min-width:180px; box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+                    <a href="{{ url_for('itinerary.itinerary_detail', itinerary_id=buddy_trip.id) }}" style="text-decoration:none; color:inherit; background:white; border-radius:10px; padding:12px 16px; min-width:180px; box-shadow:0 1px 4px rgba(0,0,0,0.08);">
                         <strong>{{ buddy_trip.title }}</strong>
                         <div style="font-size:0.8rem; color:#64748b; margin-top:4px;">
                             <i class="fas fa-user"></i> {{ buddy_trip.user.username }}
@@ -120,7 +120,7 @@
             {% if permission in ['owner', 'edit', 'view'] %}
             <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
                 <h3><i class="fas fa-suitcase-rolling"></i> AI Packing List</h3>
-                <form method="POST" action="{{ url_for('generate_packing_list', itinerary_id=itinerary.id) }}">
+                <form method="POST" action="{{ url_for('itinerary.generate_packing_list', itinerary_id=itinerary.id) }}">
                     <button type="submit" class="auth-submit-btn"><i class="fas fa-magic"></i> Generate Packing List</button>
                 </form>
                 {% if packing_list %}
@@ -143,7 +143,7 @@
             {% if permission in ['owner', 'edit', 'view'] %}
             <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f0fdf4; border-radius:12px;">
                 <h3><i class="fas fa-leaf"></i> Sustainability Score</h3>
-                <form method="POST" action="{{ url_for('generate_eco_score', itinerary_id=itinerary.id) }}">
+                <form method="POST" action="{{ url_for('itinerary.generate_eco_score', itinerary_id=itinerary.id) }}">
                     <button type="submit" class="auth-submit-btn" style="background:#16a34a;"><i class="fas fa-seedling"></i> Estimate Eco-Score</button>
                 </form>
                 {% if eco_score %}
@@ -174,7 +174,7 @@
             {% if permission in ['owner', 'edit'] %}
             <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
                 <h3><i class="fas fa-plus-circle"></i> Add an Activity</h3>
-                <form method="POST" action="{{ url_for('add_itinerary_item', itinerary_id=itinerary.id) }}" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px; margin-top:1rem;">
+                <form method="POST" action="{{ url_for('itinerary.add_itinerary_item', itinerary_id=itinerary.id) }}" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px; margin-top:1rem;">
                     {{ item_form.hidden_tag() }}
                     <div>
                         {{ item_form.day_number.label(class="form-label") }}
@@ -216,7 +216,7 @@
                 <h3><i class="fas fa-wallet"></i> Group Budget</h3>
 
                 {% if permission in ['owner', 'edit'] %}
-                <form method="POST" action="{{ url_for('add_itinerary_expense', itinerary_id=itinerary.id) }}" style="display:flex; gap:10px; margin:12px 0; flex-wrap:wrap; align-items:flex-end;">
+                <form method="POST" action="{{ url_for('itinerary.add_itinerary_expense', itinerary_id=itinerary.id) }}" style="display:flex; gap:10px; margin:12px 0; flex-wrap:wrap; align-items:flex-end;">
                     {{ expense_form.hidden_tag() }}
                     <div style="flex:2; min-width:160px;">
                         {{ expense_form.description.label(class="form-label") }}
@@ -286,7 +286,7 @@
                         {% for option in poll.options %}
                         {% set vote_count = option.votes|length %}
                         {% set pct = ((vote_count / total_votes * 100) if total_votes > 0 else 0)|round(0, 'floor') %}
-                        <form method="POST" action="{{ url_for('vote_itinerary_poll', poll_id=poll.id) }}" style="display:flex; align-items:center; gap:10px;">
+                        <form method="POST" action="{{ url_for('itinerary.vote_itinerary_poll', poll_id=poll.id) }}" style="display:flex; align-items:center; gap:10px;">
                             <input type="hidden" name="option_id" value="{{ option.id }}">
                             <button type="submit" style="border:none; background:none; cursor:pointer; padding:0;">
                                 <i class="{{ 'fas fa-circle-check' if option.id in user_poll_votes else 'far fa-circle' }}" style="color:{{ '#2563eb' if option.id in user_poll_votes else '#94a3b8' }};"></i>
@@ -307,7 +307,7 @@
                 {% endfor %}
 
                 {% if permission in ['owner', 'edit'] %}
-                <form method="POST" action="{{ url_for('create_itinerary_poll', itinerary_id=itinerary.id) }}" style="margin-top:16px; padding-top:16px; border-top:1px solid #e2e8f0;">
+                <form method="POST" action="{{ url_for('itinerary.create_itinerary_poll', itinerary_id=itinerary.id) }}" style="margin-top:16px; padding-top:16px; border-top:1px solid #e2e8f0;">
                     <input type="text" name="question" class="form-input" placeholder="Poll question, e.g. Which hotel should we book?" required style="width:100%; margin-bottom:8px;">
                     <input type="text" name="options" class="form-input" placeholder="Option 1" required style="width:100%; margin-bottom:8px;">
                     <input type="text" name="options" class="form-input" placeholder="Option 2" required style="width:100%; margin-bottom:8px;">
@@ -322,7 +322,7 @@
             <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
                 <h3><i class="fas fa-users"></i> Collaborators</h3>
                 <p style="color:#64748b; font-size:0.9rem;">Invite other QuestWay users to view or co-edit this itinerary.</p>
-                <form method="POST" action="{{ url_for('share_itinerary', itinerary_id=itinerary.id) }}" style="display:flex; gap:10px; margin:12px 0; flex-wrap:wrap;">
+                <form method="POST" action="{{ url_for('itinerary.share_itinerary', itinerary_id=itinerary.id) }}" style="display:flex; gap:10px; margin:12px 0; flex-wrap:wrap;">
                     <input type="text" name="username" class="form-input" placeholder="Username" required style="flex:1; min-width:160px;">
                     <select name="permission" class="form-select" style="width:140px;">
                         <option value="view">Can view</option>
@@ -335,7 +335,7 @@
                     {% for c in itinerary.collaborators %}
                     <li style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px solid #e2e8f0;">
                         <span><i class="fas fa-user"></i> {{ c.user.username }} — <em>{{ c.permission }}</em></span>
-                        <form method="POST" action="{{ url_for('remove_collaborator', itinerary_id=itinerary.id, collaborator_id=c.id) }}">
+                        <form method="POST" action="{{ url_for('itinerary.remove_collaborator', itinerary_id=itinerary.id, collaborator_id=c.id) }}">
                             <button type="submit" style="background:none; border:none; color:#dc2626; cursor:pointer;"><i class="fas fa-times"></i> Remove</button>
                         </form>
                     </li>

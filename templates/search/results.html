@@ -27,7 +27,7 @@
         <div class="container">
             <div class="search-form-card">
                 <h2>Advanced Search</h2>
-                <form method="POST" action="{{ url_for('search') }}" class="modern-search-form">
+                <form method="POST" action="{{ url_for('main.search') }}" class="modern-search-form">
                     {{ form.hidden_tag() }}
                     <div class="search-fields-grid">
                         <div class="search-field-group">
@@ -177,8 +177,8 @@
                     <h3>No results found</h3>
                     <p>Try adjusting your search criteria or browse our popular destinations.</p>
                     <div class="no-results-actions">
-                        <a href="{{ url_for('index') }}" class="btn-primary">Browse Destinations</a>
-                        <a href="{{ url_for('reviews') }}" class="btn-secondary">View All Reviews</a>
+                        <a href="{{ url_for('main.index') }}" class="btn-primary">Browse Destinations</a>
+                        <a href="{{ url_for('main.reviews') }}" class="btn-secondary">View All Reviews</a>
                     </div>
                 </div>
             {% else %}

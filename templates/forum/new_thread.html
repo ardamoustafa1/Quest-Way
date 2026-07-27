@@ -4,12 +4,12 @@
 
 {% block content %}
     <div class="create-itinerary-container">
-        <a href="{{ url_for('forum_index') }}" class="back-button">
+        <a href="{{ url_for('forum.forum_index') }}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back to Forum
         </a>
         <div class="create-itinerary-card">
             <h1><i class="fas fa-comments"></i> Start a Discussion</h1>
-            <form method="POST" action="{{ url_for('forum_new_thread') }}">
+            <form method="POST" action="{{ url_for('forum.forum_new_thread') }}">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     {{ form.title.label(class="form-label") }}

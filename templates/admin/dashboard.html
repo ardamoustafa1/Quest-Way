@@ -17,9 +17,9 @@
         </div>
 
         <div style="display:flex; gap:16px; flex-wrap:wrap;">
-            <a href="{{ url_for('admin_reviews') }}" class="create-button"><i class="fas fa-star"></i> Moderate Reviews</a>
-            <a href="{{ url_for('admin_forum') }}" class="create-button"><i class="fas fa-comments"></i> Moderate Forum</a>
-            <a href="{{ url_for('admin_users') }}" class="create-button"><i class="fas fa-users"></i> Manage Users</a>
+            <a href="{{ url_for('admin.admin_reviews') }}" class="create-button"><i class="fas fa-star"></i> Moderate Reviews</a>
+            <a href="{{ url_for('admin.admin_forum') }}" class="create-button"><i class="fas fa-comments"></i> Moderate Forum</a>
+            <a href="{{ url_for('admin.admin_users') }}" class="create-button"><i class="fas fa-users"></i> Manage Users</a>
         </div>
     </div>
 {% endblock %}

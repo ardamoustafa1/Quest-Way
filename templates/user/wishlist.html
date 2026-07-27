@@ -25,10 +25,10 @@
     <div class="wishlist-container">
         <div class="wishlist-header">
             <h1>My Wishlist</h1>
-            <a href="{{ url_for('add_to_wishlist') }}" class="add-button">
+            <a href="{{ url_for('wishlist.add_to_wishlist') }}" class="add-button">
                 <i class="fas fa-plus"></i> Add New Place
             </a>
-            <a href="{{ url_for('quick_add') }}" class="add-button" style="background:linear-gradient(135deg,#7c3aed,#2563eb);">
+            <a href="{{ url_for('wishlist.quick_add') }}" class="add-button" style="background:linear-gradient(135deg,#7c3aed,#2563eb);">
                 <i class="fas fa-bolt"></i> Quick Add from Social Media
             </a>
         </div>
@@ -46,7 +46,7 @@
                                 <a href="https://www.google.com/maps/search/{{ item.place_name }}" target="_blank" class="action-btn">
                                     <i class="fas fa-map-marker-alt"></i>
                                 </a>
-                                <form action="{{ url_for('remove_from_wishlist', item_id=item.id) }}" method="POST" style="display: inline;">
+                                <form action="{{ url_for('wishlist.remove_from_wishlist', item_id=item.id) }}" method="POST" style="display: inline;">
                                     <button type="submit" class="action-btn delete">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -75,7 +75,7 @@
                 <i class="fas fa-heart"></i>
                 <h3>Your wishlist is empty</h3>
                 <p>Start adding places you'd like to visit!</p>
-                <a href="{{ url_for('add_to_wishlist') }}" class="add-button">
+                <a href="{{ url_for('wishlist.add_to_wishlist') }}" class="add-button">
                     <i class="fas fa-plus"></i> Add Your First Place
                 </a>
             </div>

@@ -20,11 +20,11 @@
         <div class="itineraries-header">
             <h1>Discussions</h1>
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('forum_new_thread') }}" class="create-button">
+            <a href="{{ url_for('forum.forum_new_thread') }}" class="create-button">
                 <i class="fas fa-plus"></i> Start a Discussion
             </a>
             {% else %}
-            <a href="{{ url_for('login') }}" class="create-button">
+            <a href="{{ url_for('auth.login') }}" class="create-button">
                 <i class="fas fa-sign-in-alt"></i> Log in to post
             </a>
             {% endif %}
@@ -33,7 +33,7 @@
         {% if threads %}
         <div style="background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
             {% for thread in threads %}
-            <a href="{{ url_for('forum_thread', thread_id=thread.id) }}"
+            <a href="{{ url_for('forum.forum_thread', thread_id=thread.id) }}"
                style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #e2e8f0; text-decoration:none; color:inherit;">
                 <div>
                     <h3 style="margin:0 0 4px; font-size:1.05rem;">{{ thread.title }}</h3>

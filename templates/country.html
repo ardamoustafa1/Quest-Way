@@ -30,7 +30,7 @@
         </div>
         
         <div class="categories-grid">
-            <a href="{{ url_for('details', country_name=country, section='famous_places') }}" class="category-card">
+            <a href="{{ url_for('main.details', country_name=country, section='famous_places') }}" class="category-card">
                 <div class="category-icon">
                     <i class="fas fa-landmark"></i>
                 </div>
@@ -38,7 +38,7 @@
                 <p>Discover iconic landmarks and must-visit attractions</p>
             </a>
             
-            <a href="{{ url_for('details', country_name=country, section='top_hotels') }}" class="category-card">
+            <a href="{{ url_for('main.details', country_name=country, section='top_hotels') }}" class="category-card">
                 <div class="category-icon">
                     <i class="fas fa-hotel"></i>
                 </div>
@@ -46,7 +46,7 @@
                 <p>Find the best accommodations for your stay</p>
             </a>
             
-            <a href="{{ url_for('details', country_name=country, section='top_restaurants') }}" class="category-card">
+            <a href="{{ url_for('main.details', country_name=country, section='top_restaurants') }}" class="category-card">
                 <div class="category-icon">
                     <i class="fas fa-utensils"></i>
                 </div>
@@ -54,7 +54,7 @@
                 <p>Experience the finest dining options</p>
             </a>
             
-            <a href="{{ url_for('details', country_name=country, section='famous_dishes') }}" class="category-card">
+            <a href="{{ url_for('main.details', country_name=country, section='famous_dishes') }}" class="category-card">
                 <div class="category-icon">
                     <i class="fas fa-utensils"></i>
                 </div>
@@ -62,7 +62,7 @@
                 <p>Taste the authentic local cuisine</p>
             </a>
             
-            <a href="{{ url_for('details', country_name=country, section='transport') }}" class="category-card">
+            <a href="{{ url_for('main.details', country_name=country, section='transport') }}" class="category-card">
                 <div class="category-icon">
                     <i class="fas fa-bus"></i>
                 </div>
@@ -72,7 +72,7 @@
         </div>
         
         <div class="back-to-home">
-            <a href="{{ url_for('index') }}" class="back-btn">
+            <a href="{{ url_for('main.index') }}" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
                 Back to Home
             </a>

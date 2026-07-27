@@ -23,12 +23,12 @@
     </section>
 
     <div class="add-wishlist-container">
-        <a href="{{ url_for('wishlist') }}" class="back-button">
+        <a href="{{ url_for('wishlist.wishlist') }}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back to Wishlist
         </a>
         <div class="add-wishlist-card">
             <h1><i class="fas fa-heart"></i> Add New Place to Wishlist</h1>
-            <form method="POST" action="{{ url_for('add_to_wishlist') }}">
+            <form method="POST" action="{{ url_for('wishlist.add_to_wishlist') }}">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     {{ form.place_name.label(class="form-label") }}

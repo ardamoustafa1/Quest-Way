@@ -13,10 +13,25 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import os
+import sys
 import json
 import requests
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
+
+# When this file is run directly (`python3 app.py`, used for local dev),
+# Python executes it as '__main__', not as a module named 'app'. The
+# blueprints in blueprints/*.py do `from app import ...` to reach the shared
+# extensions/helpers defined below — under '__main__' that statement would
+# try to load and re-execute this whole file a second time under a fresh
+# 'app' module identity, which recurses into the same registration line and
+# fails with a circular-import error. Aliasing this already-executing module
+# under the 'app' key up front means `from app import ...` (from anywhere,
+# including this file's own blueprint imports below) always resolves to the
+# one instance actually running, regardless of how the process was started.
+# No-op when imported normally (e.g. `gunicorn app:app`), since __name__ is
+# already 'app' there.
+sys.modules.setdefault('app', sys.modules[__name__])
 
 # Load .env for local development (no-op in production where env vars
 # are already set by the hosting platform)
@@ -115,7 +130,7 @@ def handle_rate_limit(e):
     if request.path.startswith('/api/'):
         return jsonify({'error': 'Too many requests — please slow down and try again shortly.'}), 429
     flash('You are doing that too often — please wait a bit and try again.', 'error')
-    return redirect(request.referrer or url_for('index'))
+    return redirect(request.referrer or url_for('main.index'))
 
 # Security header'ları (Flask-Talisman). Not: site birçok template'te inline
 # <script>/<style> kullanıyor (tema/dil toggle'ı, chat widget, form validasyonu vb.);
@@ -192,7 +207,7 @@ def admin_required(view_func):
     def wrapped(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin:
             flash('Admin access required.', 'error')
-            return redirect(url_for('index'))
+            return redirect(url_for('main.index'))
         return view_func(*args, **kwargs)
     return wrapped
 
@@ -240,7 +255,7 @@ login_manager = LoginManager()
 db.init_app(app)
 migrate = Migrate(app, db)
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Please log in to access this page.'
 
 token_serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
@@ -419,288 +434,25 @@ def calculate_review_stats(query):
         }
 
 # Yorumları listeleme
-@app.route('/explore')
-def explore():
-    country_filter = request.args.get('country', '')
-    query = Review.query.filter(Review.images.isnot(None))
-    if country_filter:
-        query = query.filter(Review.country == country_filter)
-    photo_reviews = query.order_by(Review.created_at.desc()).limit(60).all()
-    return render_template('explore.html', reviews=photo_reviews, country_filter=country_filter)
 
-@app.route('/reviews')
-def reviews():
-    try:
-        # Filter parametrelerini al
-        country_filter = request.args.get('country', '')
-        rating_filter = request.args.get('rating', '')
-        sort_filter = request.args.get('sort', 'newest')
-        accessible_filter = request.args.get('accessible', '')
-
-        # Base query
-        query = Review.query
-
-        # Country filter
-        if country_filter:
-            query = query.filter(Review.country == country_filter)
-
-        # Rating filter
-        if rating_filter:
-            query = query.filter(Review.rating >= int(rating_filter))
-
-        # Accessibility filter
-        if accessible_filter == '1':
-            query = query.filter(Review.wheelchair_accessible.is_(True))
-
-        # Sort filter
-        if sort_filter == 'newest':
-            query = query.order_by(Review.created_at.desc())
-        elif sort_filter == 'oldest':
-            query = query.order_by(Review.created_at.asc())
-        elif sort_filter == 'rating':
-            query = query.order_by(Review.rating.desc())
-        
-        # Limit results
-        reviews = query.limit(50).all()
-        
-        # Eğer hiç review yoksa, örnek review'lar oluştur
-        if not reviews:
-            reviews = create_sample_reviews()
-        
-        # İstatistikleri hesapla (cache'li)
-        stats = calculate_review_stats_cached(country_filter, rating_filter, sort_filter)
-
-        voted_review_ids = set()
-        if current_user.is_authenticated:
-            voted_review_ids = {
-                v.review_id for v in ReviewHelpfulVote.query.filter_by(user_id=current_user.id).all()
-            }
-
-        return render_template('reviews.html', reviews=reviews,
-                             country_filter=country_filter,
-                             rating_filter=rating_filter,
-                             sort_filter=sort_filter,
-                             accessible_filter=accessible_filter,
-                             stats=stats,
-                             voted_review_ids=voted_review_ids)
-    except Exception as e:
-        print(f"Reviews hatası: {e}")
-        # Hata durumunda örnek review'lar döndür
-        reviews = create_sample_reviews()
-        stats = calculate_review_stats_cached('', '', 'newest')  # Fallback stats
-        return render_template('reviews.html', reviews=reviews, stats=stats, voted_review_ids=set(), accessible_filter='')
 
 # Review'ı faydalı bul / geri al (toggle)
-@app.route('/review/<int:review_id>/helpful', methods=['POST'])
-@login_required
-def toggle_review_helpful(review_id):
-    review = Review.query.get_or_404(review_id)
-    existing_vote = ReviewHelpfulVote.query.filter_by(review_id=review_id, user_id=current_user.id).first()
-
-    if existing_vote:
-        db.session.delete(existing_vote)
-        review.helpful_count = max(0, (review.helpful_count or 0) - 1)
-        if review.author:
-            award_points(review.author, -POINTS_HELPFUL_VOTE_RECEIVED)
-        voted = False
-    else:
-        db.session.add(ReviewHelpfulVote(review_id=review_id, user_id=current_user.id))
-        review.helpful_count = (review.helpful_count or 0) + 1
-        if review.author:
-            award_points(review.author, POINTS_HELPFUL_VOTE_RECEIVED)
-        voted = True
-
-    db.session.commit()
-    return jsonify({'success': True, 'voted': voted, 'count': review.helpful_count})
 
 # Yorum silme (gerçek Review modeli üzerinden, sadece sahibi silebilir)
-@app.route('/delete_comment/<int:comment_id>', methods=['POST'])
-@login_required
-def delete_comment(comment_id):
-    review = Review.query.filter_by(id=comment_id, user_id=current_user.id).first()
-    if review:
-        db.session.delete(review)
-        db.session.commit()
-        flash('Review deleted.', 'success')
-    return redirect(url_for('reviews'))
 
 # Ads.txt route for Google AdSense
-@app.route('/ads.txt')
-def ads_txt():
-    try:
-        with open('ads.txt', 'r', encoding='utf-8') as f:
-            content = f.read()
-        return content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
-    except FileNotFoundError:
-        return 'google.com, pub-9221145906123169, DIRECT, f08c47fec0942fa0', 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
-@app.route('/robots.txt')
-def robots_txt():
-    lines = [
-        'User-agent: *',
-        'Allow: /',
-        'Disallow: /admin',
-        'Disallow: /admin/',
-        'Disallow: /profile',
-        'Disallow: /wishlist',
-        'Disallow: /itineraries',
-        'Disallow: /itinerary/',
-        'Disallow: /api/',
-        'Disallow: /internal/',
-        f"Sitemap: {url_for('sitemap_xml', _external=True)}",
-    ]
-    return '\n'.join(lines), 200, {'Content-Type': 'text/plain; charset=utf-8'}
-
-@app.route('/sitemap.xml')
-@cache.cached(timeout=3600)
-def sitemap_xml():
-    urls = []
-    now = datetime.utcnow().strftime('%Y-%m-%d')
-
-    static_pages = ['index', 'reviews', 'explore', 'forum_index', 'search', 'login', 'register']
-    for endpoint in static_pages:
-        urls.append({'loc': url_for(endpoint, _external=True), 'lastmod': now, 'priority': '0.8'})
-
-    for country in data.keys():
-        for section in data[country].keys():
-            urls.append({
-                'loc': url_for('details', country_name=country, section=section, _external=True),
-                'lastmod': now, 'priority': '0.7',
-            })
-
-    for itinerary in Itinerary.query.filter_by(is_public=True).all():
-        urls.append({
-            'loc': url_for('itinerary_detail', itinerary_id=itinerary.id, _external=True),
-            'lastmod': itinerary.updated_at.strftime('%Y-%m-%d') if itinerary.updated_at else now,
-            'priority': '0.5',
-        })
-        if itinerary.recap_text:
-            urls.append({
-                'loc': url_for('view_trip_recap', itinerary_id=itinerary.id, _external=True),
-                'lastmod': itinerary.updated_at.strftime('%Y-%m-%d') if itinerary.updated_at else now,
-                'priority': '0.6',
-            })
-
-    for thread in ForumThread.query.all():
-        urls.append({
-            'loc': url_for('forum_thread', thread_id=thread.id, _external=True),
-            'lastmod': thread.updated_at.strftime('%Y-%m-%d') if thread.updated_at else now,
-            'priority': '0.4',
-        })
-
-    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    for u in urls:
-        xml_parts.append(f"<url><loc>{u['loc']}</loc><lastmod>{u['lastmod']}</lastmod><priority>{u['priority']}</priority></url>")
-    xml_parts.append('</urlset>')
-
-    return '\n'.join(xml_parts), 200, {'Content-Type': 'application/xml; charset=utf-8'}
 
 # Ana sayfa
-@app.route('/')
-def index():
-    countries = data.keys()  # 'data' sözlüğünden tüm ülke isimlerini alır
-    return render_template('index.html', countries=countries)
 
 # Ülke seçme
-@app.route('/country', methods=['GET', 'POST'])
-def country():
-    if request.method == 'POST':
-        selected_country = request.form.get('country')  # Seçilen ülkeyi al
-    else:
-        selected_country = request.args.get('country')  # GET request'ten ülkeyi al
-    
-    if not selected_country:
-        return redirect(url_for('index'))
-    
-    return render_template('country.html', country=selected_country)
 
 # Detay sayfası
-@app.route('/details/<country_name>/<section>')
-def details(country_name, section):
-    if country_name not in data:
-        return f"Error: Country '{country_name}' not found", 404
-
-    section_key = section.replace(" ", "_").lower()
-    if section_key not in data[country_name]:
-        return f"Error: Section '{section}' not found for country '{country_name}'", 404
-
-    content = data[country_name][section_key]  # İçerik alınır
-    return render_template('details.html', country=country_name, section=section, content=content)
 
 # Harita için konum arama (Leaflet + OpenStreetMap tarafından kullanılıyor)
-@app.route('/api/location')
-def api_location():
-    place = request.args.get('place', '')
-    country = request.args.get('country', '')
-    if not place and not country:
-        return jsonify({'error': 'place or country query param required'}), 400
-    location = geocode_place(place, country)
-    if not location:
-        return jsonify({'error': 'Location not found'}), 404
-    return jsonify(location)
 
-@app.route('/internal/send-trip-reminders', methods=['POST'])
-def send_trip_reminders():
-    """Günde bir kez dışarıdan (cron) tetiklenmesi beklenen endpoint.
-
-    'X-Cron-Secret' header'ı CRON_SECRET ortam değişkenine eşit olmalı.
-    CRON_SECRET set edilmemişse endpoint tamamen kapalıdır.
-    """
-    if not CRON_SECRET or request.headers.get('X-Cron-Secret') != CRON_SECRET:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    today = datetime.utcnow().date()
-    reminder_window_days = 3
-    target_date = today + timedelta(days=reminder_window_days)
-
-    upcoming = Itinerary.query.filter(
-        Itinerary.start_date == target_date,
-        Itinerary.reminder_sent.is_(False),
-    ).all()
-
-    sent_count = 0
-    for itinerary in upcoming:
-        recipients = {itinerary.user}
-        for c in itinerary.collaborators:
-            recipients.add(c.user)
-        for user in recipients:
-            if not user or not user.email:
-                continue
-            send_email(
-                user.email,
-                f"Your trip \"{itinerary.title}\" starts in {reminder_window_days} days!",
-                f"Hi {user.first_name or user.username},\n\nJust a heads up — your trip to "
-                f"{itinerary.city or ''} {itinerary.country} starts on {itinerary.start_date.strftime('%B %d, %Y')}.\n\n"
-                f"Review your itinerary: {url_for('itinerary_detail', itinerary_id=itinerary.id, _external=True)}",
-            )
-        itinerary.reminder_sent = True
-        sent_count += 1
-
-    db.session.commit()
-    return jsonify({'itineraries_notified': sent_count})
 
 # User Authentication Routes
-@app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("15/hour", methods=['POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user and user.check_password(form.password.data):
-            if not user.is_active:
-                flash('This account has been suspended. Contact support if you believe this is a mistake.', 'error')
-                return render_template('auth/login.html', form=form)
-            promote_admin_if_configured(user)
-            login_user(user, remember=form.remember_me.data)
-            flash('Login successful!', 'success')
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('index'))
-        flash('Invalid username or password', 'error')
-    
-    return render_template('auth/login.html', form=form)
 
 def generate_referral_code():
     import secrets
@@ -709,145 +461,16 @@ def generate_referral_code():
         if not User.query.filter_by(referral_code=code).first():
             return code
 
-@app.route('/register', methods=['GET', 'POST'])
-@limiter.limit("10/hour", methods=['POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-
-    form = RegisterForm()
-    ref_code = request.values.get('ref', '').strip()
-
-    if form.validate_on_submit():
-        # Check if username already exists
-        existing_user = User.query.filter_by(username=form.username.data).first()
-        if existing_user:
-            flash('Username already exists. Please choose a different username.', 'error')
-            return render_template('auth/register.html', form=form, ref_code=ref_code)
-
-        # Check if email already exists
-        existing_email = User.query.filter_by(email=form.email.data).first()
-        if existing_email:
-            flash('Email already registered. Please use a different email.', 'error')
-            return render_template('auth/register.html', form=form, ref_code=ref_code)
-
-        try:
-            referrer = User.query.filter_by(referral_code=ref_code).first() if ref_code else None
-
-            user = User(
-                username=form.username.data,
-                email=form.email.data,
-                first_name=form.first_name.data,
-                last_name=form.last_name.data,
-                referral_code=generate_referral_code(),
-                referred_by_user_id=referrer.id if referrer else None,
-                points=REFERRAL_BONUS_NEW_USER if referrer else 0,
-            )
-            user.set_password(form.password.data)
-            db.session.add(user)
-            if referrer:
-                referrer.points = (referrer.points or 0) + REFERRAL_BONUS_REFERRER
-            db.session.commit()
-            send_verification_email(user)
-            if referrer:
-                flash(f'Registration successful! You joined via {referrer.username}\'s invite and got {REFERRAL_BONUS_NEW_USER} bonus points. We sent you a verification link — please check your email, then log in.', 'success')
-            else:
-                flash('Registration successful! We sent you a verification link — please check your email, then log in.', 'success')
-            return redirect(url_for('login'))
-        except Exception as e:
-            db.session.rollback()
-            flash('An error occurred during registration. Please try again.', 'error')
-            return render_template('auth/register.html', form=form, ref_code=ref_code)
-
-    return render_template('auth/register.html', form=form, ref_code=ref_code)
 
 def send_verification_email(user):
     token = token_serializer.dumps(user.email, salt='email-verify')
-    link = url_for('verify_email', token=token, _external=True)
+    link = url_for('auth.verify_email', token=token, _external=True)
     send_email(
         user.email,
         'Verify your QuestWay account',
         f"Hi {user.first_name or user.username},\n\nPlease verify your email by visiting this link (valid for 1 hour):\n{link}\n\nIf you didn't create a QuestWay account, ignore this email.",
     )
 
-@app.route('/verify-email/<token>')
-def verify_email(token):
-    try:
-        email = token_serializer.loads(token, salt='email-verify', max_age=3600)
-    except SignatureExpired:
-        flash('That verification link has expired. Please request a new one from your profile.', 'error')
-        return redirect(url_for('login'))
-    except BadSignature:
-        flash('That verification link is invalid.', 'error')
-        return redirect(url_for('login'))
-
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        flash('Account not found.', 'error')
-        return redirect(url_for('login'))
-
-    user.email_verified = True
-    db.session.commit()
-    flash('Email verified! Thanks for confirming your account.', 'success')
-    return redirect(url_for('login'))
-
-@app.route('/forgot-password', methods=['GET', 'POST'])
-@limiter.limit("5/hour", methods=['POST'])
-def forgot_password():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-
-    form = ForgotPasswordForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            token = token_serializer.dumps(user.email, salt='password-reset')
-            link = url_for('reset_password', token=token, _external=True)
-            send_email(
-                user.email,
-                'Reset your QuestWay password',
-                f"Hi {user.first_name or user.username},\n\nClick this link to reset your password (valid for 1 hour):\n{link}\n\nIf you didn't request this, you can safely ignore this email.",
-            )
-        # Kullanıcı var mı yok mu bilgisini sızdırmamak için mesaj her durumda aynı
-        flash('If that email is registered, a password reset link has been sent.', 'success')
-        return redirect(url_for('login'))
-
-    return render_template('auth/forgot_password.html', form=form)
-
-@app.route('/reset-password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-
-    try:
-        email = token_serializer.loads(token, salt='password-reset', max_age=3600)
-    except SignatureExpired:
-        flash('That reset link has expired. Please request a new one.', 'error')
-        return redirect(url_for('forgot_password'))
-    except BadSignature:
-        flash('That reset link is invalid.', 'error')
-        return redirect(url_for('forgot_password'))
-
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        flash('Account not found.', 'error')
-        return redirect(url_for('forgot_password'))
-
-    form = ResetPasswordForm()
-    if form.validate_on_submit():
-        user.set_password(form.password.data)
-        db.session.commit()
-        flash('Your password has been reset. Please log in.', 'success')
-        return redirect(url_for('login'))
-
-    return render_template('auth/reset_password.html', form=form)
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('index'))
 
 # Rozet tanımları: (key, isim, açıklama, ikon, kural fonksiyonu)
 # Rozetler ayrı bir tablo yerine mevcut verilerden anlık hesaplanıyor —
@@ -948,32 +571,7 @@ def get_user_level_info(points):
     }
 
 # User Profile Routes
-@app.route('/profile')
-@login_required
-def profile():
-    user_reviews = Review.query.filter_by(user_id=current_user.id).order_by(Review.created_at.desc()).limit(5).all()
-    user_wishlist = WishlistItem.query.filter_by(user_id=current_user.id).order_by(WishlistItem.added_at.desc()).limit(5).all()
-    user_itineraries = Itinerary.query.filter_by(user_id=current_user.id).order_by(Itinerary.created_at.desc()).limit(5).all()
-    earned_badges, locked_badges = compute_user_badges(current_user)
-    level_info = get_user_level_info(current_user.points)
 
-    return render_template('user/profile.html',
-                         reviews=user_reviews,
-                         wishlist=user_wishlist,
-                         itineraries=user_itineraries,
-                         earned_badges=earned_badges,
-                         locked_badges=locked_badges,
-                         level_info=level_info)
-
-@app.route('/resend-verification', methods=['POST'])
-@login_required
-def resend_verification():
-    if current_user.email_verified:
-        flash('Your email is already verified.', 'info')
-    else:
-        send_verification_email(current_user)
-        flash('Verification email sent — please check your inbox.', 'success')
-    return redirect(url_for('profile'))
 
 @cache.memoize(timeout=300)  # 5 dakika cache
 def search_reviews_cached(query, country, place_type, rating_min):
@@ -1045,269 +643,14 @@ def search_reviews_cached(query, country, place_type, rating_min):
         return []
 
 # Advanced Search Route
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    form = SearchForm()
-    results = []
-    search_performed = False
-    
-    if form.validate_on_submit():
-        search_performed = True
-        query = form.query.data
-        country = form.country.data
-        place_type = form.place_type.data
-        rating_min = form.rating_min.data
-        
-        # Search in reviews (cache'li)
-        results = search_reviews_cached(query, country, place_type, rating_min)
-        
-        # If no results found, try a broader search
-        if not results and query and query.strip():
-            # Try searching without case sensitivity and with partial matches
-            search_term = f"%{query.strip().lower()}%"
-            results = Review.query.join(User).filter(
-                (Review.title.ilike(search_term)) | 
-                (Review.content.ilike(search_term)) |
-                (Review.place_name.ilike(search_term))
-            ).order_by(Review.created_at.desc()).limit(20).all()
-    
-    # If no search performed, don't show any results
-    # User should perform a search first
-    
-    return render_template('search/results.html', form=form, results=results, search_performed=search_performed)
 
 # Wishlist Routes
-@app.route('/wishlist')
-@login_required
-def wishlist():
-    items = WishlistItem.query.filter_by(user_id=current_user.id).order_by(WishlistItem.added_at.desc()).all()
-    return render_template('user/wishlist.html', items=items)
 
-@app.route('/add_to_wishlist', methods=['GET', 'POST'])
-@login_required
-def add_to_wishlist():
-    form = WishlistForm()
-    if form.validate_on_submit():
-        item = WishlistItem(
-            user_id=current_user.id,
-            place_name=form.place_name.data,
-            place_type=form.place_type.data,
-            country=form.country.data,
-            city=form.city.data,
-            description=form.description.data
-        )
-        db.session.add(item)
-        db.session.commit()
-        flash('Added to wishlist!', 'success')
-        return redirect(url_for('wishlist'))
-    
-    return render_template('user/add_wishlist.html', form=form)
-
-@app.route('/quick-add', methods=['GET', 'POST'])
-@limiter.limit("10/hour", methods=['POST'])
-@login_required
-def quick_add():
-    extracted_places = None
-    source_text = ''
-
-    if request.method == 'POST' and 'caption' in request.form:
-        source_text = request.form.get('caption', '').strip()
-        if not source_text:
-            flash('Paste a caption or description first.', 'error')
-        elif not groq_client:
-            flash('Quick add is not configured (missing GROQ_API_KEY).', 'error')
-        else:
-            try:
-                prompt = f"""Extract every distinct travel place mentioned in this social media caption/text
-(attractions, restaurants, hotels, cities, landmarks). Text:
-\"\"\"{source_text[:2000]}\"\"\"
-
-Return STRICT JSON only: {{"places": [{{"name": "...", "place_type": "attraction|hotel|restaurant|other", "country": "best guess or null", "city": "best guess or null"}}]}}
-If no real places are mentioned, return {{"places": []}}."""
-                completion = groq_client.chat.completions.create(
-                    model=GROQ_MODEL,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.3,
-                    max_tokens=600,
-                    response_format={"type": "json_object"},
-                )
-                result = json.loads(completion.choices[0].message.content)
-                extracted_places = result.get('places', [])
-                if not extracted_places:
-                    flash('No places found in that text — try pasting more descriptive text.', 'info')
-            except Exception as e:
-                print(f"Quick-add extraction error: {e}")
-                flash('Could not analyze that text right now. Please try again.', 'error')
-
-    return render_template('user/quick_add.html', extracted_places=extracted_places, source_text=source_text)
-
-@app.route('/quick-add/save', methods=['POST'])
-@login_required
-def quick_add_save():
-    names = request.form.getlist('place_name')
-    types = request.form.getlist('place_type')
-    countries = request.form.getlist('country')
-    cities = request.form.getlist('city')
-    selected = set(request.form.getlist('selected'))  # indexes as strings
-
-    added = 0
-    for i, name in enumerate(names):
-        if str(i) not in selected or not name.strip():
-            continue
-        db.session.add(WishlistItem(
-            user_id=current_user.id,
-            place_name=name.strip(),
-            place_type=(types[i] if i < len(types) and types[i] else 'other'),
-            country=(countries[i] if i < len(countries) and countries[i] else 'Unknown'),
-            city=(cities[i] if i < len(cities) and cities[i] else None),
-            description='Added via Quick Add from social media caption.',
-        ))
-        added += 1
-
-    if added:
-        db.session.commit()
-        flash(f'Added {added} place(s) to your wishlist!', 'success')
-    else:
-        flash('No places selected.', 'error')
-    return redirect(url_for('wishlist'))
-
-@app.route('/remove_from_wishlist/<int:item_id>', methods=['POST'])
-@login_required
-def remove_from_wishlist(item_id):
-    item = WishlistItem.query.filter_by(id=item_id, user_id=current_user.id).first()
-    if item:
-        db.session.delete(item)
-        db.session.commit()
-        flash('Removed from wishlist!', 'success')
-    return redirect(url_for('wishlist'))
 
 # AJAX endpoints for wishlist
-@app.route('/api/add_to_wishlist', methods=['POST'])
-def add_to_wishlist_ajax():
-    if not current_user.is_authenticated:
-        return jsonify({'success': False, 'message': 'Please login first'})
-    try:
-        data = request.get_json()
-        print(f"Received data: {data}")
-        print(f"User ID: {current_user.id}")
-        
-        # Check if item already exists
-        existing_item = WishlistItem.query.filter_by(
-            user_id=current_user.id,
-            place_name=data.get('place_name'),
-            country=data.get('country'),
-            city=data.get('city')
-        ).first()
-        
-        if existing_item:
-            print("Item already exists in wishlist")
-            return jsonify({'success': False, 'message': 'Already in wishlist'})
-        
-        item = WishlistItem(
-            user_id=current_user.id,
-            place_name=data.get('place_name'),
-            place_type=data.get('place_type', 'country'),
-            country=data.get('country'),
-            city=data.get('city'),
-            description=data.get('description', ''),
-            image_url=data.get('image_url', '')
-        )
-        
-        db.session.add(item)
-        db.session.commit()
-        print("Item added to wishlist successfully")
-        
-        return jsonify({'success': True, 'message': 'Added to wishlist'})
-    except Exception as e:
-        print(f"Error adding to wishlist: {str(e)}")
-        return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/api/remove_from_wishlist', methods=['POST'])
-def remove_from_wishlist_ajax():
-    if not current_user.is_authenticated:
-        return jsonify({'success': False, 'message': 'Please login first'})
-    try:
-        data = request.get_json()
-        
-        item = WishlistItem.query.filter_by(
-            user_id=current_user.id,
-            place_name=data.get('place_name'),
-            country=data.get('country'),
-            city=data.get('city')
-        ).first()
-        
-        if item:
-            db.session.delete(item)
-            db.session.commit()
-            return jsonify({'success': True, 'message': 'Removed from wishlist'})
-        else:
-            return jsonify({'success': False, 'message': 'Item not found'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
 
 # Itinerary Routes
-@app.route('/itineraries')
-@login_required
-def itineraries():
-    owned = Itinerary.query.filter_by(user_id=current_user.id).order_by(Itinerary.created_at.desc()).all()
-    shared_ids = [c.itinerary_id for c in ItineraryCollaborator.query.filter_by(user_id=current_user.id).all()]
-    shared = Itinerary.query.filter(Itinerary.id.in_(shared_ids)).order_by(Itinerary.created_at.desc()).all() if shared_ids else []
-    return render_template('user/itineraries.html', itineraries=owned, shared_itineraries=shared)
-
-@app.route('/create_itinerary', methods=['GET', 'POST'])
-@login_required
-def create_itinerary():
-    form = ItineraryForm()
-    if form.validate_on_submit():
-        itinerary = Itinerary(
-            title=form.title.data,
-            description=form.description.data,
-            country=form.country.data,
-            city=form.city.data,
-            start_date=form.start_date.data,
-            end_date=form.end_date.data,
-            is_public=form.is_public.data,
-            user_id=current_user.id
-        )
-        db.session.add(itinerary)
-        award_points(current_user, POINTS_CREATE_ITINERARY)
-        db.session.commit()
-        flash('Itinerary created successfully!', 'success')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary.id))
-    
-    return render_template('user/create_itinerary.html', form=form)
-
-@app.route('/ai-itinerary-planner', methods=['GET', 'POST'])
-@limiter.limit("10/hour", methods=['POST'])
-@login_required
-def ai_itinerary_planner():
-    form = AIItineraryForm()
-    generated_plan = None
-    generated_country = None
-    generated_days_json = None  # JS'de "Save" için ham JSON
-
-    if not groq_client:
-        flash('AI itinerary planner is not configured (missing GROQ_API_KEY).', 'error')
-        return render_template('user/ai_itinerary_planner.html', form=form, plan=None)
-
-    if form.validate_on_submit():
-        country = form.country.data
-        try:
-            generated_plan = generate_ai_itinerary(
-                country=country,
-                days=form.days.data,
-                budget_level=form.budget_level.data,
-                interests=form.interests.data,
-                user=current_user,
-            )
-            generated_country = country
-            generated_days_json = json.dumps(generated_plan)
-        except Exception as e:
-            print(f"AI itinerary generation error: {e}")
-            flash('Could not generate an itinerary right now. Please try again.', 'error')
-
-    return render_template('user/ai_itinerary_planner.html', form=form, plan=generated_plan,
-                            plan_country=generated_country, plan_json=generated_days_json)
 
 
 def build_user_travel_preferences(user):
@@ -1410,90 +753,6 @@ CHAT_SYSTEM_PROMPT = (
     "If you don't know something specific about a place, say so honestly instead of making it up."
 )
 
-@app.route('/api/chat', methods=['POST'])
-@limiter.limit("30/hour")
-@login_required
-def api_chat():
-    if not groq_client:
-        return jsonify({'error': 'Chat assistant is not configured.'}), 503
-
-    payload = request.get_json(silent=True) or {}
-    user_message = (payload.get('message') or '').strip()
-    history = payload.get('history') or []  # [{role, content}, ...] client tarafından tutulur
-
-    if not user_message:
-        return jsonify({'error': 'Message is required.'}), 400
-    if len(user_message) > 1000:
-        return jsonify({'error': 'Message is too long.'}), 400
-
-    # Client geçmişini sınırla ve sadece beklenen alanları al (prompt injection'a karşı temizlik)
-    safe_history = []
-    for turn in history[-8:]:
-        role = turn.get('role')
-        content = turn.get('content', '')
-        if role in ('user', 'assistant') and isinstance(content, str):
-            safe_history.append({'role': role, 'content': content[:1000]})
-
-    messages = [{"role": "system", "content": CHAT_SYSTEM_PROMPT}] + safe_history + [
-        {"role": "user", "content": user_message}
-    ]
-
-    try:
-        completion = groq_client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=messages,
-            temperature=0.6,
-            max_tokens=500,
-        )
-        reply = completion.choices[0].message.content
-        return jsonify({'reply': reply})
-    except Exception as e:
-        print(f"Chat error: {e}")
-        return jsonify({'error': 'The assistant is temporarily unavailable.'}), 503
-
-@app.route('/ai-itinerary-planner/save', methods=['POST'])
-@login_required
-def save_ai_itinerary():
-    country = request.form.get('country')
-    plan_json = request.form.get('plan_json')
-    if not country or not plan_json:
-        flash('Nothing to save.', 'error')
-        return redirect(url_for('ai_itinerary_planner'))
-
-    try:
-        plan = json.loads(plan_json)
-    except (TypeError, ValueError):
-        flash('Could not save that itinerary — the plan data was invalid.', 'error')
-        return redirect(url_for('ai_itinerary_planner'))
-
-    itinerary = Itinerary(
-        title=f"AI Trip to {country}",
-        description=f"Generated by QuestWay AI Planner for {country}.",
-        country=country,
-        user_id=current_user.id,
-    )
-    db.session.add(itinerary)
-    db.session.flush()  # itinerary.id'yi item'lardan önce almak için
-
-    order_index = 1
-    for day in plan.get('days', []):
-        day_number = day.get('day', 1)
-        for item in day.get('items', []):
-            db.session.add(ItineraryItem(
-                itinerary_id=itinerary.id,
-                day_number=day_number,
-                time_slot=item.get('time_slot'),
-                place_name=item.get('place_name', 'Untitled stop'),
-                place_type=item.get('place_type', 'other'),
-                description=item.get('description'),
-                estimated_duration=item.get('estimated_duration'),
-                order_index=order_index,
-            ))
-            order_index += 1
-
-    db.session.commit()
-    flash('Itinerary saved! You can now edit and share it.', 'success')
-    return redirect(url_for('itinerary_detail', itinerary_id=itinerary.id))
 
 def get_itinerary_permission(itinerary, user):
     """'owner' | 'edit' | 'view' | None — kullanıcının bu itinerary üzerindeki yetkisi."""
@@ -1507,28 +766,6 @@ def get_itinerary_permission(itinerary, user):
     if itinerary.is_public:
         return 'view'
     return None
-
-@app.route('/itinerary/<int:itinerary_id>')
-@login_required
-def itinerary_detail(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    permission = get_itinerary_permission(itinerary, current_user)
-    if permission is None:
-        flash('You do not have permission to view this itinerary.', 'error')
-        return redirect(url_for('itineraries'))
-
-    items = ItineraryItem.query.filter_by(itinerary_id=itinerary_id).order_by(ItineraryItem.day_number, ItineraryItem.order_index).all()
-    item_form = ItineraryItemForm()
-    expense_form = ItineraryExpenseForm()
-    expenses = ItineraryExpense.query.filter_by(itinerary_id=itinerary_id).order_by(ItineraryExpense.created_at.desc()).all()
-    balances, settlements = compute_itinerary_balances(itinerary, expenses)
-    user_poll_votes = get_user_poll_votes(itinerary, current_user)
-    travel_buddies = find_travel_buddies(itinerary) if permission == 'owner' else []
-    return render_template('user/itinerary_detail.html', itinerary=itinerary, items=items,
-                            permission=permission, item_form=item_form,
-                            expense_form=expense_form, expenses=expenses,
-                            balances=balances, settlements=settlements,
-                            user_poll_votes=user_poll_votes, travel_buddies=travel_buddies)
 
 
 def find_travel_buddies(itinerary, window_days=7, limit=6):
@@ -1569,119 +806,6 @@ def get_user_poll_votes(itinerary, user):
         ItineraryPollVote.option_id.in_(option_ids), ItineraryPollVote.user_id == user.id
     ).all()
     return {v.option_id: True for v in votes}
-
-@app.route('/itinerary/<int:itinerary_id>/polls', methods=['POST'])
-@login_required
-def create_itinerary_poll(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    permission = get_itinerary_permission(itinerary, current_user)
-    if permission not in ('owner', 'edit'):
-        flash('You do not have permission to create polls on this itinerary.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    question = request.form.get('question', '').strip()
-    option_texts = [o.strip() for o in request.form.getlist('options') if o.strip()]
-    if not question or len(option_texts) < 2:
-        flash('A poll needs a question and at least 2 options.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    poll = ItineraryPoll(itinerary_id=itinerary_id, question=question, created_by_user_id=current_user.id)
-    db.session.add(poll)
-    db.session.flush()
-    for text in option_texts[:8]:
-        db.session.add(ItineraryPollOption(poll_id=poll.id, text=text))
-    db.session.commit()
-    flash('Poll created!', 'success')
-    return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-@app.route('/polls/<int:poll_id>/vote', methods=['POST'])
-@login_required
-def vote_itinerary_poll(poll_id):
-    poll = ItineraryPoll.query.get_or_404(poll_id)
-    permission = get_itinerary_permission(poll.itinerary, current_user)
-    if permission is None:
-        flash('You do not have permission to vote on this poll.', 'error')
-        return redirect(url_for('itineraries'))
-
-    option_id = request.form.get('option_id', type=int)
-    option = ItineraryPollOption.query.filter_by(id=option_id, poll_id=poll_id).first()
-    if not option:
-        flash('Invalid poll option.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=poll.itinerary_id))
-
-    # Bu kullanıcının bu anketteki önceki oyunu sil (tek oy hakkı / oy değiştirme)
-    option_ids = [o.id for o in poll.options]
-    ItineraryPollVote.query.filter(
-        ItineraryPollVote.option_id.in_(option_ids), ItineraryPollVote.user_id == current_user.id
-    ).delete(synchronize_session=False)
-    db.session.add(ItineraryPollVote(option_id=option_id, user_id=current_user.id))
-    db.session.commit()
-    flash('Vote recorded!', 'success')
-    return redirect(url_for('itinerary_detail', itinerary_id=poll.itinerary_id))
-
-@app.route('/itinerary/<int:itinerary_id>/generate-recap', methods=['POST'])
-@limiter.limit("10/hour")
-@login_required
-def generate_trip_recap(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    if itinerary.user_id != current_user.id:
-        flash('Only the trip owner can generate a trip recap.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    if not groq_client:
-        flash('Trip recap is not configured (missing GROQ_API_KEY).', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    items = ItineraryItem.query.filter_by(itinerary_id=itinerary_id).order_by(ItineraryItem.day_number, ItineraryItem.order_index).all()
-    related_reviews = Review.query.filter_by(user_id=current_user.id, country=itinerary.country).order_by(Review.created_at.desc()).limit(10).all()
-
-    items_text = "\n".join(f"  Day {i.day_number}: {i.place_name} ({i.place_type})" for i in items) or "(no activities logged)"
-    reviews_text = "\n".join(f"  - \"{r.title}\": {r.content[:200]}" for r in related_reviews) or "(no reviews from this trip)"
-
-    prompt = f"""Write a warm, engaging first-person trip recap (250-350 words) for a traveler's trip called
-"{itinerary.title}" to {itinerary.city or ''} {itinerary.country}.
-
-Itinerary activities:
-{items_text}
-
-Traveler's own reviews from this country:
-{reviews_text}
-
-Write it as if the traveler is sharing their trip story with friends — highlight 2-3 memorable moments,
-keep it authentic and specific to the places listed above, not generic. Plain text only, no markdown headers."""
-
-    try:
-        completion = groq_client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.8,
-            max_tokens=600,
-        )
-        itinerary.recap_text = completion.choices[0].message.content
-        db.session.commit()
-        flash('Trip recap generated!', 'success')
-    except Exception as e:
-        print(f"Trip recap generation error: {e}")
-        flash('Could not generate a trip recap right now. Please try again.', 'error')
-
-    return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-@app.route('/itinerary/<int:itinerary_id>/recap')
-def view_trip_recap(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    permission = get_itinerary_permission(itinerary, current_user)
-    if permission is None:
-        flash('You do not have permission to view this trip recap.', 'error')
-        return redirect(url_for('itineraries'))
-    if not itinerary.recap_text:
-        flash('This trip does not have a recap yet.', 'info')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    photos = []
-    for r in Review.query.filter_by(user_id=itinerary.user_id, country=itinerary.country).all():
-        if r.images:
-            photos.extend(r.images[:2])
-    return render_template('user/trip_recap.html', itinerary=itinerary, photos=photos[:8])
 
 
 def compute_itinerary_balances(itinerary, expenses):
@@ -1731,90 +855,6 @@ def compute_itinerary_balances(itinerary, expenses):
 
     return balances, settlements
 
-@app.route('/itinerary/<int:itinerary_id>/expenses', methods=['POST'])
-@login_required
-def add_itinerary_expense(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    permission = get_itinerary_permission(itinerary, current_user)
-    if permission not in ('owner', 'edit'):
-        flash('You do not have permission to add expenses to this itinerary.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    form = ItineraryExpenseForm()
-    if form.validate_on_submit():
-        db.session.add(ItineraryExpense(
-            itinerary_id=itinerary_id,
-            paid_by_user_id=current_user.id,
-            description=form.description.data,
-            amount=form.amount.data,
-            currency=form.currency.data,
-        ))
-        db.session.commit()
-        flash('Expense added!', 'success')
-    else:
-        flash('Could not add expense — please check the form.', 'error')
-    return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-@app.route('/itinerary/<int:itinerary_id>/packing-list', methods=['POST'])
-@limiter.limit("10/hour")
-@login_required
-def generate_packing_list(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    permission = get_itinerary_permission(itinerary, current_user)
-    if permission is None:
-        flash('You do not have permission to view this itinerary.', 'error')
-        return redirect(url_for('itineraries'))
-
-    if not groq_client:
-        flash('AI packing list is not configured (missing GROQ_API_KEY).', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    try:
-        weather_context = "No live forecast available for these dates — use typical seasonal climate knowledge instead."
-        today = datetime.utcnow().date()
-        if itinerary.start_date and itinerary.end_date:
-            days_out = (itinerary.start_date - today).days
-            if 0 <= days_out <= 15:
-                forecast = fetch_forecast_range(itinerary.country, itinerary.city, itinerary.start_date, itinerary.end_date)
-                if forecast:
-                    lines = [f"  - {d['date']}: {d['temp_min']}-{d['temp_max']}°C, {d['condition']}, rain chance {d['rain_chance']}%" for d in forecast]
-                    weather_context = "Real forecast for the trip dates:\n" + "\n".join(lines)
-
-        prompt = f"""Build a packing list for a {itinerary.title} trip to {itinerary.city or ''} {itinerary.country},
-from {itinerary.start_date or 'an unspecified date'} to {itinerary.end_date or 'an unspecified date'}.
-
-Weather:
-{weather_context}
-
-Return STRICT JSON only, matching exactly this schema:
-{{"categories": [{{"name": "Clothing", "items": ["item1", "item2"]}}]}}
-Include categories like Clothing, Footwear, Documents, Electronics, Health/Toiletries, and Weather-specific extras.
-Keep each category to 4-8 concise items. Tailor clothing/footwear choices directly to the weather above."""
-
-        completion = groq_client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.5,
-            max_tokens=800,
-            response_format={"type": "json_object"},
-        )
-        packing_list = json.loads(completion.choices[0].message.content)
-    except Exception as e:
-        print(f"Packing list generation error: {e}")
-        flash('Could not generate a packing list right now. Please try again.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    items = ItineraryItem.query.filter_by(itinerary_id=itinerary_id).order_by(ItineraryItem.day_number, ItineraryItem.order_index).all()
-    item_form = ItineraryItemForm()
-    expense_form = ItineraryExpenseForm()
-    expenses = ItineraryExpense.query.filter_by(itinerary_id=itinerary_id).order_by(ItineraryExpense.created_at.desc()).all()
-    balances, settlements = compute_itinerary_balances(itinerary, expenses)
-    user_poll_votes = get_user_poll_votes(itinerary, current_user)
-    return render_template('user/itinerary_detail.html', itinerary=itinerary, items=items,
-                            permission=permission, item_form=item_form,
-                            expense_form=expense_form, expenses=expenses,
-                            balances=balances, settlements=settlements,
-                            packing_list=packing_list, user_poll_votes=user_poll_votes)
 
 def compute_eco_score(itinerary, items):
     """Kaba, deterministik bir sürdürülebilirlik skoru (0-100, yüksek = daha sürdürülebilir).
@@ -1847,90 +887,6 @@ def compute_eco_score(itinerary, items):
 
     return {'score': score, 'label': label, 'pace_per_day': round(pace, 1), 'transport_stops': num_transport_items}
 
-@app.route('/itinerary/<int:itinerary_id>/eco-score', methods=['POST'])
-@limiter.limit("10/hour")
-@login_required
-def generate_eco_score(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    permission = get_itinerary_permission(itinerary, current_user)
-    if permission is None:
-        flash('You do not have permission to view this itinerary.', 'error')
-        return redirect(url_for('itineraries'))
-
-    items = ItineraryItem.query.filter_by(itinerary_id=itinerary_id).order_by(ItineraryItem.day_number, ItineraryItem.order_index).all()
-    eco_score = compute_eco_score(itinerary, items)
-    if eco_score is None:
-        flash('Add some activities to your itinerary first so we can estimate an eco-score.', 'info')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    if groq_client:
-        try:
-            prompt = f"""A traveler's itinerary to {itinerary.city or ''} {itinerary.country} has an estimated
-sustainability score of {eco_score['score']}/100 ({eco_score['label']}), based on {eco_score['transport_stops']}
-transport-heavy stops and {eco_score['pace_per_day']} activities/day on average.
-
-Give exactly 3 short, concrete, actionable tips (max 15 words each) to make this specific trip more
-sustainable (e.g. train vs flight, public transit, eco-certified stays, slower pace). Return STRICT JSON only:
-{{"tips": ["tip 1", "tip 2", "tip 3"]}}"""
-            completion = groq_client.chat.completions.create(
-                model=GROQ_MODEL,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.6,
-                max_tokens=300,
-                response_format={"type": "json_object"},
-            )
-            eco_score['tips'] = json.loads(completion.choices[0].message.content).get('tips', [])
-        except Exception as e:
-            print(f"Eco-score tips generation error: {e}")
-            eco_score['tips'] = []
-    else:
-        eco_score['tips'] = []
-
-    item_form = ItineraryItemForm()
-    expense_form = ItineraryExpenseForm()
-    expenses = ItineraryExpense.query.filter_by(itinerary_id=itinerary_id).order_by(ItineraryExpense.created_at.desc()).all()
-    balances, settlements = compute_itinerary_balances(itinerary, expenses)
-    user_poll_votes = get_user_poll_votes(itinerary, current_user)
-    travel_buddies = find_travel_buddies(itinerary) if permission == 'owner' else []
-    return render_template('user/itinerary_detail.html', itinerary=itinerary, items=items,
-                            permission=permission, item_form=item_form,
-                            expense_form=expense_form, expenses=expenses,
-                            balances=balances, settlements=settlements,
-                            user_poll_votes=user_poll_votes, travel_buddies=travel_buddies,
-                            eco_score=eco_score)
-
-@app.route('/itinerary/<int:itinerary_id>/items', methods=['POST'])
-@login_required
-def add_itinerary_item(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    permission = get_itinerary_permission(itinerary, current_user)
-    if permission not in ('owner', 'edit'):
-        flash('You do not have permission to edit this itinerary.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    form = ItineraryItemForm()
-    if form.validate_on_submit():
-        max_order = db.session.query(db.func.max(ItineraryItem.order_index)).filter_by(itinerary_id=itinerary_id).scalar() or 0
-        item = ItineraryItem(
-            itinerary_id=itinerary_id,
-            day_number=form.day_number.data,
-            time_slot=form.time_slot.data,
-            place_name=form.place_name.data,
-            place_type=form.place_type.data,
-            description=form.description.data,
-            address=form.address.data,
-            estimated_duration=form.estimated_duration.data,
-            notes=form.notes.data,
-            order_index=max_order + 1,
-        )
-        db.session.add(item)
-        db.session.commit()
-        notify_itinerary_activity_added(itinerary, current_user, item)
-        flash('Item added to itinerary!', 'success')
-    else:
-        flash('Could not add item — please check the form.', 'error')
-    return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
 
 def notify_itinerary_activity_added(itinerary, actor, item):
     """Sahibe ve diğer collaborator'lara (ekleyen kişi hariç) e-posta bildirimi."""
@@ -1947,82 +903,11 @@ def notify_itinerary_activity_added(itinerary, actor, item):
             f"{actor.username} added an activity to \"{itinerary.title}\"",
             f"Hi {user.first_name or user.username},\n\n{actor.username} just added \"{item.place_name}\" "
             f"(Day {item.day_number}) to the itinerary \"{itinerary.title}\".\n\n"
-            f"View it: {url_for('itinerary_detail', itinerary_id=itinerary.id, _external=True)}",
+            f"View it: {url_for('itinerary.itinerary_detail', itinerary_id=itinerary.id, _external=True)}",
         )
 
-@app.route('/itinerary/<int:itinerary_id>/share', methods=['POST'])
-@login_required
-def share_itinerary(itinerary_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    if itinerary.user_id != current_user.id:
-        flash('Only the owner can share this itinerary.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    username = request.form.get('username', '').strip()
-    permission = request.form.get('permission', 'view')
-    if permission not in ('view', 'edit'):
-        permission = 'view'
-
-    collaborator_user = User.query.filter_by(username=username).first()
-    if not collaborator_user:
-        flash(f"No user found with username '{username}'.", 'error')
-    elif collaborator_user.id == current_user.id:
-        flash("You already own this itinerary.", 'error')
-    else:
-        existing = ItineraryCollaborator.query.filter_by(itinerary_id=itinerary_id, user_id=collaborator_user.id).first()
-        if existing:
-            existing.permission = permission
-            flash(f"Updated {collaborator_user.username}'s permission to {permission}.", 'success')
-        else:
-            db.session.add(ItineraryCollaborator(itinerary_id=itinerary_id, user_id=collaborator_user.id, permission=permission))
-            flash(f"{collaborator_user.username} can now {permission} this itinerary.", 'success')
-        db.session.commit()
-
-    return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-@app.route('/itinerary/<int:itinerary_id>/collaborators/<int:collaborator_id>/remove', methods=['POST'])
-@login_required
-def remove_collaborator(itinerary_id, collaborator_id):
-    itinerary = Itinerary.query.get_or_404(itinerary_id)
-    if itinerary.user_id != current_user.id:
-        flash('Only the owner can manage collaborators.', 'error')
-        return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
-
-    collab = ItineraryCollaborator.query.filter_by(id=collaborator_id, itinerary_id=itinerary_id).first()
-    if collab:
-        db.session.delete(collab)
-        db.session.commit()
-        flash('Collaborator removed.', 'success')
-    return redirect(url_for('itinerary_detail', itinerary_id=itinerary_id))
 
 # Enhanced Review Routes
-@app.route('/add_review', methods=['GET', 'POST'])
-@login_required
-def add_review():
-    form = ReviewForm()
-    if form.validate_on_submit():
-        review = Review(
-            title=form.title.data,
-            content=form.content.data,
-            rating=form.rating.data,
-            country=form.country.data,
-            city=form.city.data,
-            place_name=form.place_name.data,
-            place_type=form.place_type.data,
-            verified_visit=form.verified_visit.data,
-            images=encode_review_images(form.images.data),
-            wheelchair_accessible=tri_state_bool(form.wheelchair_accessible.data),
-            step_free_access=tri_state_bool(form.step_free_access.data),
-            accessibility_notes=form.accessibility_notes.data or None,
-            user_id=current_user.id
-        )
-        db.session.add(review)
-        award_points(current_user, POINTS_ADD_REVIEW + (POINTS_REVIEW_WITH_PHOTO_BONUS if review.images else 0))
-        db.session.commit()
-        flash('Review added successfully!', 'success')
-        return redirect(url_for('reviews'))
-
-    return render_template('reviews/add_review.html', form=form)
 
 
 def tri_state_bool(value):
@@ -2070,123 +955,10 @@ def encode_review_images(files, max_images=3):
     return results or None
 
 # Forum Routes
-@app.route('/forum')
-def forum_index():
-    country_filter = request.args.get('country', '')
-    query = ForumThread.query
-    if country_filter:
-        query = query.filter(ForumThread.country == country_filter)
-    threads = query.order_by(ForumThread.updated_at.desc()).limit(50).all()
-    reply_counts = {
-        t.id: ForumPost.query.filter_by(thread_id=t.id).count() for t in threads
-    }
-    return render_template('forum/index.html', threads=threads, reply_counts=reply_counts, country_filter=country_filter)
 
-@app.route('/forum/new', methods=['GET', 'POST'])
-@login_required
-def forum_new_thread():
-    form = ForumThreadForm()
-    if form.validate_on_submit():
-        thread = ForumThread(title=form.title.data, country=form.country.data or None, user_id=current_user.id)
-        db.session.add(thread)
-        db.session.flush()
-        db.session.add(ForumPost(thread_id=thread.id, user_id=current_user.id, content=form.content.data))
-        award_points(current_user, POINTS_FORUM_THREAD)
-        db.session.commit()
-        flash('Discussion started!', 'success')
-        return redirect(url_for('forum_thread', thread_id=thread.id))
-
-    return render_template('forum/new_thread.html', form=form)
-
-@app.route('/forum/<int:thread_id>', methods=['GET', 'POST'])
-def forum_thread(thread_id):
-    thread = ForumThread.query.get_or_404(thread_id)
-    reply_form = ForumReplyForm()
-
-    if reply_form.validate_on_submit():
-        if not current_user.is_authenticated:
-            return redirect(url_for('login', next=request.path))
-        db.session.add(ForumPost(thread_id=thread.id, user_id=current_user.id, content=reply_form.content.data))
-        thread.updated_at = datetime.utcnow()
-        award_points(current_user, POINTS_FORUM_REPLY)
-        db.session.commit()
-        flash('Reply posted!', 'success')
-        return redirect(url_for('forum_thread', thread_id=thread.id))
-
-    return render_template('forum/thread_detail.html', thread=thread, reply_form=reply_form)
 
 # Admin / Moderasyon Paneli
-@app.route('/admin')
-@admin_required
-def admin_dashboard():
-    stats = {
-        'users': User.query.count(),
-        'reviews': Review.query.count(),
-        'itineraries': Itinerary.query.count(),
-        'forum_threads': ForumThread.query.count(),
-        'forum_posts': ForumPost.query.count(),
-    }
-    return render_template('admin/dashboard.html', stats=stats)
 
-@app.route('/admin/reviews')
-@admin_required
-def admin_reviews():
-    reviews = Review.query.order_by(Review.created_at.desc()).limit(200).all()
-    return render_template('admin/reviews.html', reviews=reviews)
-
-@app.route('/admin/reviews/<int:review_id>/delete', methods=['POST'])
-@admin_required
-def admin_delete_review(review_id):
-    review = Review.query.get_or_404(review_id)
-    ReviewHelpfulVote.query.filter_by(review_id=review_id).delete()
-    db.session.delete(review)
-    db.session.commit()
-    flash('Review deleted.', 'success')
-    return redirect(url_for('admin_reviews'))
-
-@app.route('/admin/forum')
-@admin_required
-def admin_forum():
-    threads = ForumThread.query.order_by(ForumThread.updated_at.desc()).limit(200).all()
-    return render_template('admin/forum.html', threads=threads)
-
-@app.route('/admin/forum/<int:thread_id>/delete', methods=['POST'])
-@admin_required
-def admin_delete_thread(thread_id):
-    thread = ForumThread.query.get_or_404(thread_id)
-    ForumPost.query.filter_by(thread_id=thread_id).delete()
-    db.session.delete(thread)
-    db.session.commit()
-    flash('Thread deleted.', 'success')
-    return redirect(url_for('admin_forum'))
-
-@app.route('/admin/forum/post/<int:post_id>/delete', methods=['POST'])
-@admin_required
-def admin_delete_post(post_id):
-    post = ForumPost.query.get_or_404(post_id)
-    thread_id = post.thread_id
-    db.session.delete(post)
-    db.session.commit()
-    flash('Post deleted.', 'success')
-    return redirect(url_for('admin_forum'))
-
-@app.route('/admin/users')
-@admin_required
-def admin_users():
-    users = User.query.order_by(User.created_at.desc()).limit(200).all()
-    return render_template('admin/users.html', users=users)
-
-@app.route('/admin/users/<int:user_id>/toggle-active', methods=['POST'])
-@admin_required
-def admin_toggle_user_active(user_id):
-    user = User.query.get_or_404(user_id)
-    if user.id == current_user.id:
-        flash('You cannot deactivate your own account.', 'error')
-        return redirect(url_for('admin_users'))
-    user.is_active = not user.is_active
-    db.session.commit()
-    flash(f"{user.username} is now {'active' if user.is_active else 'banned'}.", 'success')
-    return redirect(url_for('admin_users'))
 
 # WMO weather codes -> human readable condition (used by Open-Meteo)
 WMO_CONDITIONS = {
@@ -2287,45 +1059,31 @@ def fetch_forecast_range(country, city, start_date, end_date):
         })
     return days
 
-@app.route('/weather/<country>/<city>')
-@cache.memoize(timeout=1800)  # 30 dakika - hava durumu bu sıklıkta yenilense yeterli
-def get_weather(country, city):
-    try:
-        weather = fetch_current_weather(country, city)
-        if not weather:
-            return jsonify({'error': f"Location not found for {city}, {country}"}), 404
-        return jsonify(weather)
-    except requests.RequestException as e:
-        print(f"Weather API error: {e}")
-        return jsonify({'error': 'Weather service temporarily unavailable'}), 503
 
+# Blueprints (route handlers live in blueprints/*.py; imported here, at the
+# bottom, after every shared extension/helper/constant above is already
+# defined on this module — the blueprint modules do `from app import ...`
+# for those names, which only works because this import happens last).
+from blueprints.main import main_bp
+from blueprints.auth import auth_bp
+from blueprints.wishlist import wishlist_bp
+from blueprints.itinerary import itinerary_bp
+from blueprints.review import review_bp
+from blueprints.forum import forum_bp
+from blueprints.admin import admin_bp
+from blueprints.weather import weather_bp
+from blueprints.cron import cron_bp
 
-@app.route('/currency/<from_currency>/<to_currency>')
-@cache.memoize(timeout=3600)  # 1 saat - döviz kurları bu sıklıkta güncellense yeterli
-def get_currency_rate(from_currency, to_currency):
-    from_currency = from_currency.upper()
-    to_currency = to_currency.upper()
-    try:
-        resp = requests.get(
-            'https://api.frankfurter.app/latest',
-            params={'from': from_currency, 'to': to_currency},
-            timeout=5,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        rate = data.get('rates', {}).get(to_currency)
-        if rate is None:
-            return jsonify({'error': f'No rate available for {from_currency} -> {to_currency}'}), 404
-        return jsonify({
-            'from': from_currency,
-            'to': to_currency,
-            'rate': rate,
-            'date': data.get('date'),
-            'source': 'frankfurter.app (European Central Bank)',
-        })
-    except requests.RequestException as e:
-        print(f"Currency API error: {e}")
-        return jsonify({'error': 'Currency service temporarily unavailable'}), 503
+app.register_blueprint(main_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(wishlist_bp)
+app.register_blueprint(itinerary_bp)
+app.register_blueprint(review_bp)
+app.register_blueprint(forum_bp)
+app.register_blueprint(admin_bp)
+app.register_blueprint(weather_bp)
+app.register_blueprint(cron_bp)
+
 
 # Initialize database
 def create_tables():

@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="itineraries-container">
-        <a href="{{ url_for('admin_dashboard') }}" class="back-button"><i class="fas fa-arrow-left"></i> Admin Dashboard</a>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button"><i class="fas fa-arrow-left"></i> Admin Dashboard</a>
         <div class="itineraries-header"><h1><i class="fas fa-star"></i> Moderate Reviews ({{ reviews|length }})</h1></div>
 
         <div style="background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
@@ -17,7 +17,7 @@
                     </div>
                     <p style="margin:0; color:#334155; font-size:0.9rem;">{{ r.content[:200] }}{% if r.content|length > 200 %}...{% endif %}</p>
                 </div>
-                <form method="POST" action="{{ url_for('admin_delete_review', review_id=r.id) }}" onsubmit="return confirm('Delete this review permanently?');">
+                <form method="POST" action="{{ url_for('admin.admin_delete_review', review_id=r.id) }}" onsubmit="return confirm('Delete this review permanently?');">
                     <button type="submit" style="background:#dc2626; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; white-space:nowrap;">
                         <i class="fas fa-trash"></i> Delete
                     </button>

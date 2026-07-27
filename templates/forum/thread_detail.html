@@ -5,7 +5,7 @@
 
 {% block content %}
     <div class="itinerary-detail-container">
-        <a href="{{ url_for('forum_index') }}" class="back-button">
+        <a href="{{ url_for('forum.forum_index') }}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back to Forum
         </a>
 
@@ -34,7 +34,7 @@
             <div class="itinerary-section" style="margin-top:2rem; padding:1.5rem; background:#f8fafc; border-radius:12px;">
                 {% if current_user.is_authenticated %}
                 <h3><i class="fas fa-reply"></i> Post a Reply</h3>
-                <form method="POST" action="{{ url_for('forum_thread', thread_id=thread.id) }}">
+                <form method="POST" action="{{ url_for('forum.forum_thread', thread_id=thread.id) }}">
                     {{ reply_form.hidden_tag() }}
                     {{ reply_form.content(class="form-textarea", style="width:100%;") }}
                     {% if reply_form.content.errors %}
@@ -43,7 +43,7 @@
                     <button type="submit" class="auth-submit-btn" style="margin-top:10px;"><i class="fas fa-paper-plane"></i> Post Reply</button>
                 </form>
                 {% else %}
-                <p><a href="{{ url_for('login', next=request.path) }}">Log in</a> to join the discussion.</p>
+                <p><a href="{{ url_for('auth.login', next=request.path) }}">Log in</a> to join the discussion.</p>
                 {% endif %}
             </div>
         </div>

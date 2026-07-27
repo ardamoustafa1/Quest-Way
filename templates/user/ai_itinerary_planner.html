@@ -18,7 +18,7 @@
 
     <div class="create-itinerary-container">
         <div class="create-itinerary-card">
-            <form method="POST" action="{{ url_for('ai_itinerary_planner') }}" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px;">
+            <form method="POST" action="{{ url_for('itinerary.ai_itinerary_planner') }}" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px;">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     {{ form.country.label(class="form-label") }}
@@ -71,7 +71,7 @@
             </div>
             {% endfor %}
 
-            <form method="POST" action="{{ url_for('save_ai_itinerary') }}" style="margin-top:1.5rem;">
+            <form method="POST" action="{{ url_for('itinerary.save_ai_itinerary') }}" style="margin-top:1.5rem;">
                 <input type="hidden" name="country" value="{{ plan_country }}">
                 <input type="hidden" name="plan_json" value='{{ plan_json }}'>
                 <button type="submit" class="auth-submit-btn"><i class="fas fa-save"></i> Save this itinerary</button>

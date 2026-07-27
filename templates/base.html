@@ -47,26 +47,26 @@
 <body>
     <header class="top-header">
         <div class="header-container">
-            <a href="{{ url_for('index') }}" class="logo">
+            <a href="{{ url_for('main.index') }}" class="logo">
                 <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay Logo">
                 <span class="brand-name">QuestWay</span>
             </a>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="{{ url_for('index') }}" data-i18n="nav_home" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
-                    <li><a href="{{ url_for('explore') }}" data-i18n="nav_explore" class="{% if request.endpoint == 'explore' %}active{% endif %}">Explore</a></li>
-                    <li><a href="{{ url_for('reviews') }}" data-i18n="nav_reviews" class="{% if request.endpoint == 'reviews' %}active{% endif %}">Reviews</a></li>
-                    <li><a href="{{ url_for('search') }}" data-i18n="nav_search" class="{% if request.endpoint == 'search' %}active{% endif %}">Search</a></li>
-                    <li><a href="{{ url_for('forum_index') }}" data-i18n="nav_forum" class="{% if request.endpoint and request.endpoint.startswith('forum_') %}active{% endif %}">Forum</a></li>
+                    <li><a href="{{ url_for('main.index') }}" data-i18n="nav_home" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+                    <li><a href="{{ url_for('main.explore') }}" data-i18n="nav_explore" class="{% if request.endpoint == 'explore' %}active{% endif %}">Explore</a></li>
+                    <li><a href="{{ url_for('main.reviews') }}" data-i18n="nav_reviews" class="{% if request.endpoint == 'reviews' %}active{% endif %}">Reviews</a></li>
+                    <li><a href="{{ url_for('main.search') }}" data-i18n="nav_search" class="{% if request.endpoint == 'search' %}active{% endif %}">Search</a></li>
+                    <li><a href="{{ url_for('forum.forum_index') }}" data-i18n="nav_forum" class="{% if request.endpoint and request.endpoint.startswith('forum_') %}active{% endif %}">Forum</a></li>
                     {% if current_user.is_authenticated %}
-                        <li><a href="{{ url_for('wishlist') }}" data-i18n="nav_wishlist" class="{% if request.endpoint == 'wishlist' %}active{% endif %}">Wishlist</a></li>
-                        <li><a href="{{ url_for('itineraries') }}" data-i18n="nav_itineraries" class="{% if request.endpoint == 'itineraries' %}active{% endif %}">Itineraries</a></li>
-                        <li><a href="{{ url_for('profile') }}" data-i18n="nav_profile" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a></li>
-                        {% if current_user.is_admin %}<li><a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint and request.endpoint.startswith('admin_') %}active{% endif %}"><i class="fas fa-shield-halved"></i> <span data-i18n="nav_admin">Admin</span></a></li>{% endif %}
-                        <li><a href="{{ url_for('logout') }}" data-i18n="nav_logout">Logout</a></li>
+                        <li><a href="{{ url_for('wishlist.wishlist') }}" data-i18n="nav_wishlist" class="{% if request.endpoint == 'wishlist' %}active{% endif %}">Wishlist</a></li>
+                        <li><a href="{{ url_for('itinerary.itineraries') }}" data-i18n="nav_itineraries" class="{% if request.endpoint == 'itineraries' %}active{% endif %}">Itineraries</a></li>
+                        <li><a href="{{ url_for('auth.profile') }}" data-i18n="nav_profile" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a></li>
+                        {% if current_user.is_admin %}<li><a href="{{ url_for('admin.admin_dashboard') }}" class="{% if request.endpoint and request.endpoint.startswith('admin_') %}active{% endif %}"><i class="fas fa-shield-halved"></i> <span data-i18n="nav_admin">Admin</span></a></li>{% endif %}
+                        <li><a href="{{ url_for('auth.logout') }}" data-i18n="nav_logout">Logout</a></li>
                     {% else %}
-                        <li><a href="{{ url_for('login') }}" data-i18n="nav_login" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
-                        <li><a href="{{ url_for('register') }}" data-i18n="nav_register" class="{% if request.endpoint == 'register' %}active{% endif %}">Register</a></li>
+                        <li><a href="{{ url_for('auth.login') }}" data-i18n="nav_login" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
+                        <li><a href="{{ url_for('auth.register') }}" data-i18n="nav_register" class="{% if request.endpoint == 'register' %}active{% endif %}">Register</a></li>
                     {% endif %}
                 </ul>
             </nav>
@@ -93,17 +93,17 @@
                 <i class="fas fa-times"></i>
             </button>
             <ul class="mobile-nav-links">
-                <li><a href="{{ url_for('index') }}" data-i18n="nav_home" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
-                <li><a href="{{ url_for('reviews') }}" data-i18n="nav_reviews" class="{% if request.endpoint == 'reviews' %}active{% endif %}">Reviews</a></li>
-                <li><a href="{{ url_for('search') }}" data-i18n="nav_search" class="{% if request.endpoint == 'search' %}active{% endif %}">Search</a></li>
+                <li><a href="{{ url_for('main.index') }}" data-i18n="nav_home" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+                <li><a href="{{ url_for('main.reviews') }}" data-i18n="nav_reviews" class="{% if request.endpoint == 'reviews' %}active{% endif %}">Reviews</a></li>
+                <li><a href="{{ url_for('main.search') }}" data-i18n="nav_search" class="{% if request.endpoint == 'search' %}active{% endif %}">Search</a></li>
                 {% if current_user.is_authenticated %}
-                    <li><a href="{{ url_for('wishlist') }}" data-i18n="nav_wishlist" class="{% if request.endpoint == 'wishlist' %}active{% endif %}">Wishlist</a></li>
-                    <li><a href="{{ url_for('itineraries') }}" data-i18n="nav_itineraries" class="{% if request.endpoint == 'itineraries' %}active{% endif %}">Itineraries</a></li>
-                    <li><a href="{{ url_for('profile') }}" data-i18n="nav_profile" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a></li>
-                    <li><a href="{{ url_for('logout') }}" data-i18n="nav_logout">Logout</a></li>
+                    <li><a href="{{ url_for('wishlist.wishlist') }}" data-i18n="nav_wishlist" class="{% if request.endpoint == 'wishlist' %}active{% endif %}">Wishlist</a></li>
+                    <li><a href="{{ url_for('itinerary.itineraries') }}" data-i18n="nav_itineraries" class="{% if request.endpoint == 'itineraries' %}active{% endif %}">Itineraries</a></li>
+                    <li><a href="{{ url_for('auth.profile') }}" data-i18n="nav_profile" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}" data-i18n="nav_logout">Logout</a></li>
                 {% else %}
-                    <li><a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
-                    <li><a href="{{ url_for('register') }}" class="{% if request.endpoint == 'register' %}active{% endif %}">Register</a></li>
+                    <li><a href="{{ url_for('auth.login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}" class="{% if request.endpoint == 'register' %}active{% endif %}">Register</a></li>
                 {% endif %}
             </ul>
         </div>

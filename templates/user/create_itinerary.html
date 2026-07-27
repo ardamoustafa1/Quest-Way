@@ -23,12 +23,12 @@
     </section>
 
     <div class="create-itinerary-container">
-        <a href="{{ url_for('itineraries') }}" class="back-button">
+        <a href="{{ url_for('itinerary.itineraries') }}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back to Itineraries
         </a>
         <div class="create-itinerary-card">
             <h1><i class="fas fa-route"></i> Create New Itinerary</h1>
-            <form method="POST" action="{{ url_for('create_itinerary') }}">
+            <form method="POST" action="{{ url_for('itinerary.create_itinerary') }}">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     {{ form.title.label(class="form-label") }}
