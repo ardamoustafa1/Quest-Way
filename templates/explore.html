@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <script>
+        <script nonce="{{ csp_nonce() }}">
         (function() {
             const lightbox = document.getElementById('qw-lightbox');
             document.querySelectorAll('.qw-explore-card').forEach(card => {

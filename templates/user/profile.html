@@ -85,7 +85,7 @@
                 <p style="color:#64748b; font-size:0.9rem;">Share your link — you get {{ REFERRAL_BONUS_REFERRER }} points, they get {{ REFERRAL_BONUS_NEW_USER }} points when they join.</p>
                 <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
                     <input type="text" readonly value="{{ url_for('auth.register', ref=current_user.referral_code, _external=True) }}" id="qw-referral-link" class="form-input" style="flex:1; min-width:220px;">
-                    <button type="button" class="auth-submit-btn" onclick="navigator.clipboard.writeText(document.getElementById('qw-referral-link').value); this.textContent='Copied!';">
+                    <button type="button" class="auth-submit-btn" id="qw-referral-copy-btn">
                         <i class="fas fa-copy"></i> Copy Link
                     </button>
                 </div>
@@ -180,4 +180,13 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+document.getElementById('qw-referral-copy-btn').addEventListener('click', function() {
+    navigator.clipboard.writeText(document.getElementById('qw-referral-link').value);
+    this.textContent = 'Copied!';
+});
+</script>
 {% endblock %}

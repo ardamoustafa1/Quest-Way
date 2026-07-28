@@ -305,7 +305,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initThemeToggle();
     initLanguageToggle();
+    initConfirmForms();
 });
+
+// Destructive forms (admin delete/ban) opt in via data-confirm="..." instead of
+// an inline onsubmit="" attribute, so this works under a CSP without 'unsafe-inline'.
+function initConfirmForms() {
+    document.querySelectorAll('form[data-confirm]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            if (!confirm(form.getAttribute('data-confirm'))) {
+                e.preventDefault();
+            }
+        });
+    });
+}
 
 // ---- Dark mode ----
 function initThemeToggle() {

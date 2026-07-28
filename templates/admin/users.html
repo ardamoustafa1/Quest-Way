@@ -31,7 +31,7 @@
                         <td style="padding:10px 16px;">{{ u.created_at.strftime('%B %d, %Y') if u.created_at else '' }}</td>
                         <td style="padding:10px 16px;">
                             {% if u.id != current_user.id %}
-                            <form method="POST" action="{{ url_for('admin.admin_toggle_user_active', user_id=u.id) }}" onsubmit="return confirm('{{ 'Ban' if u.is_active else 'Unban' }} {{ u.username }}?');">
+                            <form method="POST" action="{{ url_for('admin.admin_toggle_user_active', user_id=u.id) }}" data-confirm="{{ 'Ban' if u.is_active else 'Unban' }} {{ u.username }}?">
                                 <button type="submit" style="background:{{ '#dc2626' if u.is_active else '#059669' }}; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.85rem;">
                                     {{ 'Ban' if u.is_active else 'Unban' }}
                                 </button>

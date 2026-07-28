@@ -17,7 +17,7 @@
                     </div>
                     <p style="margin:0; color:#334155; font-size:0.9rem;">{{ r.content[:200] }}{% if r.content|length > 200 %}...{% endif %}</p>
                 </div>
-                <form method="POST" action="{{ url_for('admin.admin_delete_review', review_id=r.id) }}" onsubmit="return confirm('Delete this review permanently?');">
+                <form method="POST" action="{{ url_for('admin.admin_delete_review', review_id=r.id) }}" data-confirm="Delete this review permanently?">
                     <button type="submit" style="background:#dc2626; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; white-space:nowrap;">
                         <i class="fas fa-trash"></i> Delete
                     </button>

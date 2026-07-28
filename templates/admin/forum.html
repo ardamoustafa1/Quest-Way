@@ -17,7 +17,7 @@
                             by {{ t.author.username }} {% if t.country %}&middot; {{ t.country }}{% endif %} &middot; {{ t.posts|length }} post{{ 's' if t.posts|length != 1 }}
                         </div>
                     </div>
-                    <form method="POST" action="{{ url_for('admin.admin_delete_thread', thread_id=t.id) }}" onsubmit="return confirm('Delete this entire thread and all replies?');">
+                    <form method="POST" action="{{ url_for('admin.admin_delete_thread', thread_id=t.id) }}" data-confirm="Delete this entire thread and all replies?">
                         <button type="submit" style="background:#dc2626; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; white-space:nowrap;">
                             <i class="fas fa-trash"></i> Delete Thread
                         </button>
@@ -29,7 +29,7 @@
                     {% for p in t.posts %}
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px solid #f1f5f9;">
                         <span style="font-size:0.85rem;"><strong>{{ p.author.username }}</strong>: {{ p.content[:100] }}</span>
-                        <form method="POST" action="{{ url_for('admin.admin_delete_post', post_id=p.id) }}" onsubmit="return confirm('Delete this post?');">
+                        <form method="POST" action="{{ url_for('admin.admin_delete_post', post_id=p.id) }}" data-confirm="Delete this post?">
                             <button type="submit" style="background:none; border:none; color:#dc2626; cursor:pointer;"><i class="fas fa-times"></i></button>
                         </form>
                     </div>

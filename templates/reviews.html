@@ -148,7 +148,7 @@
 
             <!-- Load More Button -->
             <div class="load-more-section">
-                <button class="load-more-btn" onclick="loadMoreReviews()">
+                <button class="load-more-btn" id="loadMoreBtn">
                     <i class="fas fa-plus"></i> Load More Reviews
                 </button>
             </div>
@@ -157,7 +157,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce() }}">
 // Filter functionality
 document.addEventListener('DOMContentLoaded', function() {
     const countryFilter = document.getElementById('countryFilter');
@@ -165,14 +165,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const sortFilter = document.getElementById('sortFilter');
     const accessibleFilter = document.getElementById('accessibleFilter');
     const filterForm = document.getElementById('filterForm');
-    
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+
     // Auto-submit form when filters change
     function submitFilter() {
         // Loading animasyonu göster
         showLoadingAnimation();
         filterForm.submit();
     }
-    
+
     function showLoadingAnimation() {
         const statsContainer = document.querySelector('.reviews-stats');
         if (statsContainer) {
@@ -180,11 +181,12 @@ document.addEventListener('DOMContentLoaded', function() {
             statsContainer.style.transition = 'opacity 0.3s ease';
         }
     }
-    
+
     countryFilter.addEventListener('change', submitFilter);
     ratingFilter.addEventListener('change', submitFilter);
     sortFilter.addEventListener('change', submitFilter);
     accessibleFilter.addEventListener('change', submitFilter);
+    if (loadMoreBtn) loadMoreBtn.addEventListener('click', loadMoreReviews);
 });
 
 function loadMoreReviews() {

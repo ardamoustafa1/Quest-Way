@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Erken tema uygulaması: FOUC (yanlış temayla an be an flaşlama) önlemek için
          stylesheet'lerden önce, localStorage'dan okuyup data-theme'i hemen set ediyoruz. -->
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         (function() {
             var theme = localStorage.getItem('qw-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', theme);
@@ -34,7 +34,7 @@
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
@@ -173,7 +173,7 @@
         #qw-chat-input { flex: 1; border: none; padding: 12px; font-size: 0.9rem; outline: none; }
         #qw-chat-form button { background: none; border: none; color: #2563eb; padding: 0 16px; cursor: pointer; font-size: 1.1rem; }
     </style>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
     (function() {
         const toggle = document.getElementById('qw-chat-toggle');
         const panel = document.getElementById('qw-chat-panel');

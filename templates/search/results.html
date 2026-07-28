@@ -209,7 +209,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce() }}">
 // Search form interactions
 document.addEventListener('DOMContentLoaded', function() {
     const searchForm = document.querySelector('.modern-search-form');

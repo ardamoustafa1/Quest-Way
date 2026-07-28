@@ -132,13 +132,16 @@ def handle_rate_limit(e):
     flash('You are doing that too often — please wait a bit and try again.', 'error')
     return redirect(request.referrer or url_for('main.index'))
 
-# Security header'ları (Flask-Talisman). Not: site birçok template'te inline
-# <script>/<style> kullanıyor (tema/dil toggle'ı, chat widget, form validasyonu vb.);
-# bunları nonce'lı hale getirmek onlarca template'in yeniden yazılmasını
-# gerektirir. Bu yüzden CSP script/style-src'de 'unsafe-inline' bırakıldı —
-# hiç CSP olmamasından çok daha iyi (dış kaynaklardan script/stil yüklenmesini
-# hâlâ engelliyor), ama XSS'e karşı mükemmel koruma değil. HTTPS zorlaması
-# sadece gerçek production'da (Render/Vercel) açık, local http geliştirmeyi bozmuyor.
+# Security header'ları (Flask-Talisman). script-src artık 'unsafe-inline' YERİNE
+# per-request nonce kullanıyor: her <script> bloğu template'te nonce="{{ csp_nonce() }}"
+# taşıyor (bkz. templates/), ve tüm eski onclick=/onsubmit= gibi inline event handler'lar
+# addEventListener'a taşındı (nonce'lar sadece <script> bloklarını kapsar, inline
+# attribute handler'ları kapsamaz). Bu, XSS ile enjekte edilen script'lerin artık
+# tarayıcı tarafından gerçekten engellendiği anlamına geliyor. style-src'de
+# 'unsafe-inline' bilinçli olarak bırakıldı — düzinelerce template'te inline
+# style="" kullanılıyor ve CSS-only XSS riski script'e göre çok daha düşük.
+# HTTPS zorlaması sadece gerçek production'da (Render/Vercel) açık, local http
+# geliştirmeyi bozmuyor.
 IS_PRODUCTION = bool(os.environ.get('RENDER') or os.environ.get('VERCEL'))
 Talisman(
     app,
@@ -147,7 +150,7 @@ Talisman(
     session_cookie_secure=IS_PRODUCTION,
     content_security_policy={
         'default-src': "'self'",
-        'script-src': ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://unpkg.com',
+        'script-src': ["'self'", 'https://cdnjs.cloudflare.com', 'https://unpkg.com',
                         'https://pagead2.googlesyndication.com', 'https://www.googletagmanager.com'],
         'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com',
                        'https://unpkg.com'],
@@ -155,7 +158,7 @@ Talisman(
         'img-src': ["'self'", 'data:', 'https:'],
         'connect-src': ["'self'", 'https:'],
     },
-    content_security_policy_nonce_in=[],
+    content_security_policy_nonce_in=['script-src'],
 )
 
 # Groq (Llama) — AI itinerary generator + chat asistanı
