@@ -1076,3 +1076,343 @@ html[data-theme="light"] .top-header {
   background: var(--qw-gold) !important;
   color: #201603 !important;
 }
+
+/* ==========================================================================
+   GLOBAL RESKIN — modern-styles.css is almost entirely driven by a handful
+   of CSS custom properties (--primary-color, --secondary-color, --border-radius,
+   etc.), reused hundreds of times across every template. Overriding those
+   variables here — plus the shared .hero-banner/.hero-overlay/.hero-text
+   classes that ~17 templates all extend — recolors the entire remaining
+   site (reviews, explore, forum, auth, profile, itineraries, admin...) to
+   the ink/gold/emerald system in one place, without hand-editing every
+   template. Pages get a second, more targeted pass afterward for anything
+   that still needs bespoke layout work.
+   ========================================================================== */
+
+:root {
+  --primary-color: #17513f !important;
+  --primary-dark: #0d3128 !important;
+  --secondary-color: #c9a24b !important;
+  --accent-color: #2f8f6f !important;
+  --border-radius: 14px !important;
+  --border-radius-lg: 22px !important;
+  --shadow: 0 4px 16px rgba(10, 11, 13, 0.08) !important;
+  --shadow-lg: 0 16px 40px rgba(10, 11, 13, 0.14) !important;
+}
+
+html[data-theme="dark"] {
+  --white: var(--qw-ink) !important;
+  --light-gray: var(--qw-ink-2) !important;
+  --medium-gray: var(--qw-ink-text-muted) !important;
+  --dark-gray: var(--qw-ink-text) !important;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background-color: var(--qw-ink-2) !important;
+  border-color: var(--qw-hairline-strong) !important;
+}
+
+html[data-theme="dark"] .content-card,
+html[data-theme="dark"] .review-card,
+html[data-theme="dark"] .itinerary-card,
+html[data-theme="dark"] .auth-form-card,
+html[data-theme="dark"] .create-itinerary-card,
+html[data-theme="dark"] .stat-card {
+  /* Several of these also set a light background-IMAGE (gradient) via the
+     `background:` shorthand — a background-color override alone leaves
+     that image layered on top, still visibly light. Kill it explicitly. */
+  background-color: var(--qw-ink-2) !important;
+  background-image: none !important;
+  border: 1px solid var(--qw-hairline);
+}
+
+body {
+  font-family: var(--qw-font-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--qw-font-display) !important;
+  font-weight: 500 !important;
+}
+
+/* --- Hero banners shared across ~17 inner pages --- */
+
+.hero-banner::before { display: none; }
+.hero-background::before,
+.hero-background::after { display: none !important; }
+
+/* `background-attachment: fixed` isn't supported on iOS Safari (silently
+   falls back to `scroll`, so mobile never got the intended parallax
+   anyway) and is a known trigger for compositing/rendering glitches in
+   some headless-browser screenshot pipelines. Plain `scroll` looks
+   identical on every real device that matters here. */
+.hero-background {
+  background-attachment: scroll !important;
+}
+
+.hero-overlay {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(10,11,13,0.25), rgba(10,11,13,0.6) 55%, rgba(10,11,13,0.92) 100%) !important;
+  animation: none !important;
+}
+
+.hero-content { color: var(--qw-ink-text) !important; }
+
+.hero-text h1 {
+  font-family: var(--qw-font-display) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em;
+  text-shadow: none !important;
+}
+
+.hero-text p {
+  font-family: var(--qw-font-body) !important;
+  color: var(--qw-ink-text-muted) !important;
+  text-shadow: none !important;
+  font-weight: 400 !important;
+}
+
+.hero-text .create-button,
+.hero-text .add-review-btn,
+.hero-text .add-button {
+  background: linear-gradient(180deg, var(--qw-gold-bright), var(--qw-gold)) !important;
+  color: #201603 !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.hero-text .create-button:hover,
+.hero-text .add-review-btn:hover,
+.hero-text .add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(201, 162, 75, 0.35) !important;
+}
+
+/* --- Country hero variant (details.html) --- */
+.country-hero .hero-overlay {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(10,11,13,0.2), rgba(10,11,13,0.55) 55%, rgba(10,11,13,0.9) 100%) !important;
+}
+.country-hero .hero-text h1 { font-family: var(--qw-font-display) !important; }
+
+/* --- Forms --- */
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--qw-gold) !important;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.14) !important;
+}
+
+.form-checkbox { accent-color: var(--qw-gold) !important; }
+
+.form-label i,
+.terms-link,
+.password-toggle:hover {
+  color: var(--qw-gold-dim) !important;
+}
+
+html[data-theme="dark"] .form-label i,
+html[data-theme="dark"] .terms-link,
+html[data-theme="dark"] .password-toggle:hover {
+  color: var(--qw-gold-bright) !important;
+}
+
+/* --- Buttons --- */
+
+.auth-submit-btn {
+  background: linear-gradient(180deg, var(--qw-gold-bright), var(--qw-gold)) !important;
+  color: #201603 !important;
+  box-shadow: none !important;
+}
+
+.auth-submit-btn:hover {
+  background: linear-gradient(180deg, var(--qw-gold), var(--qw-gold-dim)) !important;
+  box-shadow: 0 12px 32px rgba(201, 162, 75, 0.3) !important;
+}
+
+.create-button {
+  border-color: rgba(247, 244, 236, 0.35) !important;
+}
+
+.create-button:hover {
+  border-color: var(--qw-gold) !important;
+}
+
+/* --- Cards / surfaces --- */
+
+.content-card,
+.review-card,
+.itinerary-card,
+.auth-form-card,
+.create-itinerary-card,
+.stat-card,
+.qw-quote-card {
+  border-radius: var(--border-radius-lg) !important;
+}
+
+/* Several card sub-sections (review header strip, itinerary/wishlist
+   footers, empty-state panels...) use a HARDCODED #f8f9fa/#e9ecef light
+   gradient rather than a variable — invisible against dark-mode cards
+   without an explicit override here. */
+html[data-theme="dark"] .review-header,
+html[data-theme="dark"] .result-card-header,
+html[data-theme="dark"] .wishlist-card-footer,
+html[data-theme="dark"] .empty-wishlist,
+html[data-theme="dark"] .itinerary-card-footer,
+html[data-theme="dark"] .empty-itineraries {
+  background: var(--qw-ink-3) !important;
+  border-color: var(--qw-hairline) !important;
+}
+
+.reviewer-details h4,
+.reviewer-details p {
+  color: var(--qw-paper-text) !important;
+}
+
+html[data-theme="dark"] .reviewer-details h4 {
+  color: var(--qw-ink-text) !important;
+}
+
+html[data-theme="dark"] .reviewer-details p,
+html[data-theme="dark"] .review-date,
+html[data-theme="dark"] .stat-item p {
+  color: var(--qw-ink-text-muted) !important;
+}
+
+/* .action-btn is reused for two unrelated shapes across the legacy CSS —
+   a 32x32 circular icon button (wishlist cards) and a wider icon+label
+   pill (review like/share) — the circular rule was winning everywhere and
+   stretching the review buttons into ellipses. Scope review/reviews-grid
+   buttons back to a proper pill explicitly. */
+.review-card .action-btn,
+.reviews-grid .action-btn {
+  width: auto !important;
+  height: auto !important;
+  border-radius: var(--qw-radius-pill) !important;
+  background: transparent !important;
+  color: var(--qw-paper-text-muted) !important;
+  border: 1px solid rgba(20, 23, 28, 0.14) !important;
+  padding: 0.5rem 0.9rem !important;
+}
+
+html[data-theme="dark"] .review-card .action-btn,
+html[data-theme="dark"] .reviews-grid .action-btn {
+  color: var(--qw-ink-text-muted) !important;
+  border-color: var(--qw-hairline-strong) !important;
+}
+
+.review-card .action-btn:hover,
+.reviews-grid .action-btn:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--qw-gold) !important;
+  color: var(--qw-gold-dim) !important;
+  background: rgba(201, 162, 75, 0.08) !important;
+}
+
+html[data-theme="dark"] .review-card .action-btn:hover,
+html[data-theme="dark"] .reviews-grid .action-btn:hover {
+  color: var(--qw-gold-bright) !important;
+}
+
+.review-card .action-btn.liked,
+.reviews-grid .action-btn.liked {
+  background: var(--qw-gold) !important;
+  border-color: var(--qw-gold) !important;
+  color: #201603 !important;
+}
+
+.review-card .action-btn.liked i {
+  color: #201603 !important;
+}
+
+/* Stat numbers (reviews page "Total Reviews / Average Rating / Countries
+   Covered") default to --primary-color, which is now a dark emerald meant
+   for surfaces, not foreground text on a dark section. */
+.stat-item h3 {
+  color: var(--qw-gold-dim) !important;
+}
+
+html[data-theme="dark"] .stat-item h3 {
+  color: var(--qw-gold-bright) !important;
+}
+
+/* --- Star ratings / highlights --- */
+
+.stars,
+.rating-text,
+.review-rating,
+.stat-number {
+  color: var(--qw-gold) !important;
+}
+
+html[data-theme="dark"] .stars,
+html[data-theme="dark"] .rating-text,
+html[data-theme="dark"] .stat-number {
+  color: var(--qw-gold-bright) !important;
+}
+
+/* --- Admin tables --- */
+
+table {
+  border-collapse: collapse;
+}
+
+table th {
+  font-family: var(--qw-font-body);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--qw-gold-dim) !important;
+  border-bottom: 2px solid var(--qw-hairline-strong) !important;
+}
+
+html[data-theme="dark"] table th {
+  color: var(--qw-gold-bright) !important;
+}
+
+table td {
+  border-bottom: 1px solid var(--qw-hairline);
+}
+
+/* --- List-page shell (itineraries, forum, all admin index pages —
+   7 templates share this exact class pair). Hardcoded hex colors here,
+   not variables, so the :root override above doesn't reach it. --- */
+
+.itineraries-container {
+  background: var(--qw-paper) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+html[data-theme="dark"] .itineraries-container {
+  background: var(--qw-ink-2) !important;
+}
+
+.itineraries-header {
+  background: linear-gradient(135deg, var(--qw-emerald-dim), var(--qw-emerald)) !important;
+  border: 1px solid rgba(247, 244, 236, 0.08);
+}
+
+.itineraries-header::before {
+  background: linear-gradient(45deg, rgba(201, 162, 75, 0.12) 0%, transparent 50%) !important;
+}
+
+.itineraries-header h1 {
+  font-family: var(--qw-font-display) !important;
+  font-weight: 500 !important;
+  /* Not `color: var(--white)` — that variable means "page surface", which
+     is repurposed to a near-black tone in dark mode, making text using it
+     as a foreground color unreadable against any colored/dark banner. */
+  color: var(--qw-ink-text) !important;
+}
+
+.itineraries-header .create-button,
+.itineraries-header .back-button {
+  color: var(--qw-ink-text) !important;
+  border-color: rgba(247, 244, 236, 0.35) !important;
+}
