@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}QuestWay - Your Ultimate Travel Companion{% endblock %}
+{% block title %}QuestWay — Travel Intelligence for Deliberate Wanderers{% endblock %}
+{% block meta_description %}QuestWay is a considered travel guide — real reviews, AI-assisted itineraries, and a community of travelers who plan carefully and wander deliberately.{% endblock %}
 
 {% block extra_head %}
     <!-- Google AdSense -->
@@ -9,321 +10,247 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Hero Section - TripAdvisor Style -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
+
+    <!-- ============ HERO ============ -->
+    <section class="qw-hero">
+        <div class="qw-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="qw-hero-scrim"></div>
+        <div class="qw-hero-grain"></div>
+
+        <div class="qw-hero-content">
+            <div class="qw-eyebrow qw-reveal">QuestWay — Travel Intelligence</div>
+            <h1 class="qw-hero-title qw-reveal">Wander further.<br><em>Plan smarter.</em></h1>
+            <p class="qw-hero-sub qw-reveal" data-i18n="home_subtitle">A considered guide for travelers who read carefully before they book — real reviews, AI-assisted itineraries, and a community that's actually been there.</p>
+
+            <form method="POST" action="/country" class="qw-search-bar qw-reveal">
+                <i class="fas fa-location-dot"></i>
+                <select name="country" id="country" required>
+                    <option value="" disabled selected>Where to?</option>
+                    {% for country in countries %}
+                        <option value="{{ country }}">{{ country }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="qw-search-submit" aria-label="Search">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
         </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 data-i18n="home_title">Find your next adventure</h1>
-                <p data-i18n="home_subtitle">Discover amazing places, read reviews, and plan your perfect trip</p>
-            </div>
-            
-            <!-- Main Search Bar -->
-            <div class="main-search-container">
-                <form method="POST" action="/country" class="main-search-form">
-                    <div class="search-tabs">
-                        <button type="button" class="search-tab active" data-tab="places">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Places to go
-                        </button>
-                    </div>
-                    
-                    <div class="search-inputs">
-                        <div class="search-field">
-                            <label for="country">Where to?</label>
-                            <select name="country" id="country" required>
-                                <option value="" disabled selected>Search destinations</option>
-                                {% for country in countries %}
-                                    <option value="{{ country }}">{{ country }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button type="submit" class="search-submit-btn">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
+
+        <div class="qw-scroll-cue">
+            <span>Scroll</span>
+            <span class="qw-scroll-line"></span>
         </div>
     </section>
 
-    <!-- Quick Links Section -->
-    <section class="quick-links-section">
-        <div class="container">
-            <div class="quick-links-grid">
-                <a href="{{ url_for('main.reviews') }}" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-star"></i>
+    <!-- ============ MARQUEE ============ -->
+    <div class="qw-marquee">
+        <div class="qw-marquee-track">
+            {% for label in ['Paris', 'Kyoto', 'Rome', 'Santorini', 'Barcelona', 'Istanbul', 'Berlin', 'Lisbon'] %}
+            <span class="qw-marquee-item"><i class="fas fa-diamond"></i>{{ label }}</span>
+            {% endfor %}
+            {% for label in ['Paris', 'Kyoto', 'Rome', 'Santorini', 'Barcelona', 'Istanbul', 'Berlin', 'Lisbon'] %}
+            <span class="qw-marquee-item"><i class="fas fa-diamond"></i>{{ label }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ============ FEATURES ============ -->
+    <section class="qw-section">
+        <div class="qw-container">
+            <div class="qw-section-head qw-reveal">
+                <div>
+                    <div class="qw-eyebrow">Start here</div>
+                    <h2 class="qw-section-title">Everything a careful traveler actually needs</h2>
+                </div>
+                <p class="qw-section-desc">No noise, no filler — four ways in, all built around real trips and real people.</p>
+            </div>
+
+            <div class="qw-features-grid qw-reveal">
+                <a href="{{ url_for('main.reviews') }}" class="qw-feature-card">
+                    <span class="qw-feature-num">01</span>
+                    <div>
+                        <h3 class="qw-feature-title">Reviews</h3>
+                        <p class="qw-feature-desc">Unfiltered accounts from travelers who were actually there.</p>
                     </div>
-                    <h3>Reviews</h3>
-                    <p>Read traveler reviews</p>
+                    <span class="qw-feature-arrow"><i class="fas fa-arrow-right"></i></span>
                 </a>
-                
-                <a href="{{ url_for('main.search') }}" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-search"></i>
+                <a href="{{ url_for('main.search') }}" class="qw-feature-card">
+                    <span class="qw-feature-num">02</span>
+                    <div>
+                        <h3 class="qw-feature-title">Search</h3>
+                        <p class="qw-feature-desc">Find the exact place, dish, or stay you're picturing.</p>
                     </div>
-                    <h3>Search</h3>
-                    <p>Find places to visit</p>
+                    <span class="qw-feature-arrow"><i class="fas fa-arrow-right"></i></span>
                 </a>
-                
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('wishlist.wishlist') }}" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-heart"></i>
+                <a href="{{ url_for('wishlist.wishlist') }}" class="qw-feature-card">
+                    <span class="qw-feature-num">03</span>
+                    <div>
+                        <h3 class="qw-feature-title">Wishlist</h3>
+                        <p class="qw-feature-desc">Keep every place you mean to see, in one quiet list.</p>
                     </div>
-                    <h3>Wishlist</h3>
-                    <p>Your saved places</p>
+                    <span class="qw-feature-arrow"><i class="fas fa-arrow-right"></i></span>
                 </a>
-                
-                <a href="{{ url_for('itinerary.itineraries') }}" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-route"></i>
+                <a href="{{ url_for('itinerary.itineraries') }}" class="qw-feature-card">
+                    <span class="qw-feature-num">04</span>
+                    <div>
+                        <h3 class="qw-feature-title">Itineraries</h3>
+                        <p class="qw-feature-desc">Plan day-by-day, or let the AI planner start it for you.</p>
                     </div>
-                    <h3>Itineraries</h3>
-                    <p>Plan your trip</p>
+                    <span class="qw-feature-arrow"><i class="fas fa-arrow-right"></i></span>
                 </a>
                 {% else %}
-                <a href="{{ url_for('auth.login') }}" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-user"></i>
+                <a href="{{ url_for('auth.login') }}" class="qw-feature-card">
+                    <span class="qw-feature-num">03</span>
+                    <div>
+                        <h3 class="qw-feature-title">Sign in</h3>
+                        <p class="qw-feature-desc">Pick up your wishlist and itineraries where you left off.</p>
                     </div>
-                    <h3>Sign In</h3>
-                    <p>Access your account</p>
+                    <span class="qw-feature-arrow"><i class="fas fa-arrow-right"></i></span>
                 </a>
-                
-                <a href="{{ url_for('auth.register') }}" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-user-plus"></i>
+                <a href="{{ url_for('auth.register') }}" class="qw-feature-card">
+                    <span class="qw-feature-num">04</span>
+                    <div>
+                        <h3 class="qw-feature-title">Join</h3>
+                        <p class="qw-feature-desc">Free account, no clutter — just your own travel record.</p>
                     </div>
-                    <h3>Join</h3>
-                    <p>Create an account</p>
+                    <span class="qw-feature-arrow"><i class="fas fa-arrow-right"></i></span>
                 </a>
                 {% endif %}
             </div>
         </div>
     </section>
 
-    <!-- Featured Destinations -->
-    <section class="featured-destinations">
-        <div class="container">
-            <div class="section-header">
-                <h2>Popular destinations</h2>
-                <p>Discover the most visited places around the world</p>
+    <!-- ============ FEATURED DESTINATIONS ============ -->
+    <section class="qw-section qw-section-dark">
+        <div class="qw-container">
+            <div class="qw-section-head qw-reveal">
+                <div>
+                    <div class="qw-eyebrow">Popular this season</div>
+                    <h2 class="qw-section-title">Four places worth the trip</h2>
+                </div>
+                <a href="{{ url_for('main.search') }}" class="qw-btn qw-btn-outline">Browse all destinations</a>
             </div>
-            
-            <div class="destinations-grid">
-                <a href="/country?country=France" class="destination-card">
-                    <div class="destination-image">
-                        <img src="https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Paris">
-                        <div class="destination-overlay">
-                            <div class="destination-rating">
-                                <span class="stars">★★★★★</span>
-                                <span class="rating-text">4.8</span>
-                            </div>
-                        </div>
-                        <div class="hover-button">Explore →</div>
-                        <button class="heart-btn" data-country="France" data-city="Paris" data-place-type="country">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                    <div class="destination-info">
-                        <h3>Paris, France</h3>
-                        <p class="destination-description">The City of Light, known for its art, fashion, and cuisine</p>
-                        <div class="destination-stats">
-                            <span class="stat">
-                                <i class="fas fa-map-marker-alt"></i>
-                                2,847 places
-                            </span>
-                            <span class="stat">
-                                <i class="fas fa-star"></i>
-                                4.8 rating
-                            </span>
-                        </div>
+
+            <div class="qw-dest-grid qw-reveal-stagger">
+                <a href="/country?country=France" class="qw-dest-card">
+                    <img src="https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" alt="Paris, France" loading="lazy">
+                    <span class="qw-dest-badge"><i class="fas fa-star"></i> 4.8</span>
+                    <button class="heart-btn" data-country="France" data-city="Paris" data-place-type="country" aria-label="Save Paris to wishlist">
+                        <i class="far fa-heart"></i>
+                    </button>
+                    <div class="qw-dest-info">
+                        <span class="qw-dest-country">France</span>
+                        <h3>Paris</h3>
+                        <p>The City of Light — art, fashion, and quiet cafés.</p>
                     </div>
                 </a>
-                
-                <a href="/country?country=Germany" class="destination-card">
-                    <div class="destination-image">
-                        <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Berlin">
-                        <div class="destination-overlay">
-                            <div class="destination-rating">
-                                <span class="stars">★★★★★</span>
-                                <span class="rating-text">4.7</span>
-                            </div>
-                        </div>
-                        <div class="hover-button">Explore →</div>
-                        <button class="heart-btn" data-country="Germany" data-city="Berlin" data-place-type="country">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                    <div class="destination-info">
-                        <h3>Berlin, Germany</h3>
-                        <p class="destination-description">A city of history, culture, and vibrant nightlife</p>
-                        <div class="destination-stats">
-                            <span class="stat">
-                                <i class="fas fa-map-marker-alt"></i>
-                                1,856 places
-                            </span>
-                            <span class="stat">
-                                <i class="fas fa-star"></i>
-                                4.7 rating
-                            </span>
-                        </div>
+                <a href="/country?country=Germany" class="qw-dest-card">
+                    <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" alt="Berlin, Germany" loading="lazy">
+                    <span class="qw-dest-badge"><i class="fas fa-star"></i> 4.7</span>
+                    <button class="heart-btn" data-country="Germany" data-city="Berlin" data-place-type="country" aria-label="Save Berlin to wishlist">
+                        <i class="far fa-heart"></i>
+                    </button>
+                    <div class="qw-dest-info">
+                        <span class="qw-dest-country">Germany</span>
+                        <h3>Berlin</h3>
+                        <p>History, culture, and a nightlife that never quite sleeps.</p>
                     </div>
                 </a>
-                
-                <a href="/country?country=Italy" class="destination-card">
-                    <div class="destination-image">
-                        <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Rome">
-                        <div class="destination-overlay">
-                            <div class="destination-rating">
-                                <span class="stars">★★★★★</span>
-                                <span class="rating-text">4.7</span>
-                            </div>
-                        </div>
-                        <div class="hover-button">Explore →</div>
-                        <button class="heart-btn" data-country="Italy" data-city="Rome" data-place-type="country">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                    <div class="destination-info">
-                        <h3>Rome, Italy</h3>
-                        <p class="destination-description">The Eternal City with ancient history and delicious food</p>
-                        <div class="destination-stats">
-                            <span class="stat">
-                                <i class="fas fa-map-marker-alt"></i>
-                                1,456 places
-                            </span>
-                            <span class="stat">
-                                <i class="fas fa-star"></i>
-                                4.7 rating
-                            </span>
-                        </div>
+                <a href="/country?country=Italy" class="qw-dest-card">
+                    <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" alt="Rome, Italy" loading="lazy">
+                    <span class="qw-dest-badge"><i class="fas fa-star"></i> 4.7</span>
+                    <button class="heart-btn" data-country="Italy" data-city="Rome" data-place-type="country" aria-label="Save Rome to wishlist">
+                        <i class="far fa-heart"></i>
+                    </button>
+                    <div class="qw-dest-info">
+                        <span class="qw-dest-country">Italy</span>
+                        <h3>Rome</h3>
+                        <p>The Eternal City — ancient stone, unhurried dinners.</p>
                     </div>
                 </a>
-                
-                <a href="/country?country=Spain" class="destination-card">
-                    <div class="destination-image">
-                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Barcelona">
-                        <div class="destination-overlay">
-                            <div class="destination-rating">
-                                <span class="stars">★★★★★</span>
-                                <span class="rating-text">4.6</span>
-                            </div>
-                        </div>
-                        <div class="hover-button">Explore →</div>
-                        <button class="heart-btn" data-country="Spain" data-city="Barcelona" data-place-type="country">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                    <div class="destination-info">
-                        <h3>Barcelona, Spain</h3>
-                        <p class="destination-description">A city of art, architecture, and Mediterranean charm</p>
-                        <div class="destination-stats">
-                            <span class="stat">
-                                <i class="fas fa-map-marker-alt"></i>
-                                1,234 places
-                            </span>
-                            <span class="stat">
-                                <i class="fas fa-star"></i>
-                                4.6 rating
-                            </span>
-                        </div>
+                <a href="/country?country=Spain" class="qw-dest-card">
+                    <img src="https://images.unsplash.com/photo-1583422409516-2895a77efded?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" alt="Barcelona, Spain" loading="lazy">
+                    <span class="qw-dest-badge"><i class="fas fa-star"></i> 4.6</span>
+                    <button class="heart-btn" data-country="Spain" data-city="Barcelona" data-place-type="country" aria-label="Save Barcelona to wishlist">
+                        <i class="far fa-heart"></i>
+                    </button>
+                    <div class="qw-dest-info">
+                        <span class="qw-dest-country">Spain</span>
+                        <h3>Barcelona</h3>
+                        <p>Gaudí's curves against the Mediterranean light.</p>
                     </div>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Recent Reviews Section -->
-    <section class="recent-reviews-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>Recent reviews</h2>
-                <a href="{{ url_for('main.reviews') }}" class="view-all-link">View all reviews</a>
+    <!-- ============ STATS ============ -->
+    <section class="qw-section">
+        <div class="qw-container">
+            <div class="qw-stats-panel qw-reveal">
+                <div class="qw-stat">
+                    <div class="qw-stat-num qw-counting" data-target="{{ countries|length if countries else 30 }}">0</div>
+                    <div class="qw-stat-label">Countries covered</div>
+                </div>
+                <div class="qw-stat">
+                    <div class="qw-stat-num qw-counting" data-target="1200" data-suffix="+">0</div>
+                    <div class="qw-stat-label">Verified reviews</div>
+                </div>
+                <div class="qw-stat">
+                    <div class="qw-stat-num qw-counting" data-target="340" data-suffix="+">0</div>
+                    <div class="qw-stat-label">Itineraries planned</div>
+                </div>
+                <div class="qw-stat">
+                    <div class="qw-stat-num qw-counting" data-target="98" data-suffix="%">0</div>
+                    <div class="qw-stat-label">Would plan again with QuestWay</div>
+                </div>
             </div>
-            
-            <div class="reviews-preview-grid">
-                <div class="review-preview-card">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">S</div>
-                            <div class="reviewer-details">
-                                <h4>Sarah M.</h4>
-                                <p>Paris, France</p>
-                            </div>
-                        </div>
-                        <div class="review-rating">
-                            <span class="stars">★★★★★</span>
-                        </div>
-                    </div>
-                    <div class="review-content">
-                        <h3>Amazing Experience in Paris</h3>
-                        <p>"QuestWay helped me discover hidden gems in Paris that I never would have found on my own. The recommendations were spot on!"</p>
-                        <div class="review-meta">
-                            <span class="review-date">2 days ago</span>
-                            <div class="review-actions">
-                                <button class="action-btn like-btn">
-                                    <i class="far fa-thumbs-up"></i> <span>12</span>
-                                </button>
-                            </div>
+        </div>
+    </section>
+
+    <!-- ============ REVIEWS ============ -->
+    <section class="qw-section qw-section-dark">
+        <div class="qw-container">
+            <div class="qw-section-head qw-reveal">
+                <div>
+                    <div class="qw-eyebrow">From the community</div>
+                    <h2 class="qw-section-title">What recent trips looked like</h2>
+                </div>
+                <a href="{{ url_for('main.reviews') }}" class="qw-btn qw-btn-outline">Read all reviews</a>
+            </div>
+
+            <div class="qw-quote-grid qw-reveal-stagger">
+                <div class="qw-quote-card">
+                    <span class="qw-quote-stars">★★★★★</span>
+                    <p class="qw-quote-text">"QuestWay helped me discover hidden gems in Paris I never would have found on my own. The recommendations were spot on."</p>
+                    <div class="qw-quote-author">
+                        <div class="qw-quote-avatar">S</div>
+                        <div>
+                            <div class="qw-quote-author-name">Sarah M.</div>
+                            <div class="qw-quote-author-loc">Paris, France</div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="review-preview-card">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">M</div>
-                            <div class="reviewer-details">
-                                <h4>Mike R.</h4>
-                                <p>Tokyo, Japan</p>
-                            </div>
-                        </div>
-                        <div class="review-rating">
-                            <span class="stars">★★★★★</span>
-                        </div>
-                    </div>
-                    <div class="review-content">
-                        <h3>Perfect Tokyo Adventure</h3>
-                        <p>"The itinerary suggestions were incredible. I had the most authentic Japanese experience thanks to QuestWay's local insights."</p>
-                        <div class="review-meta">
-                            <span class="review-date">1 week ago</span>
-                            <div class="review-actions">
-                                <button class="action-btn like-btn">
-                                    <i class="far fa-thumbs-up"></i> <span>8</span>
-                                </button>
-                            </div>
+                <div class="qw-quote-card">
+                    <span class="qw-quote-stars">★★★★★</span>
+                    <p class="qw-quote-text">"The itinerary suggestions were incredible — the most authentic Japanese experience I've had, thanks to QuestWay's local insight."</p>
+                    <div class="qw-quote-author">
+                        <div class="qw-quote-avatar">M</div>
+                        <div>
+                            <div class="qw-quote-author-name">Mike R.</div>
+                            <div class="qw-quote-author-loc">Tokyo, Japan</div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="review-preview-card">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">E</div>
-                            <div class="reviewer-details">
-                                <h4>Emma L.</h4>
-                                <p>Rome, Italy</p>
-                            </div>
-                        </div>
-                        <div class="review-rating">
-                            <span class="stars">★★★★★</span>
-                        </div>
-                    </div>
-                    <div class="review-content">
-                        <h3>Unforgettable Rome Trip</h3>
-                        <p>"From the Colosseum to hidden trattorias, QuestWay made my Roman holiday absolutely perfect. Highly recommended!"</p>
-                        <div class="review-meta">
-                            <span class="review-date">3 days ago</span>
-                            <div class="review-actions">
-                                <button class="action-btn like-btn">
-                                    <i class="far fa-thumbs-up"></i> <span>15</span>
-                                </button>
-                            </div>
+                <div class="qw-quote-card">
+                    <span class="qw-quote-stars">★★★★★</span>
+                    <p class="qw-quote-text">"From the Colosseum to hidden trattorias, QuestWay made my Roman holiday absolutely perfect. Highly recommended."</p>
+                    <div class="qw-quote-author">
+                        <div class="qw-quote-avatar">E</div>
+                        <div>
+                            <div class="qw-quote-author-name">Emma L.</div>
+                            <div class="qw-quote-author-loc">Rome, Italy</div>
                         </div>
                     </div>
                 </div>
@@ -331,48 +258,25 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <h3>QuestWay</h3>
-                    <p>Your ultimate travel companion for discovering amazing destinations around the world. Start your journey today!</p>
+    <!-- ============ CTA ============ -->
+    <section class="qw-section">
+        <div class="qw-container">
+            <div class="qw-cta qw-reveal">
+                <div class="qw-cta-content">
+                    <h2>Your next trip deserves a plan this good.</h2>
+                    <p>Free to join. Save places, write reviews, and let the AI planner build your first itinerary in minutes.</p>
+                    <div class="qw-cta-actions">
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('itinerary.itineraries') }}" class="qw-btn qw-btn-gold">Go to my itineraries</a>
+                        {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="qw-btn qw-btn-gold">Create a free account</a>
+                        <a href="{{ url_for('main.explore') }}" class="qw-btn qw-btn-outline">Explore first</a>
+                        {% endif %}
+                    </div>
                 </div>
-                
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="{{ url_for('main.index') }}">Home</a></li>
-                        <li><a href="{{ url_for('main.reviews') }}">Reviews</a></li>
-                        <li><a href="{{ url_for('main.search') }}">Search</a></li>
-                        <li><a href="{{ url_for('wishlist.wishlist') if current_user.is_authenticated else url_for('auth.login') }}">Wishlist</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Features</h4>
-                    <ul class="footer-links">
-                        <li><a href="{{ url_for('itinerary.itineraries') if current_user.is_authenticated else url_for('auth.login') }}">Itineraries</a></li>
-                        <li><a href="{{ url_for('auth.profile') if current_user.is_authenticated else url_for('auth.login') }}">Profile</a></li>
-                        <li><a href="{{ url_for('review.add_review') if current_user.is_authenticated else url_for('auth.login') }}">Add Review</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Connect</h4>
-                    <ul class="footer-links">
-                        <li><a href="{{ url_for('auth.login') if not current_user.is_authenticated else url_for('auth.profile') }}">Login</a></li>
-                        <li><a href="{{ url_for('auth.register') if not current_user.is_authenticated else url_for('auth.logout') }}">Register</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2024 QuestWay. All rights reserved.</p>
             </div>
         </div>
-    </footer>
+    </section>
 
     <!-- AI Assistant Toggle Button -->
     <button class="ai-toggle-btn" id="aiToggleBtn">
@@ -406,206 +310,108 @@
     document.getElementById('chatCloseBtn').addEventListener('click', function() { toggleChat(); });
     document.getElementById('sendBtn').addEventListener('click', function() { sendMessage(); });
 
-    // Like functionality for recent reviews
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.like-btn')) {
-            e.preventDefault();
-            const btn = e.target.closest('.like-btn');
-            const icon = btn.querySelector('i');
-            const countSpan = btn.querySelector('span');
-            
-            // Get current count safely
-            let currentCount = 0;
-            if (countSpan) {
-                currentCount = parseInt(countSpan.textContent) || 0;
-            }
-            
-            if (icon.classList.contains('fas')) {
-                // Unlike: remove filled icon, add outline icon, decrease count
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                btn.classList.remove('liked');
-                currentCount = Math.max(0, currentCount - 1);
-            } else {
-                // Like: add filled icon, remove outline icon, increase count
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                btn.classList.add('liked');
-                currentCount = currentCount + 1;
-            }
-            
-            // Update count display
-            if (countSpan) {
-                countSpan.textContent = currentCount;
-            }
-            
-            console.log('Review liked/unliked. New count:', currentCount);
-        }
-    });
-
-    // Load wishlist status on page load
+    // Load wishlist status on page load — for now this just resets hearts to
+    // the "not saved" state; a future pass could fetch the real wishlist.
     document.addEventListener('DOMContentLoaded', function() {
-        loadWishlistStatus();
-    });
-
-    function loadWishlistStatus() {
         const isLoggedIn = {{ 'true' if current_user.is_authenticated else 'false' }};
-        
-        if (!isLoggedIn) {
-            return;
-        }
-
-        // Get all heart buttons
-        const heartButtons = document.querySelectorAll('.heart-btn');
-        
-        // For now, we'll just show empty hearts
-        // In a real implementation, you'd fetch the user's wishlist from the server
-        heartButtons.forEach(btn => {
+        if (!isLoggedIn) return;
+        document.querySelectorAll('.heart-btn').forEach(btn => {
             const icon = btn.querySelector('i');
             icon.classList.remove('fas');
             icon.classList.add('far');
             btn.classList.remove('favorited');
         });
-    }
+    });
 
-    // Heart button functionality for wishlist
+    // Heart button — add/remove from wishlist
     document.addEventListener('click', function(e) {
-        if (e.target.closest('.heart-btn')) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const btn = e.target.closest('.heart-btn');
-            const icon = btn.querySelector('i');
-            const country = btn.getAttribute('data-country');
-            const city = btn.getAttribute('data-city');
-            const placeType = btn.getAttribute('data-place-type');
-            
-            // Check if user is logged in
-            const isLoggedIn = {{ 'true' if current_user.is_authenticated else 'false' }};
-            
-            if (!isLoggedIn) {
-                // Redirect to login page
-                window.location.href = '/login';
-                return;
-            }
-            
-            // Toggle heart state
-            if (btn.classList.contains('favorited')) {
-                // Remove from wishlist
-                removeFromWishlist(btn, icon, country, city, placeType);
-            } else {
-                // Add to wishlist
-                addToWishlist(btn, icon, country, city, placeType);
-            }
+        if (!e.target.closest('.heart-btn')) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const btn = e.target.closest('.heart-btn');
+        const icon = btn.querySelector('i');
+        const country = btn.getAttribute('data-country');
+        const city = btn.getAttribute('data-city');
+        const placeType = btn.getAttribute('data-place-type');
+        const isLoggedIn = {{ 'true' if current_user.is_authenticated else 'false' }};
+
+        if (!isLoggedIn) {
+            window.location.href = '/login';
+            return;
+        }
+
+        if (btn.classList.contains('favorited')) {
+            removeFromWishlist(btn, icon, country, city);
+        } else {
+            addToWishlist(btn, icon, country, city, placeType);
         }
     });
 
     function addToWishlist(btn, icon, country, city, placeType) {
+        const img = btn.closest('.qw-dest-card').querySelector('img');
         fetch('/api/add_to_wishlist', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 place_name: city + ', ' + country,
                 place_type: placeType,
                 country: country,
                 city: city,
                 description: 'Added from Popular Destinations',
-                image_url: btn.closest('.destination-image').querySelector('img').src
-            })
-        })
-        .then(response => {
-            console.log('Response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log('Response data:', data);
-            if (data.success) {
-                // Update UI
-                btn.classList.add('favorited');
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                
-                // Show success message
-                showNotification('Added to wishlist!', 'success');
-            } else {
-                showNotification(data.message || 'Failed to add to wishlist', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Failed to add to wishlist: ' + error.message, 'error');
-        });
-    }
-
-    function removeFromWishlist(btn, icon, country, city, placeType) {
-        fetch('/api/remove_from_wishlist', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                place_name: city + ', ' + country,
-                country: country,
-                city: city
+                image_url: img ? img.src : ''
             })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update UI
+                btn.classList.add('favorited');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                showNotification('Added to wishlist!', 'success');
+            } else {
+                showNotification(data.message || 'Failed to add to wishlist', 'error');
+            }
+        })
+        .catch(error => showNotification('Failed to add to wishlist: ' + error.message, 'error'));
+    }
+
+    function removeFromWishlist(btn, icon, country, city) {
+        fetch('/api/remove_from_wishlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ place_name: city + ', ' + country, country: country, city: city })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
                 btn.classList.remove('favorited');
                 icon.classList.remove('fas');
                 icon.classList.add('far');
-                
-                // Show success message
                 showNotification('Removed from wishlist!', 'success');
             } else {
                 showNotification(data.message || 'Failed to remove from wishlist', 'error');
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Failed to remove from wishlist', 'error');
-        });
+        .catch(() => showNotification('Failed to remove from wishlist', 'error'));
     }
 
     function showNotification(message, type) {
-        // Create notification element
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
-        
-        // Style the notification
         notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'success' ? '#10b981' : '#ef4444'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            font-weight: 500;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
+            position: fixed; top: 20px; right: 20px;
+            background: ${type === 'success' ? '#2f8f6f' : '#c0392b'};
+            color: white; padding: 12px 20px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 1000;
+            font-weight: 500; transform: translateX(120%); transition: transform 0.3s ease;
         `;
-        
         document.body.appendChild(notification);
-        
-        // Animate in
+        setTimeout(() => { notification.style.transform = 'translateX(0)'; }, 50);
         setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
+            notification.style.transform = 'translateX(120%)';
+            setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
     </script>

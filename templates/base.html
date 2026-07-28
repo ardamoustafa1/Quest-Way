@@ -14,8 +14,9 @@
     <title>{% block title %}QuestWay - Your Ultimate Travel Companion{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='modern-styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme-2026.css') }}">
     <meta name="description" content="{% block meta_description %}QuestWay - Your ultimate travel companion for discovering amazing destinations around the world. Get expert recommendations, read reviews, and plan your perfect trip.{% endblock %}">
 
     <!-- Open Graph / Twitter Card (WhatsApp, Instagram, Twitter/X, Facebook link previews) -->
@@ -123,7 +124,56 @@
         {% block content %}{% endblock %}
     </main>
 
+    <footer class="qw-footer">
+        <div class="qw-container">
+            <div class="qw-footer-top">
+                <div>
+                    <a href="{{ url_for('main.index') }}" class="qw-footer-brand">
+                        <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay">
+                        QuestWay
+                    </a>
+                    <p class="qw-footer-tagline">A quiet, considered guide for travelers who plan carefully and wander deliberately — real reviews, real itineraries, real people.</p>
+                </div>
+                <div class="qw-footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                        <li><a href="{{ url_for('main.explore') }}">Explore</a></li>
+                        <li><a href="{{ url_for('main.reviews') }}">Reviews</a></li>
+                        <li><a href="{{ url_for('main.search') }}">Search</a></li>
+                        <li><a href="{{ url_for('forum.forum_index') }}">Forum</a></li>
+                    </ul>
+                </div>
+                <div class="qw-footer-col">
+                    <h4>Plan</h4>
+                    <ul>
+                        <li><a href="{{ url_for('itinerary.itineraries') if current_user.is_authenticated else url_for('auth.login') }}">Itineraries</a></li>
+                        <li><a href="{{ url_for('wishlist.wishlist') if current_user.is_authenticated else url_for('auth.login') }}">Wishlist</a></li>
+                        <li><a href="{{ url_for('review.add_review') if current_user.is_authenticated else url_for('auth.login') }}">Write a Review</a></li>
+                        <li><a href="{{ url_for('itinerary.ai_itinerary_planner') if current_user.is_authenticated else url_for('auth.login') }}">AI Planner</a></li>
+                    </ul>
+                </div>
+                <div class="qw-footer-col">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a href="{{ url_for('auth.login') if not current_user.is_authenticated else url_for('auth.profile') }}">{{ 'Log in' if not current_user.is_authenticated else 'Profile' }}</a></li>
+                        <li><a href="{{ url_for('auth.register') if not current_user.is_authenticated else url_for('auth.logout') }}">{{ 'Create account' if not current_user.is_authenticated else 'Log out' }}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="qw-footer-bottom">
+                <p>&copy; 2026 QuestWay. All rights reserved.</p>
+                <div class="qw-footer-socials">
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="X / Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='theme-2026.js') }}" defer></script>
     {% block extra_js %}{% endblock %}
 
     {% if current_user.is_authenticated %}

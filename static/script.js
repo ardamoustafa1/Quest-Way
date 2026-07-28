@@ -351,15 +351,13 @@ const QW_TRANSLATIONS = {
         nav_home: 'Home', nav_explore: 'Explore', nav_reviews: 'Reviews', nav_search: 'Search',
         nav_forum: 'Forum', nav_wishlist: 'Wishlist', nav_itineraries: 'Itineraries',
         nav_profile: 'Profile', nav_admin: 'Admin', nav_logout: 'Logout', nav_login: 'Login', nav_register: 'Register',
-        home_title: 'Find your next adventure',
-        home_subtitle: 'Discover amazing places, read reviews, and plan your perfect trip',
+        home_subtitle: 'A considered guide for travelers who read carefully before they book — real reviews, AI-assisted itineraries, and a community that\'s actually been there.',
     },
     tr: {
         nav_home: 'Ana Sayfa', nav_explore: 'Keşfet', nav_reviews: 'Yorumlar', nav_search: 'Ara',
         nav_forum: 'Forum', nav_wishlist: 'İstek Listesi', nav_itineraries: 'Gezi Planlarım',
         nav_profile: 'Profil', nav_admin: 'Yönetim', nav_logout: 'Çıkış Yap', nav_login: 'Giriş Yap', nav_register: 'Kayıt Ol',
-        home_title: 'Bir sonraki maceranı keşfet',
-        home_subtitle: 'Harika yerler keşfet, yorumları oku ve mükemmel gezini planla',
+        home_subtitle: 'Rezervasyondan önce dikkatle okuyan gezginler için: gerçek yorumlar, yapay zeka destekli gezi planları ve gerçekten oraya gitmiş bir topluluk.',
     },
 };
 
