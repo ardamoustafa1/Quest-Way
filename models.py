@@ -244,3 +244,21 @@ class ForumPost(db.Model):
 
     def __repr__(self):
         return f'<ForumPost thread={self.thread_id}>'
+
+
+class AdminAuditLog(db.Model):
+    """Bir admin'in moderasyon amaçlı her yıkıcı/durum-değiştirici işlemi (silme, banlama vb.)
+    burada kalıcı olarak kaydedilir — kim, ne zaman, neyi yaptı sorusuna cevap verir.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    admin_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    action = db.Column(db.String(50), nullable=False)  # örn. 'delete_review', 'ban_user'
+    target_type = db.Column(db.String(50), nullable=False)  # örn. 'review', 'forum_thread', 'user'
+    target_id = db.Column(db.Integer, nullable=False)
+    details = db.Column(db.String(300), nullable=True)  # kısa, insan-okunabilir özet
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    admin_user = db.relationship('User')
+
+    def __repr__(self):
+        return f'<AdminAuditLog {self.action} {self.target_type}:{self.target_id} by user={self.admin_user_id}>'

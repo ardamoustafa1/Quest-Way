@@ -20,6 +20,37 @@
             <a href="{{ url_for('admin.admin_reviews') }}" class="create-button"><i class="fas fa-star"></i> Moderate Reviews</a>
             <a href="{{ url_for('admin.admin_forum') }}" class="create-button"><i class="fas fa-comments"></i> Moderate Forum</a>
             <a href="{{ url_for('admin.admin_users') }}" class="create-button"><i class="fas fa-users"></i> Manage Users</a>
+            <a href="{{ url_for('admin.admin_audit_log') }}" class="create-button"><i class="fas fa-clipboard-list"></i> Audit Log</a>
+        </div>
+
+        <div style="margin-top:2.5rem;">
+            <h2 style="font-size:1.1rem; margin-bottom:0.75rem;"><i class="fas fa-clock-rotate-left"></i> Recent Admin Actions</h2>
+            {% if recent_actions %}
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <thead>
+                    <tr style="text-align:left; border-bottom:2px solid #e2e8f0;">
+                        <th style="padding:8px;">When</th>
+                        <th style="padding:8px;">Admin</th>
+                        <th style="padding:8px;">Action</th>
+                        <th style="padding:8px;">Target</th>
+                        <th style="padding:8px;">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in recent_actions %}
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:8px; white-space:nowrap;">{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td style="padding:8px;">{{ entry.admin_user.username if entry.admin_user else '?' }}</td>
+                        <td style="padding:8px;">{{ entry.action }}</td>
+                        <td style="padding:8px;">{{ entry.target_type }}#{{ entry.target_id }}</td>
+                        <td style="padding:8px; color:#64748b;">{{ entry.details or '' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color:#64748b;">No admin actions logged yet.</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

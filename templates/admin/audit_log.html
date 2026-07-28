@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Log - Admin - QuestWay{% endblock %}
+
+{% block content %}
+    <div class="itineraries-container">
+        <div class="itineraries-header">
+            <h1><i class="fas fa-clipboard-list"></i> Admin Audit Log</h1>
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="create-button"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+
+        {% if entries %}
+        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+            <thead>
+                <tr style="text-align:left; border-bottom:2px solid #e2e8f0;">
+                    <th style="padding:8px;">When</th>
+                    <th style="padding:8px;">Admin</th>
+                    <th style="padding:8px;">Action</th>
+                    <th style="padding:8px;">Target</th>
+                    <th style="padding:8px;">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                    <td style="padding:8px; white-space:nowrap;">{{ entry.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td style="padding:8px;">{{ entry.admin_user.username if entry.admin_user else '?' }}</td>
+                    <td style="padding:8px;">{{ entry.action }}</td>
+                    <td style="padding:8px;">{{ entry.target_type }}#{{ entry.target_id }}</td>
+                    <td style="padding:8px; color:#64748b;">{{ entry.details or '' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-itineraries">
+            <i class="fas fa-clipboard-list"></i>
+            <h3>No admin actions logged yet</h3>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
