@@ -1,43 +1,98 @@
 const questions = [
-    { text: "Do you prefer warm or cold climates?", options: { "Warm": "warm", "Cold": "cold" } },
-    { text: "Do you like historical places or modern cities?", options: { "Historical": "historical", "Modern": "modern" } },
-    { text: "Are you interested in nature or urban life?", options: { "Nature": "nature", "Urban": "urban" } },
-    { text: "Do you prefer a budget-friendly or luxury trip?", options: { "Budget-friendly": "budget", "Luxury": "luxury" } },
-    { text: "What kind of food do you like?", options: { "Local": "local", "International": "international" } }
+    { key: "region", text: "Which part of the world would you most like to explore?", options: {
+        "Europe": "Europe", "Asia": "Asia", "Africa": "Africa",
+        "Americas": "Americas", "Oceania": "Oceania", "Surprise me": "any"
+    }},
+    { key: "season", text: "When are you planning to travel?", options: {
+        "Spring": "spring", "Summer": "summer", "Autumn": "autumn",
+        "Winter": "winter", "Flexible": "flexible"
+    }},
+    { key: "climate", text: "What weather would make the trip feel right?", options: {
+        "Warm & sunny": "warm", "Mild": "mild", "Cool": "cool",
+        "Snowy": "snow", "No preference": "any"
+    }},
+    { key: "duration", text: "How much time do you have?", options: {
+        "Weekend": "weekend", "4–7 days": "week", "8–14 days": "fortnight",
+        "2+ weeks": "long"
+    }},
+    { key: "budget", text: "What is your preferred spending level?", options: {
+        "Value focused": "budget", "Comfortable": "midrange",
+        "Premium": "luxury", "Flexible": "any"
+    }},
+    { key: "style", text: "What should be at the heart of this trip?", options: {
+        "History & culture": "history", "Nature & wildlife": "nature",
+        "Food": "food", "Beaches": "beach", "Cities & nightlife": "city"
+    }},
+    { key: "pace", text: "Which travel pace suits you?", options: {
+        "Slow & restorative": "slow", "Balanced": "balanced",
+        "See as much as possible": "active"
+    }},
+    { key: "company", text: "Who are you traveling with?", options: {
+        "Solo": "solo", "Partner": "couple", "Family": "family",
+        "Friends": "friends"
+    }},
+    { key: "stay", text: "What kind of stay do you prefer?", options: {
+        "Local guesthouse": "local", "Hotel": "hotel",
+        "Resort": "resort", "No preference": "any"
+    }}
 ];
 
-// Ülkeleri belirleyen veri yapısı
-const countryPreferences = {
-    "Germany": ["cold", "modern", "urban", "budget", "international"],
-    "Austria": ["cold", "historical", "nature", "luxury", "local"],
-    "Belgium": ["cold", "modern", "urban", "budget", "international"],
-    "Bulgaria": ["warm", "historical", "nature", "budget", "local"],
-    "Czechia": ["cold", "historical", "urban", "budget", "local"],
-    "Denmark": ["cold", "modern", "urban", "luxury", "international"],
-    "Estonia": ["cold", "historical", "nature", "budget", "local"],
-    "Finland": ["cold", "nature", "budget", "local"],
-    "France": ["warm", "historical", "urban", "luxury", "international"],
-    "Cyprus": ["warm", "historical", "nature", "luxury", "local"],
-    "Croatia": ["warm", "historical", "nature", "budget", "local"],
-    "Netherlands": ["cold", "modern", "urban", "luxury", "international"],
-    "Ireland": ["cold", "historical", "nature", "budget", "local"],
-    "Spain": ["warm", "modern", "urban", "luxury", "international"],
-    "Sweden": ["cold", "modern", "nature", "budget", "local"],
-    "Italy": ["warm", "historical", "urban", "luxury", "local"],
-    "Latvia": ["cold", "historical", "nature", "budget", "local"],
-    "Lithuania": ["cold", "historical", "nature", "budget", "local"],
-    "Luxembourg": ["cold", "modern", "urban", "luxury", "international"],
-    "Hungary": ["warm", "historical", "urban", "budget", "local"],
-    "Malta": ["warm", "historical", "nature", "luxury", "local"],
-    "Poland": ["cold", "historical", "urban", "budget", "local"],
-    "Portugal": ["warm", "modern", "urban", "luxury", "local"],
-    "Romania": ["cold", "historical", "nature", "budget", "local"],
-    "Slovakia": ["cold", "historical", "nature", "budget", "local"],
-    "Slovenia": ["cold", "historical", "nature", "budget", "local"],
-    "Greece": ["warm", "historical", "urban", "luxury", "local"]
+// Country-specific strengths are intentionally curated. Countries without an
+// override still participate through their continent profile.
+const destinationProfiles = {
+    Japan: ["history", "food", "city", "active", "luxury"],
+    Italy: ["history", "food", "city", "couple", "midrange"],
+    France: ["history", "food", "city", "couple", "luxury"],
+    Spain: ["warm", "food", "beach", "city", "friends"],
+    Portugal: ["mild", "food", "beach", "slow", "midrange"],
+    Greece: ["warm", "history", "beach", "couple", "resort"],
+    Turkey: ["history", "food", "beach", "midrange", "family"],
+    Germany: ["history", "city", "active", "hotel", "midrange"],
+    Iceland: ["cool", "snow", "nature", "active", "luxury"],
+    Norway: ["cool", "snow", "nature", "active", "luxury"],
+    Finland: ["cool", "snow", "nature", "slow", "family"],
+    Switzerland: ["cool", "snow", "nature", "active", "luxury"],
+    Croatia: ["warm", "history", "beach", "midrange", "couple"],
+    Morocco: ["warm", "history", "food", "local", "budget"],
+    Egypt: ["warm", "history", "active", "midrange", "family"],
+    Kenya: ["warm", "nature", "active", "luxury", "family"],
+    Tanzania: ["warm", "nature", "beach", "active", "luxury"],
+    "South Africa": ["nature", "food", "city", "active", "midrange"],
+    Namibia: ["warm", "nature", "active", "local", "luxury"],
+    Rwanda: ["mild", "nature", "active", "local", "midrange"],
+    Thailand: ["warm", "food", "beach", "budget", "friends"],
+    Vietnam: ["warm", "food", "history", "budget", "active"],
+    Indonesia: ["warm", "nature", "beach", "budget", "resort"],
+    Malaysia: ["warm", "food", "city", "beach", "midrange"],
+    Singapore: ["warm", "food", "city", "hotel", "luxury"],
+    India: ["warm", "history", "food", "budget", "active"],
+    Nepal: ["cool", "nature", "active", "budget", "local"],
+    Bhutan: ["cool", "nature", "history", "slow", "local"],
+    "South Korea": ["food", "city", "history", "active", "hotel"],
+    Australia: ["warm", "nature", "beach", "city", "active"],
+    "New Zealand": ["cool", "nature", "active", "friends", "midrange"],
+    Fiji: ["warm", "beach", "resort", "couple", "slow"],
+    Canada: ["cool", "snow", "nature", "city", "family"],
+    "United States": ["city", "nature", "active", "family", "hotel"],
+    Mexico: ["warm", "history", "food", "beach", "budget"],
+    "Costa Rica": ["warm", "nature", "beach", "active", "local"],
+    Cuba: ["warm", "history", "food", "beach", "local"],
+    Brazil: ["warm", "nature", "beach", "city", "friends"],
+    Argentina: ["food", "nature", "city", "active", "midrange"],
+    Peru: ["history", "food", "nature", "active", "budget"],
+    Chile: ["nature", "food", "active", "midrange", "hotel"]
 };
 
-let userPreferences = [];
+const continentDefaults = {
+    Africa: ["warm", "nature", "history", "local", "active"],
+    Asia: ["food", "history", "city", "local", "active"],
+    Europe: ["history", "food", "city", "hotel", "midrange"],
+    "North America": ["nature", "city", "active", "hotel", "family"],
+    "South America": ["warm", "nature", "food", "active", "local"],
+    Oceania: ["nature", "beach", "active", "midrange", "friends"]
+};
+
+let userPreferences = {};
 let currentQuestion = -1;
 
 function toggleChat() {
@@ -58,11 +113,11 @@ function startChat() {
     const chatMessages = document.getElementById("chatMessages");
     chatMessages.innerHTML = "";
     currentQuestion = -1;
-    userPreferences = [];
+    userPreferences = {};
 
     const firstMessage = document.createElement("div");
     firstMessage.classList.add("message", "bot-message");
-    firstMessage.innerHTML = "<p>Hello! I'm your AI travel assistant. I'll ask you a few questions to recommend the perfect destination for you!</p>";
+    firstMessage.innerHTML = "<p><strong>Let’s build your travel profile.</strong><br>I’ll consider timing, budget, pace and interests, then compare destinations from our complete country catalogue.</p>";
     chatMessages.appendChild(firstMessage);
 
     setTimeout(() => {
@@ -80,7 +135,7 @@ function showQuestion() {
 
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message", "bot-message");
-        messageDiv.innerHTML = `<p><strong>Question ${currentQuestion + 1}:</strong> ${questionObj.text}</p>`;
+        messageDiv.innerHTML = `<p><strong>${currentQuestion + 1} of ${questions.length}</strong><br>${questionObj.text}</p>`;
         chatMessages.appendChild(messageDiv);
 
         const buttonsDiv = document.createElement("div");
@@ -90,7 +145,7 @@ function showQuestion() {
             const button = document.createElement("button");
             button.classList.add("option-btn");
             button.innerText = option;
-            button.onclick = () => handleAnswer(questionObj.options[option]);
+            button.onclick = () => handleAnswer(questionObj.options[option], option);
             buttonsDiv.appendChild(button);
         });
 
@@ -101,14 +156,16 @@ function showQuestion() {
     }
 }
 
-function handleAnswer(answer) {
-    userPreferences.push(answer);
+function handleAnswer(answer, label) {
+    userPreferences[questions[currentQuestion].key] = answer;
 
     // Add user's answer to chat
     const chatMessages = document.getElementById("chatMessages");
     const answerDiv = document.createElement("div");
     answerDiv.classList.add("message", "user-message");
-    answerDiv.innerHTML = `<p>${Object.keys(questions[currentQuestion].options).find(key => questions[currentQuestion].options[key] === answer)}</p>`;
+    answerDiv.textContent = label || answer;
+    const optionGroups = chatMessages.querySelectorAll(".question-options");
+    optionGroups[optionGroups.length - 1]?.remove();
     chatMessages.appendChild(answerDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -117,38 +174,78 @@ function handleAnswer(answer) {
     }, 1000);
 }
 
-// En uygun ülkeyi bul ve göster
+function getCountryCandidates() {
+    const catalog = window.QW_COUNTRY_CATALOG || {};
+    return Object.entries(catalog).flatMap(([continent, countries]) =>
+        countries.map(country => ({ country, continent }))
+    );
+}
+
+function scoreDestination(candidate) {
+    const tags = new Set([
+        ...(continentDefaults[candidate.continent] || []),
+        ...(destinationProfiles[candidate.country] || [])
+    ]);
+    let score = destinationProfiles[candidate.country] ? 2 : 0;
+    const reasons = [];
+    const requestedRegion = userPreferences.region;
+    const regionMatches = requestedRegion === "Americas"
+        ? candidate.continent.includes("America")
+        : requestedRegion === candidate.continent;
+    if (requestedRegion === "any" || regionMatches) {
+        score += requestedRegion === "any" ? 1 : 5;
+        if (requestedRegion !== "any") reasons.push(requestedRegion);
+    } else {
+        score -= 4;
+    }
+    ["climate", "budget", "style", "pace", "company", "stay"].forEach(key => {
+        const value = userPreferences[key];
+        if (value && value !== "any" && tags.has(value)) {
+            score += key === "style" ? 4 : 2;
+            reasons.push(Object.keys(questions.find(q => q.key === key).options)
+                .find(label => questions.find(q => q.key === key).options[label] === value));
+        }
+    });
+    // Short trips favour compact destinations; longer trips can reward range.
+    if (userPreferences.duration === "weekend" &&
+        ["Singapore", "Malta", "Luxembourg", "Monaco", "Andorra", "San Marino"].includes(candidate.country)) {
+        score += 3;
+        reasons.push("easy for a short escape");
+    }
+    if (userPreferences.duration === "long" && tags.has("active")) score += 2;
+    return { ...candidate, score, reasons: [...new Set(reasons)].slice(0, 3) };
+}
+
 function showCountryRecommendation() {
     const chatMessages = document.getElementById("chatMessages");
-
-    let bestMatch = "";
-    let maxMatches = 0;
-
-    // Kullanıcının tercihlerine en çok uyan ülkeyi bul
-    for (const country in countryPreferences) {
-        let matches = countryPreferences[country].filter(pref => userPreferences.includes(pref)).length;
-
-        if (matches > maxMatches) {
-            maxMatches = matches;
-            bestMatch = country;
-        }
-    }
+    const recommendations = getCountryCandidates()
+        .map(scoreDestination)
+        .sort((a, b) => b.score - a.score || a.country.localeCompare(b.country))
+        .slice(0, 3);
 
     const resultMessage = document.createElement("div");
     resultMessage.classList.add("message", "bot-message", "recommendation");
     resultMessage.innerHTML = `
-        <p><strong>🎯 Based on your preferences, I recommend:</strong></p>
+        <p><strong>Three destinations matched to your travel profile</strong></p>
+        <p class="recommendation-summary">${userPreferences.duration || "Flexible"} trip · ${userPreferences.budget || "flexible"} budget · ${userPreferences.style || "mixed"} focus</p>
         <div class="recommended-countries">
-            <div class="country-recommendation">
-                <h4>${bestMatch}</h4>
-                <button class="explore-btn" onclick="exploreCountry('${bestMatch}')">Explore ${bestMatch}</button>
-            </div>
+            ${recommendations.map((item, index) => `
+                <div class="country-recommendation">
+                    <span class="match-rank">0${index + 1} · ${item.continent}</span>
+                    <h4>${item.country}</h4>
+                    <p>${item.reasons.length ? `Strong match for ${item.reasons.join(", ").toLowerCase()}.` : "A balanced match for your preferences."}</p>
+                    <button class="explore-btn" data-country="${item.country}">Explore ${item.country}</button>
+                </div>
+            `).join("")}
         </div>
         <div class="restart-chat">
             <button class="restart-btn" onclick="restartChat()">Start New Recommendation</button>
         </div>
     `;
     chatMessages.appendChild(resultMessage);
+    resultMessage.querySelectorAll(".explore-btn").forEach(button => {
+        button.addEventListener("click", () => exploreCountry(button.dataset.country));
+    });
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
@@ -158,7 +255,7 @@ function exploreCountry(country) {
 
 function restartChat() {
     currentQuestion = -1;
-    userPreferences = [];
+    userPreferences = {};
     startChat();
 }
 
@@ -172,20 +269,29 @@ function sendMessage() {
         const chatMessages = document.getElementById("chatMessages");
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message", "user-message");
-        messageDiv.innerHTML = `<p>${message}</p>`;
+        messageDiv.textContent = message;
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         
         input.value = '';
         
-        // Show bot response
+        const question = questions[currentQuestion];
+        const normalized = message.toLocaleLowerCase();
+        const match = question && Object.entries(question.options).find(([label, value]) =>
+            normalized.includes(label.toLocaleLowerCase()) ||
+            normalized.includes(String(value).toLocaleLowerCase())
+        );
         setTimeout(() => {
+            if (match) {
+                handleAnswer(match[1], match[0]);
+                return;
+            }
             const botResponse = document.createElement("div");
             botResponse.classList.add("message", "bot-message");
-            botResponse.innerHTML = "<p>Please use the option buttons to answer the questions. This helps me provide better recommendations!</p>";
+            botResponse.innerHTML = `<p>I understand natural answers such as <em>“warm weather”</em>, <em>“a one-week cultural trip”</em>, or one of the choices above. For this question, please mention one of the listed preferences.</p>`;
             chatMessages.appendChild(botResponse);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 500);
+        }, 350);
     }
 }
 
@@ -298,11 +404,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initSmoothScrolling();
     initFormOptimization();
     
-    // Auto-start AI chat when page loads
-    setTimeout(() => {
-        startChat();
-    }, 1000);
-
     initThemeToggle();
     initLanguageToggle();
     initConfirmForms();

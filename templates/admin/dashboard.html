@@ -3,7 +3,12 @@
 {% block title %}Admin - QuestWay{% endblock %}
 
 {% block content %}
-    <div class="itineraries-container">
+    {% set hero_eyebrow = "QuestWay — Administration" %}
+    {% set hero_title = "Guide the platform." %}
+    {% set hero_emphasis = "Protect the community." %}
+    {% set hero_description = "Review activity, moderate contributions, manage members, and keep QuestWay trustworthy." %}
+    {% include "_member_hero.html" %}
+    <div class="itineraries-container" id="page-content">
         <div class="itineraries-header">
             <h1><i class="fas fa-shield-halved"></i> Admin Dashboard</h1>
         </div>

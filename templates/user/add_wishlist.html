@@ -9,20 +9,13 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Add Wishlist Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>Add to Wishlist</h1>
-                <p>Save a new place you want to visit</p>
-            </div>
-        </div>
-    </section>
+    {% set hero_eyebrow = "QuestWay — Saved Places" %}
+    {% set hero_title = "Found somewhere special?" %}
+    {% set hero_emphasis = "Keep it close." %}
+    {% set hero_description = "Add a place to your wishlist now and return when it is time to plan the journey." %}
+    {% include "_member_hero.html" %}
 
-    <div class="add-wishlist-container">
+    <div class="add-wishlist-container" id="page-content">
         <a href="{{ url_for('wishlist.wishlist') }}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back to Wishlist
         </a>

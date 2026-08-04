@@ -10,24 +10,27 @@
 
 {% block content %}
     <!-- Reviews Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
+    <section class="qw-hero qw-hero-aligned">
+        <div class="qw-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="qw-hero-scrim"></div>
+        <div class="qw-hero-grain"></div>
+        <div class="qw-hero-content">
+            <div class="qw-eyebrow qw-reveal">QuestWay — Traveler Reviews</div>
+            <h1 class="qw-hero-title qw-reveal">Read the journey.<br><em>Know before you go.</em></h1>
+            <p class="qw-hero-sub qw-reveal">Honest experiences from travelers who have actually been there — the details that glossy guides leave out.</p>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('review.add_review') }}" class="qw-btn qw-btn-gold qw-reveal">
+                    <i class="fas fa-plus"></i> Share Your Experience
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="qw-btn qw-btn-gold qw-reveal">
+                    <i class="fas fa-sign-in-alt"></i> Login to Add Review
+                </a>
+            {% endif %}
         </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>Traveler Reviews</h1>
-                <p>Discover what fellow travelers are saying about their experiences around the world</p>
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('review.add_review') }}" class="add-review-btn">
-                        <i class="fas fa-plus"></i> Share Your Experience
-                    </a>
-                {% else %}
-                    <a href="{{ url_for('auth.login') }}" class="add-review-btn">
-                        <i class="fas fa-sign-in-alt"></i> Login to Add Review
-                    </a>
-                {% endif %}
-            </div>
+        <div class="qw-scroll-cue" onclick="this.closest('.qw-hero')?.nextElementSibling?.scrollIntoView({behavior: 'smooth'})" role="button" tabindex="0" aria-label="Scroll to reviews">
+            <span class="qw-scroll-text">Scroll</span>
+            <span class="qw-scroll-line"></span>
         </div>
     </section>
 

@@ -3,7 +3,12 @@
 {% block title %}Manage Users - QuestWay Admin{% endblock %}
 
 {% block content %}
-    <div class="itineraries-container">
+    {% set hero_eyebrow = "QuestWay — Administration" %}
+    {% set hero_title = "Know the community." %}
+    {% set hero_emphasis = "Manage with care." %}
+    {% set hero_description = "Review member status, activity, and access from one considered workspace." %}
+    {% include "_member_hero.html" %}
+    <div class="itineraries-container" id="page-content">
         <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button"><i class="fas fa-arrow-left"></i> Admin Dashboard</a>
         <div class="itineraries-header"><h1><i class="fas fa-users"></i> Manage Users ({{ users|length }})</h1></div>
 

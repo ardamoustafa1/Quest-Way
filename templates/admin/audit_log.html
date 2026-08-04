@@ -3,7 +3,12 @@
 {% block title %}Audit Log - Admin - QuestWay{% endblock %}
 
 {% block content %}
-    <div class="itineraries-container">
+    {% set hero_eyebrow = "QuestWay — Audit Trail" %}
+    {% set hero_title = "Every action recorded." %}
+    {% set hero_emphasis = "Accountability built in." %}
+    {% set hero_description = "Review administrative activity with a clear, chronological record of platform changes." %}
+    {% include "_member_hero.html" %}
+    <div class="itineraries-container" id="page-content">
         <div class="itineraries-header">
             <h1><i class="fas fa-clipboard-list"></i> Admin Audit Log</h1>
             <a href="{{ url_for('admin.admin_dashboard') }}" class="create-button"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>

@@ -13,6 +13,7 @@ bcrypt==4.1.2
 python-dotenv==1.0.1
 psycopg2-binary==2.9.11
 requests==2.34.2
+beautifulsoup4==4.14.2
 groq==1.5.0
 Flask-Mail==0.10.0
 Flask-Limiter==3.5.0

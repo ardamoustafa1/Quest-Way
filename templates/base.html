@@ -25,12 +25,12 @@
     <meta property="og:site_name" content="QuestWay">
     <meta property="og:title" content="{{ self.title() }}">
     <meta property="og:description" content="{{ self.meta_description() }}">
-    <meta property="og:image" content="{{ url_for('static', filename='questway-logo-compass.svg', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='questwaynewlogo.png', _external=True) }}">
     <meta property="og:url" content="{{ request.url }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ self.title() }}">
     <meta name="twitter:description" content="{{ self.meta_description() }}">
-    <meta name="twitter:image" content="{{ url_for('static', filename='questway-logo-compass.svg', _external=True) }}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='questwaynewlogo.png', _external=True) }}">
     {% endblock %}
 
     <!-- Google Analytics -->
@@ -49,7 +49,7 @@
     <header class="top-header">
         <div class="header-container">
             <a href="{{ url_for('main.index') }}" class="logo">
-                <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay Logo">
+                <img src="{{ url_for('static', filename='questwaynewlogo.png') }}" alt="QuestWay Logo">
                 <span class="brand-name">QuestWay</span>
             </a>
             <nav class="main-nav">
@@ -129,7 +129,7 @@
             <div class="qw-footer-top">
                 <div>
                     <a href="{{ url_for('main.index') }}" class="qw-footer-brand">
-                        <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay">
+                        <img src="{{ url_for('static', filename='questwaynewlogo.png') }}" alt="QuestWay">
                         QuestWay
                     </a>
                     <p class="qw-footer-tagline">A quiet, considered guide for travelers who plan carefully and wander deliberately — real reviews, real itineraries, real people.</p>

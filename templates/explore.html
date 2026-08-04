@@ -3,19 +3,38 @@
 {% block title %}Explore - QuestWay{% endblock %}
 {% block meta_description %}Explore real travel photos from QuestWay travelers around the world.{% endblock %}
 
+{% block extra_css %}
+<style>
+    .explore-hero .qw-hero-title {
+        max-width: 16ch;
+    }
+
+    html[data-theme] .explore-hero + .itineraries-container {
+        background: #fff !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
+    <!-- Only the Explore header uses the new editorial design. -->
+    <section class="qw-hero qw-hero-aligned explore-hero">
+        <div class="qw-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="qw-hero-scrim"></div>
+        <div class="qw-hero-grain"></div>
+
+        <div class="qw-hero-content">
+            <div class="qw-eyebrow qw-reveal">QuestWay — Visual Discovery</div>
+            <h1 class="qw-hero-title qw-reveal">See the world.<br><em>Through real travelers.</em></h1>
+            <p class="qw-hero-sub qw-reveal">Go beyond the postcard. Discover unfiltered moments and honest notes shared by travelers who have actually been there.</p>
         </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1><i class="fas fa-images"></i> Explore</h1>
-                <p>Real photos from real QuestWay travelers</p>
-            </div>
+
+        <div class="qw-scroll-cue" onclick="document.querySelector('.itineraries-container')?.scrollIntoView({behavior: 'smooth'})" role="button" tabindex="0" aria-label="Scroll to traveler photos">
+            <span class="qw-scroll-text">Explore</span>
+            <span class="qw-scroll-line"></span>
         </div>
     </section>
 
+    <!-- Existing white photo area intentionally preserved. -->
     <div class="itineraries-container">
         {% if reviews %}
         <div id="qw-explore-grid" style="column-count:4; column-gap:14px;">
@@ -37,10 +56,9 @@
             {% endfor %}
         </div>
 
-        <!-- Lightbox -->
         <div id="qw-lightbox" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; padding:24px;">
             <div style="max-width:600px; width:100%; background:white; border-radius:14px; overflow:hidden;">
-                <img id="qw-lightbox-img" src="" style="width:100%; max-height:60vh; object-fit:cover; display:block;">
+                <img id="qw-lightbox-img" src="" alt="" style="width:100%; max-height:60vh; object-fit:cover; display:block;">
                 <div style="padding:16px;">
                     <h3 id="qw-lightbox-title" style="margin:0 0 6px;"></h3>
                     <p id="qw-lightbox-meta" style="color:#64748b; font-size:0.85rem; margin:0 0 10px;"></p>

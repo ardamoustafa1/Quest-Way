@@ -9,20 +9,13 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Create Itinerary Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>Create Itinerary</h1>
-                <p>Plan your next travel adventure</p>
-            </div>
-        </div>
-    </section>
+    {% set hero_eyebrow = "QuestWay — New Itinerary" %}
+    {% set hero_title = "Begin with the essentials." %}
+    {% set hero_emphasis = "Build from there." %}
+    {% set hero_description = "Give your journey a place, a date, and a purpose—then shape every day around what matters." %}
+    {% include "_member_hero.html" %}
 
-    <div class="create-itinerary-container">
+    <div class="create-itinerary-container" id="page-content">
         <a href="{{ url_for('itinerary.itineraries') }}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back to Itineraries
         </a>

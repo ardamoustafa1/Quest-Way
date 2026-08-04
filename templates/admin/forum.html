@@ -3,7 +3,12 @@
 {% block title %}Moderate Forum - QuestWay Admin{% endblock %}
 
 {% block content %}
-    <div class="itineraries-container">
+    {% set hero_eyebrow = "QuestWay — Forum Moderation" %}
+    {% set hero_title = "Support good conversation." %}
+    {% set hero_emphasis = "Make knowledge travel." %}
+    {% set hero_description = "Oversee discussions and help practical, respectful travel advice remain easy to find." %}
+    {% include "_member_hero.html" %}
+    <div class="itineraries-container" id="page-content">
         <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button"><i class="fas fa-arrow-left"></i> Admin Dashboard</a>
         <div class="itineraries-header"><h1><i class="fas fa-comments"></i> Moderate Forum ({{ threads|length }} threads)</h1></div>
 

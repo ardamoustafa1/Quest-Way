@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from country_catalog import country_choices
 from flask_wtf.file import MultipleFileField, FileAllowed, FileSize
 from wtforms import StringField, TextAreaField, PasswordField, SubmitField, SelectField, SelectMultipleField, IntegerField, FloatField, DateField, BooleanField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, NumberRange, Optional
@@ -46,28 +47,7 @@ class ReviewForm(FlaskForm):
     content = TextAreaField('Your Review', validators=[DataRequired()],
                           widget=TextArea(), render_kw={"rows": 6, "placeholder": "Share your experience in detail..."})
     rating = IntegerField('Rating', validators=[DataRequired(), NumberRange(min=1, max=5)])
-    country = SelectField('Country', choices=[
-        ('', 'Select a country'),
-        ('Turkey', 'Turkey'),
-        ('Germany', 'Germany'),
-        ('Austria', 'Austria'),
-        ('Belgium', 'Belgium'),
-        ('Bulgaria', 'Bulgaria'),
-        ('Czech Republic', 'Czech Republic'),
-        ('Denmark', 'Denmark'),
-        ('Estonia', 'Estonia'),
-        ('Finland', 'Finland'),
-        ('France', 'France'),
-        ('Greece', 'Greece'),
-        ('Italy', 'Italy'),
-        ('Poland', 'Poland'),
-        ('Portugal', 'Portugal'),
-        ('Romania', 'Romania'),
-        ('Slovenia', 'Slovenia'),
-        ('Netherlands', 'Netherlands'),
-        ('Ireland', 'Ireland'),
-        ('Spain', 'Spain')
-    ], validators=[DataRequired()])
+    country = SelectField('Country', choices=country_choices('Select a country'), validators=[DataRequired()])
     # Options are populated client-side by JS based on the chosen country
     # (see add_review.html), so the server can't know the valid choice set
     # up front — validate_choice=False stops WTForms from rejecting every
@@ -154,16 +134,7 @@ class ItineraryItemForm(FlaskForm):
 class ForumThreadForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(max=200)],
                        render_kw={"placeholder": "What's your question or topic?"})
-    country = SelectField('Related country (optional)', choices=[
-        ('', 'General / not country-specific'),
-        ('Turkey', 'Turkey'), ('Germany', 'Germany'), ('Austria', 'Austria'),
-        ('Belgium', 'Belgium'), ('Bulgaria', 'Bulgaria'), ('Czech Republic', 'Czech Republic'),
-        ('Denmark', 'Denmark'), ('Estonia', 'Estonia'), ('Finland', 'Finland'),
-        ('France', 'France'), ('Greece', 'Greece'), ('Italy', 'Italy'),
-        ('Poland', 'Poland'), ('Portugal', 'Portugal'), ('Romania', 'Romania'),
-        ('Slovenia', 'Slovenia'), ('Netherlands', 'Netherlands'), ('Ireland', 'Ireland'),
-        ('Spain', 'Spain')
-    ], validators=[Optional()])
+    country = SelectField('Related country (optional)', choices=country_choices('General / not country-specific'), validators=[Optional()])
     content = TextAreaField('Message', validators=[DataRequired(), Length(max=4000)],
                            widget=TextArea(), render_kw={"rows": 5, "placeholder": "Share details, ask your question..."})
     submit = SubmitField('Start Discussion')
@@ -174,15 +145,7 @@ class ForumReplyForm(FlaskForm):
     submit = SubmitField('Post Reply')
 
 class AIItineraryForm(FlaskForm):
-    country = SelectField('Country', choices=[
-        ('Turkey', 'Turkey'), ('Germany', 'Germany'), ('Austria', 'Austria'),
-        ('Belgium', 'Belgium'), ('Bulgaria', 'Bulgaria'), ('Czech Republic', 'Czech Republic'),
-        ('Denmark', 'Denmark'), ('Estonia', 'Estonia'), ('Finland', 'Finland'),
-        ('France', 'France'), ('Greece', 'Greece'), ('Italy', 'Italy'),
-        ('Poland', 'Poland'), ('Portugal', 'Portugal'), ('Romania', 'Romania'),
-        ('Slovenia', 'Slovenia'), ('Netherlands', 'Netherlands'), ('Ireland', 'Ireland'),
-        ('Spain', 'Spain')
-    ], validators=[DataRequired()])
+    country = SelectField('Country', choices=country_choices(), validators=[DataRequired()])
     days = IntegerField('Number of days', validators=[DataRequired(), NumberRange(min=1, max=14, message='Between 1 and 14 days.')], default=3)
     budget_level = SelectField('Budget', choices=[
         ('budget', 'Budget-friendly'), ('mid', 'Mid-range'), ('luxury', 'Luxury'),
@@ -203,28 +166,7 @@ class ItineraryExpenseForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     query = StringField('Search', validators=[Optional()])
-    country = SelectField('Country', choices=[
-        ('', 'All Countries'),
-        ('Turkey', 'Turkey'),
-        ('Germany', 'Germany'),
-        ('Austria', 'Austria'),
-        ('Belgium', 'Belgium'),
-        ('Bulgaria', 'Bulgaria'),
-        ('Czech Republic', 'Czech Republic'),
-        ('Denmark', 'Denmark'),
-        ('Estonia', 'Estonia'),
-        ('Finland', 'Finland'),
-        ('France', 'France'),
-        ('Greece', 'Greece'),
-        ('Italy', 'Italy'),
-        ('Poland', 'Poland'),
-        ('Portugal', 'Portugal'),
-        ('Romania', 'Romania'),
-        ('Slovenia', 'Slovenia'),
-        ('Netherlands', 'Netherlands'),
-        ('Ireland', 'Ireland'),
-        ('Spain', 'Spain')
-    ], validators=[Optional()])
+    country = SelectField('Country', choices=country_choices('All Countries'), validators=[Optional()])
     place_type = SelectField('Place Type', choices=[
         ('', 'All Types'),
         ('famous_places', 'Famous Places'),

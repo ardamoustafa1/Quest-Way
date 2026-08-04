@@ -4,15 +4,18 @@
 {% block meta_description %}Ask questions, share tips, and get advice from fellow QuestWay travelers.{% endblock %}
 
 {% block content %}
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
+    <section class="qw-hero qw-hero-aligned">
+        <div class="qw-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="qw-hero-scrim"></div>
+        <div class="qw-hero-grain"></div>
+        <div class="qw-hero-content">
+            <div class="qw-eyebrow qw-reveal">QuestWay — Community</div>
+            <h1 class="qw-hero-title qw-reveal">Ask the travelers.<br><em>Share what you know.</em></h1>
+            <p class="qw-hero-sub qw-reveal">Trade practical tips, thoughtful answers, and first-hand advice with people who travel deliberately.</p>
         </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1><i class="fas fa-comments"></i> Community Forum</h1>
-                <p>Ask, answer, and swap travel tips with other QuestWay travelers</p>
-            </div>
+        <div class="qw-scroll-cue" onclick="this.closest('.qw-hero')?.nextElementSibling?.scrollIntoView({behavior: 'smooth'})" role="button" tabindex="0" aria-label="Scroll to discussions">
+            <span class="qw-scroll-text">Scroll</span>
+            <span class="qw-scroll-line"></span>
         </div>
     </section>
 

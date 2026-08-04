@@ -3344,7 +3344,36 @@ p {
 
 .content-actions {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    width: 100%;
+    padding: 0 1rem;
+}
+
+.content-actions .action-btn {
+    min-width: unset;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 30px;
+    gap: 0.4rem;
+    flex: 1 1 auto;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+}
+
+.content-actions .action-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-2px);
+}
+
+.content-actions .action-btn i {
+    font-size: 0.9rem;
 }
 
 .action-btn {

@@ -3,6 +3,9 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from models import db, Review, ReviewHelpfulVote, User, Itinerary, ForumThread
 from travel_data import data
+from country_catalog import (
+    CONTINENT_COUNTRIES, COUNTRY_NAMES, COUNTRY_SET, fetch_sourced_section,
+)
 from app import (
     cache, calculate_review_stats_cached, create_sample_reviews, award_points,
     POINTS_HELPFUL_VOTE_RECEIVED, geocode_place, search_reviews_cached,
@@ -151,8 +154,9 @@ def sitemap_xml():
     for endpoint in static_pages:
         urls.append({'loc': url_for(endpoint, _external=True), 'lastmod': now, 'priority': '0.8'})
 
-    for country in data.keys():
-        for section in data[country].keys():
+    country_sections = ('famous_places', 'top_hotels', 'top_restaurants', 'famous_dishes', 'transport')
+    for country in COUNTRY_NAMES:
+        for section in country_sections:
             urls.append({
                 'loc': url_for('main.details', country_name=country, section=section, _external=True),
                 'lastmod': now, 'priority': '0.7',
@@ -187,8 +191,10 @@ def sitemap_xml():
 
 @main_bp.route('/')
 def index():
-    countries = data.keys()  # 'data' sözlüğünden tüm ülke isimlerini alır
-    return render_template('index.html', countries=countries)
+    return render_template(
+        'index.html', countries=COUNTRY_NAMES,
+        continent_countries=CONTINENT_COUNTRIES,
+    )
 
 @main_bp.route('/country', methods=['GET', 'POST'])
 def country():
@@ -199,20 +205,30 @@ def country():
     
     if not selected_country:
         return redirect(url_for('main.index'))
+    if selected_country not in COUNTRY_SET:
+        return f"Error: Country '{selected_country}' not found", 404
     
     return render_template('country.html', country=selected_country)
 
 @main_bp.route('/details/<country_name>/<section>')
 def details(country_name, section):
-    if country_name not in data:
+    if country_name not in COUNTRY_SET:
         return f"Error: Country '{country_name}' not found", 404
 
     section_key = section.replace(" ", "_").lower()
-    if section_key not in data[country_name]:
+    valid_sections = {'famous_places', 'top_hotels', 'top_restaurants', 'famous_dishes', 'transport'}
+    if section_key not in valid_sections:
         return f"Error: Section '{section}' not found for country '{country_name}'", 404
 
-    content = data[country_name][section_key]  # İçerik alınır
-    return render_template('details.html', country=country_name, section=section, content=content)
+    content = data.get(country_name, {}).get(section_key)
+    sourced = False
+    if not content:
+        content = fetch_sourced_section(country_name, section_key)
+        sourced = True
+    return render_template(
+        'details.html', country=country_name, section=section,
+        content=content, sourced=sourced
+    )
 
 @main_bp.route('/api/location')
 def api_location():

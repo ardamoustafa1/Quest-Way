@@ -10,26 +10,29 @@
 
 {% block content %}
     <!-- Auth Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
+    <section class="qw-hero qw-hero-aligned">
+        <div class="qw-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="qw-hero-scrim"></div>
+        <div class="qw-hero-grain"></div>
+        <div class="qw-hero-content">
+            <div class="qw-eyebrow qw-reveal">QuestWay — Your Journey</div>
+            <h1 class="qw-hero-title qw-reveal">Welcome back.<br><em>Pick up where you left off.</em></h1>
+            <p class="qw-hero-sub qw-reveal">Sign in to return to your saved places, considered itineraries, and traveler community.</p>
         </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>Welcome Back</h1>
-                <p>Sign in to your QuestWay account and continue your journey</p>
-            </div>
+        <div class="qw-scroll-cue" onclick="this.closest('.qw-hero')?.nextElementSibling?.scrollIntoView({behavior: 'smooth'})" role="button" tabindex="0" aria-label="Scroll to sign in form">
+            <span class="qw-scroll-text">Scroll</span>
+            <span class="qw-scroll-line"></span>
         </div>
     </section>
 
     <!-- Auth Form Section -->
-    <section class="auth-form-section">
+    <section class="auth-form-section auth-login-section">
         <div class="container">
             <div class="auth-form-container">
-                <div class="auth-form-card">
+                <div class="auth-form-card auth-login-card">
                     <div class="auth-form-header">
                         <div class="auth-logo">
-                            <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay Logo">
+                            <img src="{{ url_for('static', filename='questwaynewlogo.png') }}" alt="QuestWay Logo">
                             <span>QuestWay</span>
                         </div>
                         <h2>Sign In</h2>

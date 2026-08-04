@@ -4,19 +4,13 @@
 {% block meta_description %}Paste a TikTok or Instagram caption and let AI add the places to your wishlist.{% endblock %}
 
 {% block content %}
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1><i class="fas fa-bolt"></i> Quick Add from Social Media</h1>
-                <p>Paste a TikTok/Instagram caption — AI finds the places and adds them to your wishlist</p>
-            </div>
-        </div>
-    </section>
+    {% set hero_eyebrow = "QuestWay — Quick Add" %}
+    {% set hero_title = "Turn inspiration into plans." %}
+    {% set hero_emphasis = "Save it in seconds." %}
+    {% set hero_description = "Extract memorable places from a social caption and add the ones that belong on your wishlist." %}
+    {% include "_member_hero.html" %}
 
-    <div class="create-itinerary-container">
+    <div class="create-itinerary-container" id="page-content">
         <div class="create-itinerary-card">
             <form method="POST" action="{{ url_for('wishlist.quick_add') }}">
                 <div class="form-group">

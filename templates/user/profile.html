@@ -9,20 +9,13 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Profile Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>My Profile</h1>
-                <p>Manage your account and view your travel activity</p>
-            </div>
-        </div>
-    </section>
+    {% set hero_eyebrow = "QuestWay — Traveler Profile" %}
+    {% set hero_title = "Your travels, gathered." %}
+    {% set hero_emphasis = "Your story, taking shape." %}
+    {% set hero_description = "Manage your account and see the reviews, saved places, itineraries, and milestones that define your journey." %}
+    {% include "_member_hero.html" %}
 
-    <div class="profile-container">
+    <div class="profile-container" id="page-content">
         <div class="profile-header">
             <div class="profile-info">
                 <div class="profile-avatar">
@@ -59,7 +52,7 @@
             </div>
         </div>
 
-        <div class="profile-section" style="background:linear-gradient(135deg,#1e293b,#334155); color:white; border-radius:14px; padding:20px 24px; margin-top:1rem;">
+        <div class="profile-section profile-level-card">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <div>
                     <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; opacity:0.7;">Traveler Level</span>

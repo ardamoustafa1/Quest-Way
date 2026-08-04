@@ -10,15 +10,18 @@
 
 {% block content %}
     <!-- Auth Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
+    <section class="qw-hero qw-hero-aligned">
+        <div class="qw-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="qw-hero-scrim"></div>
+        <div class="qw-hero-grain"></div>
+        <div class="qw-hero-content">
+            <div class="qw-eyebrow qw-reveal">QuestWay — Join the Journey</div>
+            <h1 class="qw-hero-title qw-reveal">Travel with purpose.<br><em>Keep every discovery.</em></h1>
+            <p class="qw-hero-sub qw-reveal">Create your account to save places, shape itineraries, and share what you learn along the way.</p>
         </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>Join QuestWay</h1>
-                <p>Create your account and start discovering amazing places around the world</p>
-            </div>
+        <div class="qw-scroll-cue" onclick="this.closest('.qw-hero')?.nextElementSibling?.scrollIntoView({behavior: 'smooth'})" role="button" tabindex="0" aria-label="Scroll to registration form">
+            <span class="qw-scroll-text">Scroll</span>
+            <span class="qw-scroll-line"></span>
         </div>
     </section>
 
@@ -29,7 +32,7 @@
                 <div class="auth-form-card">
                     <div class="auth-form-header">
                         <div class="auth-logo">
-                            <img src="{{ url_for('static', filename='questway-logo-compass.svg') }}" alt="QuestWay Logo">
+                            <img src="{{ url_for('static', filename='questwaynewlogo.png') }}" alt="QuestWay Logo">
                             <span>QuestWay</span>
                         </div>
                         <h2>Create Account</h2>

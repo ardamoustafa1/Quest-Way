@@ -9,26 +9,19 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Itineraries Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>My Itineraries</h1>
-                <p>Plan and organize your travel adventures</p>
-            </div>
-        </div>
-    </section>
+    {% set hero_eyebrow = "QuestWay — Journey Planning" %}
+    {% set hero_title = "Shape the journey." %}
+    {% set hero_emphasis = "Travel with intention." %}
+    {% set hero_description = "Build thoughtful day-by-day plans, keep every detail together, or begin with AI-assisted guidance." %}
+    {% include "_member_hero.html" %}
 
-    <div class="itineraries-container">
+    <div class="itineraries-container" id="page-content">
         <div class="itineraries-header">
             <h1>My Itineraries</h1>
             <a href="{{ url_for('itinerary.create_itinerary') }}" class="create-button">
                 <i class="fas fa-plus"></i> Create New Itinerary
             </a>
-            <a href="{{ url_for('itinerary.ai_itinerary_planner') }}" class="create-button" style="background:linear-gradient(135deg,#7c3aed,#2563eb);">
+            <a href="{{ url_for('itinerary.ai_itinerary_planner') }}" class="create-button create-button-accent">
                 <i class="fas fa-wand-magic-sparkles"></i> AI Itinerary Planner
             </a>
         </div>

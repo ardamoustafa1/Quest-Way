@@ -9,26 +9,19 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Wishlist Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>My Wishlist</h1>
-                <p>Save places you want to visit and plan your perfect trip</p>
-            </div>
-        </div>
-    </section>
+    {% set hero_eyebrow = "QuestWay — Saved Places" %}
+    {% set hero_title = "Keep what inspires you." %}
+    {% set hero_emphasis = "Return when you're ready." %}
+    {% set hero_description = "Collect meaningful places, stays, and experiences before shaping them into your next journey." %}
+    {% include "_member_hero.html" %}
 
-    <div class="wishlist-container">
+    <div class="wishlist-container" id="page-content">
         <div class="wishlist-header">
             <h1>My Wishlist</h1>
             <a href="{{ url_for('wishlist.add_to_wishlist') }}" class="add-button">
                 <i class="fas fa-plus"></i> Add New Place
             </a>
-            <a href="{{ url_for('wishlist.quick_add') }}" class="add-button" style="background:linear-gradient(135deg,#7c3aed,#2563eb);">
+            <a href="{{ url_for('wishlist.quick_add') }}" class="add-button add-button-accent">
                 <i class="fas fa-bolt"></i> Quick Add from Social Media
             </a>
         </div>

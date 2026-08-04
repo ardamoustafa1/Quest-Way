@@ -10,7 +10,12 @@
 {% endblock %}
 
 {% block content %}
-    <div class="itinerary-detail-container">
+    {% set hero_eyebrow = "QuestWay — Your Journey" %}
+    {% set hero_title = itinerary.title %}
+    {% set hero_emphasis = itinerary.country %}
+    {% set hero_description = itinerary.description or "A considered plan, ready to guide each day of the journey." %}
+    {% include "_member_hero.html" %}
+    <div class="itinerary-detail-container" id="page-content">
         <div class="itinerary-header">
             <div class="itinerary-info">
                 <h1>{{ itinerary.title }}</h1>

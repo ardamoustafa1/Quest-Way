@@ -12,7 +12,7 @@
 {% block content %}
 
     <!-- ============ HERO ============ -->
-    <section class="qw-hero">
+    <section class="qw-hero qw-hero-aligned">
         <div class="qw-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80');"></div>
         <div class="qw-hero-scrim"></div>
         <div class="qw-hero-grain"></div>
@@ -23,12 +23,16 @@
             <p class="qw-hero-sub qw-reveal" data-i18n="home_subtitle">A considered guide for travelers who read carefully before they book — real reviews, AI-assisted itineraries, and a community that's actually been there.</p>
 
             <form method="POST" action="/country" class="qw-search-bar qw-reveal">
-                <i class="fas fa-location-dot"></i>
-                <select name="country" id="country" required>
-                    <option value="" disabled selected>Where to?</option>
-                    {% for country in countries %}
-                        <option value="{{ country }}">{{ country }}</option>
+                <i class="fas fa-earth-americas"></i>
+                <select id="continent" required aria-label="Select continent">
+                    <option value="" disabled selected>Choose continent</option>
+                    {% for continent in continent_countries %}
+                        <option value="{{ continent }}">{{ continent }}</option>
                     {% endfor %}
+                </select>
+                <span class="qw-search-divider" aria-hidden="true"></span>
+                <select name="country" id="country" required disabled aria-label="Select country">
+                    <option value="" disabled selected>Choose country</option>
                 </select>
                 <button type="submit" class="qw-search-submit" aria-label="Search">
                     <i class="fas fa-arrow-right"></i>
@@ -36,11 +40,30 @@
             </form>
         </div>
 
-        <div class="qw-scroll-cue">
-            <span>Scroll</span>
+        <div class="qw-scroll-cue" onclick="document.querySelector('.qw-marquee')?.scrollIntoView({behavior: 'smooth'})" role="button" tabindex="0" aria-label="Scroll down">
+            <span class="qw-scroll-text">Scroll</span>
             <span class="qw-scroll-line"></span>
         </div>
     </section>
+
+    <script nonce="{{ csp_nonce() }}">
+        (() => {
+            const countriesByContinent = {{ continent_countries | tojson }};
+            window.QW_COUNTRY_CATALOG = countriesByContinent;
+            const continentSelect = document.getElementById('continent');
+            const countrySelect = document.getElementById('country');
+
+            continentSelect.addEventListener('change', () => {
+                countrySelect.replaceChildren(new Option('Choose country', '', true, true));
+                countrySelect.options[0].disabled = true;
+                countriesByContinent[continentSelect.value].forEach(country => {
+                    countrySelect.add(new Option(country, country));
+                });
+                countrySelect.disabled = false;
+                countrySelect.focus();
+            });
+        })();
+    </script>
 
     <!-- ============ MARQUEE ============ -->
     <div class="qw-marquee">
@@ -295,9 +318,9 @@
                 <p>Hello! I'm your AI travel assistant. I'll ask you a few questions to recommend the perfect destination for you!</p>
             </div>
         </div>
-        <div class="chat-input" style="display: none;">
-            <input type="text" id="chatInput" placeholder="Type your answer..." disabled>
-            <button disabled id="sendBtn">Send</button>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Type a preference or choose above…">
+            <button id="sendBtn">Send</button>
         </div>
     </div>
 

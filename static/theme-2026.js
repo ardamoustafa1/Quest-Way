@@ -60,8 +60,20 @@
         counters.forEach(function (el) { observer.observe(el); });
     }
 
+    function initScrollCues() {
+        document.querySelectorAll('.qw-scroll-cue[role="button"]').forEach(function (cue) {
+            cue.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    cue.click();
+                }
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         initReveal();
         initCounters();
+        initScrollCues();
     });
 })();

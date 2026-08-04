@@ -10,15 +10,18 @@
 
 {% block content %}
     <!-- Search Hero Section -->
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
+    <section class="qw-hero qw-hero-aligned">
+        <div class="qw-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80');"></div>
+        <div class="qw-hero-scrim"></div>
+        <div class="qw-hero-grain"></div>
+        <div class="qw-hero-content">
+            <div class="qw-eyebrow qw-reveal">QuestWay — Smart Search</div>
+            <h1 class="qw-hero-title qw-reveal">Find less noise.<br><em>Discover your place.</em></h1>
+            <p class="qw-hero-sub qw-reveal">Search real traveler reviews and narrow the world down to the destination that feels right for you.</p>
         </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>Find Your Perfect Destination</h1>
-                <p>Search through thousands of reviews and discover amazing places</p>
-            </div>
+        <div class="qw-scroll-cue" onclick="this.closest('.qw-hero')?.nextElementSibling?.scrollIntoView({behavior: 'smooth'})" role="button" tabindex="0" aria-label="Scroll to search">
+            <span class="qw-scroll-text">Scroll</span>
+            <span class="qw-scroll-line"></span>
         </div>
     </section>
 

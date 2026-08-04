@@ -4,19 +4,13 @@
 {% block meta_description %}Let QuestWay's AI build you a personalized day-by-day travel itinerary in seconds.{% endblock %}
 
 {% block content %}
-    <section class="hero-banner">
-        <div class="hero-background" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
-            <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1><i class="fas fa-wand-magic-sparkles"></i> AI Itinerary Planner</h1>
-                <p>Tell us what you're into — we'll build the day-by-day plan</p>
-            </div>
-        </div>
-    </section>
+    {% set hero_eyebrow = "QuestWay — AI Journey Design" %}
+    {% set hero_title = "Tell us what matters." %}
+    {% set hero_emphasis = "Receive a considered plan." %}
+    {% set hero_description = "Share your destination, timing, budget, and interests for a personalized day-by-day starting point." %}
+    {% include "_member_hero.html" %}
 
-    <div class="create-itinerary-container">
+    <div class="create-itinerary-container" id="page-content">
         <div class="create-itinerary-card">
             <form method="POST" action="{{ url_for('itinerary.ai_itinerary_planner') }}" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px;">
                 {{ form.hidden_tag() }}

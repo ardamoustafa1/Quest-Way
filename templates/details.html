@@ -8,12 +8,12 @@
 <meta property="og:site_name" content="QuestWay">
 <meta property="og:title" content="{{ self.title() }}">
 <meta property="og:description" content="{{ self.meta_description() }}">
-<meta property="og:image" content="{{ content[0].image_url if content else url_for('static', filename='questway-logo-compass.svg', _external=True) }}">
+<meta property="og:image" content="{{ content[0].image_url if content else url_for('static', filename='questwaynewlogo.png', _external=True) }}">
 <meta property="og:url" content="{{ request.url }}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ self.title() }}">
 <meta name="twitter:description" content="{{ self.meta_description() }}">
-<meta name="twitter:image" content="{{ content[0].image_url if content else url_for('static', filename='questway-logo-compass.svg', _external=True) }}">
+<meta name="twitter:image" content="{{ content[0].image_url if content else url_for('static', filename='questwaynewlogo.png', _external=True) }}">
 {% endblock %}
 
 {% block extra_head %}
@@ -41,6 +41,13 @@
 <!-- Content Section -->
 <section class="content-section">
     <div class="container">
+        {% if sourced %}
+        <p style="margin:0 0 1.5rem; color:#64748b; font-size:.9rem;">
+            <i class="fas fa-circle-info"></i>
+            These results are retrieved from Wikimedia sources. Open a source to verify current details before booking or traveling.
+        </p>
+        {% endif %}
+        {% if content %}
         <div class="content-grid">
             {% for item in content %}
             <div class="content-card">
@@ -82,10 +89,22 @@
                 <div class="content-details">
                     <h3 class="content-title">{{ item.name }}</h3>
                     <p class="content-description">{{ item.description }}</p>
+                    {% if item.source_url %}
+                    <a href="{{ item.source_url }}" target="_blank" rel="noopener" style="display:inline-flex; margin-top:10px; font-size:.82rem;">
+                        View source <i class="fas fa-arrow-up-right-from-square" style="margin-left:6px;"></i>
+                    </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="empty-itineraries">
+            <i class="fas fa-book-open"></i>
+            <h3>Verified information is temporarily unavailable</h3>
+            <p>We could not reach the source right now. Please try again shortly.</p>
+        </div>
+        {% endif %}
         
         <div class="map-section" style="margin: 2rem 0;">
             <h3 style="margin-bottom: 1rem;"><i class="fas fa-map-marked-alt"></i> Map</h3>
