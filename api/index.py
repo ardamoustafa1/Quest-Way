@@ -80,23 +80,5 @@ except Exception as e:
     
     handler = error_app
 
-class VercelRewriteFix:
-    def __init__(self, app):
-        self.app = app
-    def __call__(self, environ, start_response):
-        import urllib.parse
-        query_string = environ.get('QUERY_STRING', '')
-        params = urllib.parse.parse_qs(query_string, keep_blank_values=True)
-        if '__vercel_path' in params:
-            # Get the path and ensure it starts with /
-            path = '/' + params['__vercel_path'][0]
-            environ['PATH_INFO'] = path
-            
-            # Remove __vercel_path from QUERY_STRING
-            filtered_params = {k: v for k, v in params.items() if k != '__vercel_path'}
-            environ['QUERY_STRING'] = urllib.parse.urlencode(filtered_params, doseq=True)
-            
-        return self.app(environ, start_response)
-
 # Expose 'app' at the top level for Vercel's AST parser
-app = VercelRewriteFix(handler)
+app = handler
