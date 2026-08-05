@@ -86,7 +86,7 @@ class VercelRewriteFix:
     def __call__(self, environ, start_response):
         import urllib.parse
         query_string = environ.get('QUERY_STRING', '')
-        params = urllib.parse.parse_qs(query_string)
+        params = urllib.parse.parse_qs(query_string, keep_blank_values=True)
         if '__vercel_path' in params:
             # Get the path and ensure it starts with /
             path = '/' + params['__vercel_path'][0]
