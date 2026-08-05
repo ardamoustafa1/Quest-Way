@@ -80,3 +80,5 @@ except Exception as e:
     
     handler = error_app
 
+# Expose 'app' at the top level for Vercel's AST parser
+app = handler

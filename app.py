@@ -52,10 +52,11 @@ if SENTRY_DSN:
     )
 
 # For Vercel: disable instance folder (read-only filesystem)
-if os.environ.get('VERCEL'):
-    app = Flask(__name__, instance_path=None, instance_relative_config=False)
-else:
-    app = Flask(__name__)
+_instance_path = None if os.environ.get('VERCEL') else None
+_instance_relative = False if os.environ.get('VERCEL') else False
+
+app = Flask(__name__, instance_path=_instance_path, instance_relative_config=_instance_relative)
+
 
 # Database & secret key configuration
 # DATABASE_URL (Supabase Postgres connection string) is the single source of
