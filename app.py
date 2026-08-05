@@ -152,12 +152,15 @@ Talisman(
     content_security_policy={
         'default-src': "'self'",
         'script-src': ["'self'", 'https://cdnjs.cloudflare.com', 'https://unpkg.com',
-                        'https://pagead2.googlesyndication.com', 'https://www.googletagmanager.com'],
+                        'https://pagead2.googlesyndication.com', 'https://www.googletagmanager.com',
+                        'https://adservice.google.com'],
         'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com',
                        'https://unpkg.com'],
         'font-src': ["'self'", 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com'],
         'img-src': ["'self'", 'data:', 'https:'],
-        'connect-src': ["'self'", 'https:'],
+        'connect-src': ["'self'", 'https:', 'https://pagead2.googlesyndication.com'],
+        'frame-src': ["'self'", 'https://googleads.g.doubleclick.net', 'https://ep2.adtrafficquality.google', 
+                      'https://www.google.com', 'https://adservice.google.com'],
     },
     content_security_policy_nonce_in=['script-src'],
 )
